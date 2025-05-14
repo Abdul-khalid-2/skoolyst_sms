@@ -19,6 +19,8 @@ class DashboardController extends Controller
      */
     public function index(Request $request): View
     {
+
+        
         $numberOfTeachers   = User::role('teacher')->count();
         $numberOfStudent    = User::role('student')->count();
         $section            = Section::sum('capacity');

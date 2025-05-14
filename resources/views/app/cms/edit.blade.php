@@ -113,7 +113,7 @@
                             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                 <ul class="breadcome-menu">
                                     <li>
-                                        <a href="{{ route('schools.cms') }}"
+                                        <a href="{{ route('schools.show') }}"
                                             class="btn btn-primary btn-sm" style="color: white">
                                             <i class="fa fa-arrow-left"></i> Back
                                         </a>
@@ -178,7 +178,7 @@
                                                         <input type="file" name="logo" class="form-control">
                                                         @if($school->logo)
                                                             <div class="mt-2">
-                                                                <img src="{{ asset($school->logo) }}" alt="Current Logo" style="max-height: 100px;">
+                                                                <img src="{{ asset('tenancy/assets/' . $school->logo) }}" alt="Current Logo" style="max-height: 100px;">
                                                                 <label class="mt-2">
                                                                     <input type="checkbox" name="remove_logo"> Remove current logo
                                                                 </label>

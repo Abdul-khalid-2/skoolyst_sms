@@ -12,7 +12,7 @@ class Tenant extends BaseTenant implements TenantWithDatabase
 {
     use HasDatabase, HasDomains;
 
-    protected $flude = [
+    protected $fillable = [
         'id',
         'name',
         'email',

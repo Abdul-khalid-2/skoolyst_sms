@@ -90,16 +90,16 @@ class ParentController extends Controller
 
             // Handle file uploads
             $addressProofPath = $request->file('address_proof')
-                ->store("tenants/" . tenant('id') . "/parents/address_proofs", 'website');
+                ->store("tenants/parents/address_proofs", 'website');
 
             $idProofPath = $request->file('id_proof')
-                ->store("tenants/" . tenant('id') . "/parents/id_proofs", 'website');
+                ->store("tenants/parents/id_proofs", 'website');
 
             $documentPaths = [];
             if ($request->hasFile('documents')) {
                 foreach ($request->file('documents') as $document) {
                     $documentPaths[] = $document
-                        ->store("tenants/" . tenant('id') . "/parents/documents", 'website');
+                        ->store("tenants/parents/documents", 'website');
                 }
             }
 

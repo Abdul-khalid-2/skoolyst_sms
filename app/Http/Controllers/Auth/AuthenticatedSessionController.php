@@ -25,9 +25,20 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
-
+        
         $request->session()->regenerate();
+        // Check if user is active after authentication
+        if (!auth()->user()->status == 'active') {
 
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            
+            return redirect()->route('login')
+                ->with('error', 'Your account is not active. Please contact administrator.');
+        }
+
+        
         return redirect()->intended(route('dashboard', absolute: false));
     }
 

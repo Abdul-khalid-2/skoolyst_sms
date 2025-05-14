@@ -50,7 +50,7 @@ class ProfileController extends Controller
             }
 
             $profilePicPath = $request->file('profile_pic')
-                ->store("tenants/" . tenant('id') . "/admin/profile_pics", 'website');
+                ->store("tenants/admin/profile_pics", 'website');
         }
 
         // Prepare update data
@@ -112,7 +112,7 @@ class ProfileController extends Controller
         //     }
 
         //     $profilePicPath = $request->file('profile_pic')
-        //         ->store("tenants/" . tenant('id') . "/admin/profile_pics", 'website');
+        //         ->store("tenants/admin/profile_pics", 'website');
         // }
 
         // // Prepare update data

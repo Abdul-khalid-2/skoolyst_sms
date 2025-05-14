@@ -83,7 +83,7 @@ class StudentController extends Controller
             $studentPhotoPath = null;
             if ($request->hasFile('student_photo')) {
                 $studentPhotoPath = $request->file('student_photo')
-                    ->store("tenants/" . tenant('id') . "/students/profile", 'website');
+                    ->store("tenants/students/profile", 'website');
             }
 
             // Create user account
@@ -106,14 +106,14 @@ class StudentController extends Controller
             $signaturePath = null;
             if ($request->hasFile('signature')) {
                 $signaturePath = $request->file('signature')
-                    ->store("tenants/" . tenant('id') . "/students/profile", 'website');
+                    ->store("tenants/students/profile", 'website');
             }
 
             $documentPaths = [];
             if ($request->hasFile('documents')) {
                 foreach ($request->file('documents') as $document) {
                     $documentPaths[] = $document
-                        ->store("tenants/" . tenant('id') . "/students/documents", 'website');
+                        ->store("tenants/students/documents", 'website');
                 }
             }
 

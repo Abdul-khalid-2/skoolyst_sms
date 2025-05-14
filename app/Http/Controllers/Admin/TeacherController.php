@@ -74,7 +74,7 @@ class TeacherController extends Controller
             $profilePicPath = null;
             if ($request->hasFile('profile_pic')) {
                 $profilePicPath = $request->file('profile_pic')
-                    ->store("tenants/" . tenant('id') . "/teachers/profile_pics", 'website');
+                    ->store("tenants/teachers/profile_pics", 'website');
             }
 
 
@@ -102,20 +102,20 @@ class TeacherController extends Controller
             $qualificationDocPath = null;
             if ($request->hasFile('qualification_documents')) {
                 $qualificationDocPath = $request->file('qualification_documents')
-                    ->store("tenants/" . tenant('id') . "/teachers/qualifications", 'website');
+                    ->store("tenants/teachers/qualifications", 'website');
             }
 
             $signaturePath = null;
             if ($request->hasFile('signature')) {
                 $signaturePath = $request->file('signature')
-                    ->store("tenants/" . tenant('id') . "/teachers/signatures", 'website');
+                    ->store("tenants/teachers/signatures", 'website');
             }
 
             $documentPaths = [];
             if ($request->hasFile('documents')) {
                 foreach ($request->file('documents') as $document) {
                     $documentPaths[] = $document
-                        ->store("tenants/" . tenant('id') . "/teachers/documents", 'website');
+                        ->store("tenants/teachers/documents", 'website');
                 }
             }
 
@@ -227,7 +227,7 @@ class TeacherController extends Controller
                 }
 
                 $profilePicPath = $request->file('profile_pic')
-                    ->store("tenants/" . tenant('id') . "/teachers/profile_pics", 'website');
+                    ->store("tenants/teachers/profile_pics", 'website');
                 $user->profile_pic = $profilePicPath;
             }
 
@@ -254,7 +254,7 @@ class TeacherController extends Controller
                 }
 
                 $signaturePath = $request->file('signature')
-                    ->store("tenants/" . tenant('id') . "/teachers/signatures", 'website');
+                    ->store("tenants/teachers/signatures", 'website');
             }
 
             // Handle documents update
@@ -262,7 +262,7 @@ class TeacherController extends Controller
             if ($request->hasFile('documents')) {
                 foreach ($request->file('documents') as $document) {
                     $documentPaths[] = $document
-                        ->store("tenants/" . tenant('id') . "/teachers/documents", 'website');
+                        ->store("tenants/teachers/documents", 'website');
                 }
             }
 

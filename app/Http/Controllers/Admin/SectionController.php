@@ -34,9 +34,9 @@ class SectionController extends Controller
      */
     public function create()
     {
-        $classes = Classes::where('school_id', auth()->user()->school_id)
-            ->orderBy('numeric_value')
+        $classes = Classes::orderBy('numeric_value')
             ->get();
+            
 
         return view('app.admin.sections.create', compact('classes'));
     }

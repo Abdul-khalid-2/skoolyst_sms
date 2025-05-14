@@ -148,7 +148,7 @@
                                     <label class="settings-label">School Logo</label>
                                     @if($school->logo)
                                     <div class="mb-2">
-                                        <img src="{{ asset($school->logo) }}" alt="School Logo" style="max-height: 100px;">
+                                        <img src="{{ asset('tenancy/assets/' .$school->logo)  }}" alt="School Logo" style="max-height: 100px;">
                                     </div>
                                     @endif
                                     <input type="file" name="logo" class="form-control">

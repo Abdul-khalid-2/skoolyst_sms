@@ -2,11 +2,11 @@
     <nav id="sidebar" class="">
         <div class="sidebar-header">
             <a href="{{ route('dashboard') }}">
-                <img class="main-logo" src="{{ isset($invormentdata->logo) ? asset($invormentdata->logo) : asset('backend/img/logo/logo.png') }}" alt="" style="width: 180px; height:50px; margin-top:10px;margin-bottom:20px;"/>
+                <img class="main-logo" src="{{ isset($invormentdata->logo) ? asset('tenancy/assets/' . $invormentdata->logo) : asset('backend/img/logo/logo.png') }}" alt="" style="width: 180px; height:50px; margin-top:10px;margin-bottom:20px;"/>
             </a>
             <strong>
                 <a href="{{ route('dashboard') }}">
-                    <img src="{{ isset($invormentdata->logo) ? asset($invormentdata->logo) : asset('backend/img/logo/logo.png') }}" alt="" style="width: 60px; height:50px; margin-left:5px;margin-right:5px;"/>
+                    <img src="{{ isset($invormentdata->logo) ? asset('tenancy/assets/' . $invormentdata->logo) : asset('backend/img/logo/logo.png') }}" alt="" style="width: 60px; height:50px; margin-left:5px;margin-right:5px;"/>
                 </a>
             </strong>
         </div>

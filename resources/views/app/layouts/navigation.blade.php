@@ -302,7 +302,16 @@
                                                     <a href="{{ route('profile.edit') }}"><span class="edu-icon edu-user-rounded author-log-ic"></span>My Profile</a>
                                                 </li>
                                                 <li>
-                                                    <a href="#"><span class="edu-icon edu-locked author-log-ic"></span>Log Out</a>
+                                                    {{-- <a href="#">Log Out</a> --}}
+                                                    <form method="POST" action="{{ route('logout') }}">
+                                                        @csrf
+<span class="edu-icon edu-locked author-log-ic"></span>
+                                                        <x-responsive-nav-link :href="route('logout')"
+                                                                onclick="event.preventDefault();
+                                                                            this.closest('form').submit();">
+                                                            {{ __('Log Out') }}
+                                                        </x-responsive-nav-link>
+                                                    </form>
                                                 </li>
                                             </ul>
                                         </li>

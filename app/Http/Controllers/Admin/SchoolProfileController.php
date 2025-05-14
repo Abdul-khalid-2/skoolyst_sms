@@ -82,7 +82,7 @@ class SchoolProfileController extends Controller
 
             // Store new logo
             $logoPath = $request->file('logo')
-                ->store("tenants/" . tenant('id') . "/school/profile", 'website');
+                ->store("tenants/school/profile", 'website');
 
             $validated['logo'] = $logoPath;
         }
@@ -187,10 +187,10 @@ class SchoolProfileController extends Controller
             $school = School::create([
                 'name' => 'Your School Name',
                 'primary_color' => '#2563eb',
-                'secondary_color' => '#1e40af'
+                'secondary_color' => '#1e40af',
+                'email' => 'example@email.com'
             ]);
         }
-
         return view('app.cms.edit', compact('school'));
     }
 
@@ -225,20 +225,30 @@ class SchoolProfileController extends Controller
             'testimonials.*.avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
+
         // Handle logo upload
+        $schoolProfile = $school->logo; // Keep existing if no changes
+
         if ($request->hasFile('logo')) {
             // Delete old logo if exists
             if ($school->logo) {
-                Storage::delete($school->logo);
+                Storage::disk('website')->delete($school->logo);
             }
-            $path = $request->file('logo')->store('public/school');
-            $school->logo = str_replace('public/', '', $path);
-        } elseif ($request->has('remove_logo')) {
+            
+            // Store new logo
+            $schoolProfile = $request->file('logo')
+                ->store("tenants/school/logo", 'website');
+        } elseif ($request->boolean('remove_logo')) {
+            // Remove existing logo
             if ($school->logo) {
-                Storage::delete($school->logo);
-                $school->logo = null;
+                Storage::disk('website')->delete($school->logo);
+                $schoolProfile = null;
             }
         }
+
+        // Update the school model
+        $school->logo = $schoolProfile;
+
 
         // Handle hero image upload
         if ($request->hasFile('hero_image')) {
