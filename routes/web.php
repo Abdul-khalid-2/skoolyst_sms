@@ -45,7 +45,31 @@ use Illuminate\Support\Facades\Route;
 // });
 
 
+use Illuminate\Support\Facades\Artisan;
+use Symfony\Component\Process\Process;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 
+Route::get('/install-composer-dependencies', function () {
+    // SECURITY WARNING: This should be protected in production!
+    
+    $process = new Process(['composer', 'install']);
+    $process->setWorkingDirectory(base_path());
+    $process->setTimeout(300); // 5 minutes
+    
+    try {
+        $process->mustRun();
+        return response()->json([
+            'success' => true,
+            'output' => $process->getOutput()
+        ]);
+    } catch (ProcessFailedException $exception) {
+        return response()->json([
+            'success' => false,
+            'error' => $exception->getMessage(),
+            'output' => $process->getErrorOutput()
+        ], 500);
+    }
+})->middleware('auth'); // At minimum, add authentication
 
 Route::get('/', function () {
         $school = School::with(['programs', 'testimonials'])->first();
