@@ -126,23 +126,33 @@
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                            <ul class="breadcome-menu">
-                                <li>
-                                    <a href="{{ route('schools.cms') }}" class="btn btn-primary btn-sm" style="color: white">
-                                        <i class="fa fa-graduation-cap"></i> CMS
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('schools.edit') }}" class="btn btn-primary btn-sm" style="color: white">
-                                        <i class="fa fa-graduation-cap"></i> Profile Edit
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('schools.settings') }}" class="btn btn-primary btn-sm" style="color: white">
-                                        <i class="fa fa-cog"></i> Setting
-                                    </a>
-                                </li>
-                            </ul>
+                            <div class="action-buttons">
+                                <a href="{{ route('schools.cms') }}" class="btn btn-primary btn-sm" style="color: white">
+                                    <i class="fa fa-graduation-cap"></i> CMS
+                                </a>
+                                <a href="{{ route('schools.edit') }}" class="btn btn-primary btn-sm" style="color: white">
+                                    <i class="fa fa-graduation-cap"></i> Profile Edit
+                                </a>
+                                <a href="{{ route('schools.settings') }}" class="btn btn-primary btn-sm" style="color: white">
+                                    <i class="fa fa-cog"></i> Setting
+                                </a>
+                            </div>
+                        </div>
+                        <div class="dropdown-container">
+                            <button class="dropdown-toggle-custom">
+                                <i class="fa fa-ellipsis-v"></i>
+                            </button>
+                            <div class="dropdown-menu-custom">
+                                <a href="{{ route('schools.cms') }}">
+                                    <i class="fa fa-graduation-cap"></i> CMS
+                                </a>
+                                <a href="{{ route('schools.edit') }}">
+                                    <i class="fa fa-graduation-cap"></i> Profile Edit
+                                </a>
+                                <a href="{{ route('schools.settings') }}">
+                                    <i class="fa fa-cog"></i> Setting
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -156,7 +166,7 @@
                             <div class="text-center">
                                 <div class="logo-container mx-auto">
                                     @if(isset($school->logo))
-                                        <img src="{{ asset($school->logo) }}" alt="School Logo" class="img-fluid">
+                                        <img src="{{ asset('tenancy/assets/'.$school->logo) }}" alt="School Logo" class="img-fluid">
                                     @else
                                         <img src="{{ asset('backend/img/school-default.png') }}" alt="School Logo" class="img-fluid">
                                     @endif

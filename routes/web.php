@@ -114,7 +114,12 @@ Route::get('/', function () {
 
         return view('App.welcome', compact('school'));
     });
+    
+    use Illuminate\Support\Facades\Auth;
+    Route::get('/custom_logout', function () {
 
+        Auth::logout();
+    });
 
     Route::group(['middleware' => ['role:admin|super-admin']], function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');

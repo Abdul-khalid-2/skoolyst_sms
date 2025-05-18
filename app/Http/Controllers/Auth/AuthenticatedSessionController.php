@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\School;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,7 +17,8 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(): View
     {
-        return view('auth.login');
+        $school = School::first();
+        return view('auth.login', compact('school'));
     }
 
     /**
@@ -28,7 +30,7 @@ class AuthenticatedSessionController extends Controller
         
         $request->session()->regenerate();
         // Check if user is active after authentication
-        if (!auth()->user()->status == 'active') {
+        if (auth()->user()->status != 'active') {
 
             Auth::logout();
             $request->session()->invalidate();
