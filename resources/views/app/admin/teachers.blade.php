@@ -130,7 +130,7 @@
                                         <td>{{ $key+1 }}</td>
                                         <td>
                                             @if(isset($teacher->profile_pic))
-                                                <img src="{{ asset($teacher->profile_pic) }}" 
+                                                <img src="{{ asset('tenancy/assets/'. $teacher->profile_pic) }}" 
                                                     alt="{{ $teacher->name }}" 
                                                     class="rounded-circle" 
                                                     width="30" 

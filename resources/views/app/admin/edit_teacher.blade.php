@@ -46,13 +46,21 @@
                                 </div>
                             </div>
                             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                <ul class="breadcome-menu">
-                                    <li>
+                                <div class="action-buttons">
+                                    <a href="{{ route('dashboard.teachers') }}" class="btn btn-primary btn-sm" style="color: white">
+                                            <i class="fa fa-arrow-left"></i> Back
+                                        </a>
+                                </div>
+                                <div class="dropdown-container">
+                                    <button class="dropdown-toggle-custom">
+                                        <i class="fa fa-ellipsis-v"></i>
+                                    </button>
+                                    <div class="dropdown-menu-custom">
                                         <a href="{{ route('dashboard.teachers') }}" class="btn btn-primary btn-sm" style="color: white">
                                             <i class="fa fa-arrow-left"></i> Back
                                         </a>
-                                    </li>
-                                </ul>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -91,7 +99,7 @@
                                                         </div>
                                                         <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
                                                             @if($teacher->profile_pic)
-                                                                <img src="{{ asset($teacher->profile_pic) }}" style="max-height: 100px; margin-bottom: 10px;">
+                                                                <img src="{{ asset('tenancy/assets/'. $teacher->profile_pic) }}" style="max-height: 100px; margin-bottom: 10px;">
                                                             @endif
                                                         </div>
                                                     </div>
@@ -501,7 +509,7 @@
                                                         </div>
                                                         <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
                                                             @if($teacher->teacherProfile->signature)
-                                                                <img src="{{ asset($teacher->teacherProfile->signature) }}" style="max-height: 100px; margin-bottom: 10px;">
+                                                                <img src="{{ asset('tenancy/assets/'. $teacher->teacherProfile->signature) }}" style="max-height: 100px; margin-bottom: 10px;">
                                                             @endif
                                                         </div>
                                                     </div>
