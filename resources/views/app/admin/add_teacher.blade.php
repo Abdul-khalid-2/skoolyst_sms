@@ -80,7 +80,7 @@
                                                                 <label class="login2">Profile Image</label>
                                                             </div>
                                                             <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-                                                                <input type="file" class="form-control" name="profile_pic" />
+                                                                <input type="file" class="form-control" name="profile_pic" required/>
                                                                 @if($errors->has('profile_pic'))
                                                                     <span class="help-block text-danger">{{ $errors->first('profile_pic') }}</span>
                                                                 @endif
@@ -365,13 +365,15 @@
                                                             <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
                                                                 <select class="form-control select2_demo_3" name="class_teacher_of">
                                                                     <option value="">Select Class</option>
-                                                                    <option value="1" {{ old('class_teacher_of') == '1' ? 'selected' : '' }}>Class 1</option>
-                                                                    <option value="2" {{ old('class_teacher_of') == '2' ? 'selected' : '' }}>Class 2</option>
-                                                                    <option value="3" {{ old('class_teacher_of') == '3' ? 'selected' : '' }}>Class 3</option>
+                                                                    @foreach($classes as $class)
+                                                                        <option value="{{ $class->id }}" {{ old('class_teacher_of') == $class->id ? 'selected' : '' }} >
+                                                                            {{ $class->name }}
+                                                                        </option>
+                                                                    @endforeach
                                                                 </select>
-                                                                @if($errors->has('class_teacher_of'))
-                                                                    <span class="help-block text-danger">{{ $errors->first('class_teacher_of') }}</span>
-                                                                @endif
+                                                                @error('class_teacher_of')
+                                                                    <span class="help-block text-danger">{{ $message }}</span>
+                                                                @enderror
                                                             </div>
                                                         </div>
                                                     </div>
@@ -511,13 +513,12 @@
             <!-- main JS============================================ -->
             <script src="{{ asset('backend/js/main.js') }}"></script>
 
-            {{-- <script>
+            <script>
                 // Show/hide class teacher field based on checkbox
                 document.getElementById('isClassTeacher').addEventListener('change', function() {
                     const container = document.getElementById('classTeacherOfContainer');
                     container.style.display = this.checked ? 'block' : 'none';
                 });
-            </script> --}}
-        
+            </script>
         @endpush
 </x-tenant-app-layout>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Classes;
+use App\Models\School;
 use App\Models\TeacherProfile;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -16,13 +17,20 @@ use Illuminate\Support\Facades\Storage;
 
 class TeacherController extends Controller
 {
+
+    protected $schoolId;
+
+    public function __construct()
+    {
+        $this->schoolId = auth()->user()->school_id ?? School::first()->id ?? null;
+    }
     /**
      * Display the user's profile form.
      */
     public function index(Request $request): View
     {
         $teachers = User::role('teacher')->with('teacherProfile')
-            // ->where('school_id', auth()->user()->school_id)
+            ->where('school_id', $this->schoolId)
             ->orderBy('name')
             ->get();
 
@@ -31,7 +39,9 @@ class TeacherController extends Controller
 
     public function create()
     {
-        return view('app.admin.add_teacher');
+        $classes = Classes::where('school_id', $this->schoolId)
+            ->get();
+        return view('app.admin.add_teacher', compact('classes'));
     }
 
     public function store(Request $request)
@@ -63,7 +73,7 @@ class TeacherController extends Controller
             // File uploads
             'qualification_documents' => 'nullable|file|max:5120',
             'signature'     => 'nullable|image|max:2048',
-            'profile_pic'   => 'nullable|image|max:2048',
+            'profile_pic'   => 'required|image|max:2048',
             'documents'     => 'nullable|array',
             'documents.*'   => 'file|max:5120',
         ]);
@@ -80,7 +90,7 @@ class TeacherController extends Controller
 
             // Create user account
             $user = User::create([
-                'school_id'   => auth()->user()->school_id,
+                'school_id'   => $this->schoolId,
                 'name'        => $validated['name'],
                 'email'       => $validated['email'],
                 'profile_pic' => $profilePicPath,
@@ -159,19 +169,19 @@ class TeacherController extends Controller
     public function edit($encodedId = null)
     {
         $id = Crypt::decrypt($encodedId);
-        $teacher = User::role('teacher')->with('teacherProfile')
+        $teacher = User::role('teacher')->where('school_id', $this->schoolId)->with('teacherProfile')
             ->orderBy('name')
-            ->find($id);
-        $classes = Classes::get();
+            ->findorfail($id);
+        $classes = Classes::where('school_id', $this->schoolId)->get();
         return view('app.admin.edit_teacher', compact('teacher', 'classes'));
     }
 
     public function show($encodedId = null)
     {
         $id = Crypt::decrypt($encodedId);
-        $teacher = User::role('teacher')->with(['teacherProfile', 'teacherSubjects', 'teacherClasses'])
+        $teacher = User::role('teacher')->where('school_id', $this->schoolId)->with(['teacherProfile', 'teacherSubjects', 'teacherClasses'])
             ->orderBy('name')
-            ->find($id);
+            ->findorfail($id);
 
         return view('app.admin.teacher', compact('teacher'));
     }
@@ -216,7 +226,7 @@ class TeacherController extends Controller
         try {
             DB::beginTransaction();
 
-            $user = User::findOrFail($id);
+            $user = User::where('school_id', $this->schoolId)->findorfail($id);
             $teacherProfile = TeacherProfile::where('teacher_id', $id)->firstOrFail();
 
             // Handle profile picture update
@@ -301,7 +311,7 @@ class TeacherController extends Controller
     public function updateStatus(Request $request)
     {
         // dd($request->all());
-        $teacher = User::findOrFail($request->id); // Assuming User is teacher
+        $teacher = User::where('school_id', $this->schoolId)->findOrFail($request->id); // Assuming User is teacher
         $teacher->status = $request->status;
         $teacher->save();
 

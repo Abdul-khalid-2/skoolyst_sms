@@ -181,7 +181,7 @@
                                             <!-- Form 2: Assign Class Teachers -->
                                             <div class="card">
                                                 <div class="card-header">
-                                                    <h5>Assign Class Teachers</h5>
+                                                    <h5>Assign Teachers to class</h5>
                                                 </div>
                                                 <div class="card-body">
                                                     <form id="assignClassTeacherForm" method="POST" action="{{ route('admin.academic.subjects.assign_class_teacher') }}">

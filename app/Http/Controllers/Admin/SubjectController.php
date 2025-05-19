@@ -12,6 +12,13 @@ use Illuminate\Support\Facades\DB;
 
 class SubjectController extends Controller
 {
+
+    protected $schoolId;
+
+    public function __construct()
+    {
+        $this->schoolId = auth()->user()->school_id ?? School::first()->id ?? null;
+    }
     /**
      * Display a listing of the subjects.
      *
@@ -19,13 +26,12 @@ class SubjectController extends Controller
      */
     public function index()
     {
-        $schoolId = auth()->user()->school_id ?? School::first()->id;
 
         $subjects = Subject::with([
             'subjectTeacherClass.teacher',
             'subjectTeacherClass.class',
         ])
-            ->where('school_id', $schoolId)
+            ->where('school_id', $this->schoolId)
             ->orderBy('name')
             ->get();
 
@@ -39,9 +45,8 @@ class SubjectController extends Controller
      */
     public function create()
     {
-        $schoolId = auth()->user()->school_id ?? School::first()->id;
 
-        $classes = Classes::where('school_id', $schoolId)
+        $classes = Classes::where('school_id', $this->schoolId)
             ->orderBy('numeric_value')
             ->get();
 
@@ -85,12 +90,11 @@ class SubjectController extends Controller
      */
     public function edit($id)
     {
-        $schoolId = auth()->user()->school_id ?? School::first()->id;
 
-        $subject = Subject::where('school_id', $schoolId)
+        $subject = Subject::where('school_id', $this->schoolId)
             ->findOrFail($id);
 
-        $classes = Classes::where('school_id', $schoolId)
+        $classes = Classes::where('school_id', $this->schoolId)
             ->orderBy('numeric_value')
             ->get();
 
@@ -106,9 +110,8 @@ class SubjectController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $schoolId = auth()->user()->school_id ?? School::first()->id;
 
-        $subject = Subject::where('school_id', $schoolId)
+        $subject = Subject::where('school_id', $this->schoolId)
             ->findOrFail($id);
 
         $validated = $request->validate([
@@ -131,9 +134,8 @@ class SubjectController extends Controller
      */
     public function destroy($id)
     {
-        $schoolId = auth()->user()->school_id ?? School::first()->id;
 
-        $subject = Subject::where('school_id', $schoolId)
+        $subject = Subject::where('school_id', $this->schoolId)
             ->findOrFail($id);
 
         if ($subject->teachers()->count() > 0) {
@@ -153,18 +155,17 @@ class SubjectController extends Controller
      */
     public function assign()
     {
-        $schoolId = auth()->user()->school_id ?? School::first()->id;
 
-        $subjects = Subject::where('school_id', $schoolId)
+        $subjects = Subject::where('school_id', $this->schoolId)
             ->orderBy('name')
             ->get();
 
         $teachers = User::role('teacher')
-            ->where('school_id', $schoolId)
+            ->where('school_id', $this->schoolId)
             ->orderBy('name')
             ->get();
 
-        $classes = Classes::where('school_id', $schoolId)
+        $classes = Classes::where('school_id', $this->schoolId)
             ->orderBy('numeric_value')
             ->get();
 
@@ -199,10 +200,8 @@ class SubjectController extends Controller
         try {
             DB::beginTransaction();
 
-            $schoolId = auth()->user()->school_id ?? School::first()->id;
-
             foreach ($request->subject_assignments as $subjectId => $teacherIds) {
-                $subject = Subject::where('school_id', $schoolId)
+                $subject = Subject::where('school_id', $this->schoolId)
                     ->findOrFail($subjectId);
                 $subject->teachers()->sync($teacherIds ?? []);
             }
@@ -228,10 +227,8 @@ class SubjectController extends Controller
         try {
             DB::beginTransaction();
 
-            $schoolId = auth()->user()->school_id ?? School::first()->id;
-
             foreach ($request->class_teachers as $classId => $teacherId) {
-                $class = Classes::where('school_id', $schoolId)
+                $class = Classes::where('school_id', $this->schoolId)
                     ->findOrFail($classId);
                 $class->update(['teacher_id' => $teacherId]);
             }
