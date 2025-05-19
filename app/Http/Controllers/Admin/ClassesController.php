@@ -65,7 +65,7 @@ class ClassesController extends Controller
         $capacity       = $systemSetting->setting_value ?? 20;
 
         Section::create([
-            'schoo_id' => $school->id,
+            'schoo_id' => auth()->user()->school_id ?? $school->id,
             'class_id' => $class->id,
             'name'     => 'A',
             'capacity' => $capacity,

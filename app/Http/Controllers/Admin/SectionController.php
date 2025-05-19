@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Classes;
+use App\Models\School;
 use App\Models\Section;
 use Illuminate\Http\Request;
+use Illuminate\Database\QueryException;
 
 class SectionController extends Controller
 {
@@ -16,9 +18,10 @@ class SectionController extends Controller
      */
     public function index()
     {
+        $school = School::first();
         // Get sections with their class and students count
         $sections = Section::with(['class', 'students'])
-            ->where('school_id', auth()->user()->school_id)
+            ->where('school_id', auth()->user()->school_id ?? $school->id)
             ->orderBy('class_id')
             ->orderBy('name')
             ->get();
@@ -36,7 +39,6 @@ class SectionController extends Controller
     {
         $classes = Classes::orderBy('numeric_value')
             ->get();
-            
 
         return view('app.admin.sections.create', compact('classes'));
     }
@@ -49,19 +51,36 @@ class SectionController extends Controller
      */
     public function store(Request $request)
     {
+        $school = School::first();
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'class_id' => 'required|exists:classes,id',
             'capacity' => 'required|integer|min:1'
         ]);
 
-        $validated['school_id'] = auth()->user()->school_id;
+        $validated['school_id'] = auth()->user()->school_id ?? $school->id;
 
-        Section::create($validated);
+        try {
+            Section::create($validated);
 
-        return redirect()->route('admin.academic.sections.index')
-            ->with('success', 'Section created successfully');
+            return redirect()->route('admin.academic.sections.index')
+                ->with('success', 'Section created successfully');
+        } catch (QueryException $e) {
+            if ($e->errorInfo[1] == 1062) {
+                // 1062 is MySQL error code for duplicate entry
+                return redirect()->back()
+                    ->withInput()
+                    ->withErrors(['duplicate' => 'A section with this name already exists for the class.']);
+            }
+
+            // rethrow or handle other DB errors
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['db' => 'An unexpected database error occurred.']);
+        }
     }
+
 
     /**
      * Show the form for editing the specified section.
@@ -71,10 +90,11 @@ class SectionController extends Controller
      */
     public function edit($id)
     {
-        $section = Section::where('school_id', auth()->user()->school_id)
+        $school = School::first();
+        $section = Section::where('school_id', auth()->user()->school_id ?? $school->id)
             ->findOrFail($id);
 
-        $classes = Classes::where('school_id', auth()->user()->school_id)
+        $classes = Classes::where('school_id', auth()->user()->school_id ?? $school->id)
             ->orderBy('numeric_value')
             ->get();
 
@@ -90,7 +110,8 @@ class SectionController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $section = Section::where('school_id', auth()->user()->school_id)
+        $school = School::first();
+        $section = Section::where('school_id', auth()->user()->school_id ?? $school->id)
             ->findOrFail($id);
 
         $validated = $request->validate([
@@ -113,7 +134,8 @@ class SectionController extends Controller
      */
     public function destroy($id)
     {
-        $section = Section::where('school_id', auth()->user()->school_id)
+        $school = School::first();
+        $section = Section::where('school_id', auth()->user()->school_id ?? $school->id)
             ->findOrFail($id);
 
         // Check if section has students before deleting

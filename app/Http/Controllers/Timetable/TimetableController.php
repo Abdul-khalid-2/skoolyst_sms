@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Timetable;
 
 use App\Http\Controllers\Controller;
 use App\Models\Classes;
+use App\Models\School;
 use App\Models\Section;
 use App\Models\Subject;
 use App\Models\TeacherSubject;
@@ -17,6 +18,8 @@ class TimetableController extends Controller
 
     public function index()
     {
+
+        $school = School::first();
         $timetables = [];
 
         // Get all classes with their sections for the current school
@@ -29,7 +32,7 @@ class TimetableController extends Controller
                 $timetableEntries = TimeTable::with(['subject', 'teacher'])
                     ->where('class_id', $class->id)
                     ->where('section_id', $section->id)
-                    ->where('school_id', auth()->user()->school_id ?? 1)
+                    ->where('school_id', auth()->user()->school_id ?? $school->id)
                     ->orderBy('day_of_week')
                     ->orderBy('start_time')
                     ->get();
@@ -83,9 +86,10 @@ class TimetableController extends Controller
 
     public function create()
     {
-        $classes = Classes::get();
-        $sections = Section::where('school_id', auth()->user()->school_id)->get();
-        $subjects = Subject::where('school_id', auth()->user()->school_id)->get();
+        $school   = School::first();
+        $classes  = Classes::where('school_id', auth()->user()->school_id ?? $school->id)->get();
+        $sections = Section::where('school_id', auth()->user()->school_id ?? $school->id)->get();
+        $subjects = Subject::where('school_id', auth()->user()->school_id ?? $school->id)->get();
         $teachers = User::role('teacher')->get();
 
         return view('app.timetable.create', compact('classes', 'sections', 'subjects', 'teachers'));
@@ -152,8 +156,9 @@ class TimetableController extends Controller
 
                 // Prepare data
                 $isBreak = isset($period['is_break']) ? 1 : 0;
+                $school = School::first();
                 $timeTableData = [
-                    'school_id' => auth()->user()->school_id ?? 1,
+                    'school_id' => auth()->user()->school_id ?? $school->id,
                     'class_id' => $validated['class_id'],
                     'section_id' => $validated['section_id'],
                     'day_of_week' => $period['day'],
@@ -202,7 +207,6 @@ class TimetableController extends Controller
             return redirect()->route('admin.timetable.index')->with('success', 'Timetable created successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Timetable creation failed: ' . $e->getMessage());
             return back()->withInput()
                 ->with('error', 'Error creating timetable: ' . $e->getMessage());
         }
@@ -229,9 +233,9 @@ class TimetableController extends Controller
     public function store_schedule(Request $request)
     {
         $isBreak = isset($request->is_break) ? 1 : 0;
-
+        $school = School::first();
         $timetable = [
-            'school_id'     =>    "1",
+            'school_id'     =>    auth()->user()->school_id ?? $school->id,
             'class_id'      =>    $request->class_id ?? "",
             'section_id'    =>    $request->section_id ?? "",
             'subject_id'    =>    $request->subject ?? "",
