@@ -230,7 +230,7 @@ class TimetableController extends Controller
             'subjects' => $subjects,
         ]);
     }
-    
+
     public function store_schedule(Request $request)
     {
         $isBreak = isset($request->is_break) ? 1 : 0;
