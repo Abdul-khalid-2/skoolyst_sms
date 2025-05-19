@@ -123,7 +123,7 @@ Route::get('/custom_logout', function () {
 });
 
 Route::group(['middleware' => ['role:admin|super-admin']], function () {
-    // Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
     // Parent
     Route::get('/parents', [ParentController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard.parents');
