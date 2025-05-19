@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ParentProfile;
+use App\Models\School;
 use App\Models\StudentParent;
 use App\Models\User;
 
@@ -15,6 +16,13 @@ use Illuminate\View\View;
 
 class ParentController extends Controller
 {
+
+    protected $schoolId;
+
+    public function __construct()
+    {
+        $this->schoolId = auth()->user()->school_id ?? School::first()->id ?? null;
+    }
     /**
      * Display the user's profile form.
      */
@@ -24,13 +32,13 @@ class ParentController extends Controller
             ->whereHas('roles', function ($q) {
                 $q->where('name', 'parent');
             })
-            ->where('school_id', auth()->user()->school_id)
+            ->where('school_id', $this->schoolId)
             ->get();
 
         $students = User::whereHas('roles', function ($q) {
             $q->where('name', 'student');
         })
-            ->where('school_id', auth()->user()->school_id)
+            ->where('school_id', $this->schoolId)
             ->get();
 
         return view('app.admin.parents', compact('parents', 'students'));
@@ -39,7 +47,7 @@ class ParentController extends Controller
     {
         $students = User::whereHas('roles', function ($q) {
             $q->where('name', 'student');
-        })->where('school_id', auth()->user()->school_id)
+        })->where('school_id', $this->schoolId)
             ->get();
         return view('app.admin.add_parent', compact('students'));
     }
@@ -76,7 +84,7 @@ class ParentController extends Controller
 
             // Create user account
             $user = User::create([
-                'school_id' => auth()->user()->school_id,
+                'school_id' => $this->schoolId,
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'phone' => $validated['phone'],

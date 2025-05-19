@@ -23,7 +23,7 @@ return new class extends Migration
             $table->boolean('is_primary')->default(false);
             $table->string('address_proof')->nullable();
             $table->string('id_proof')->nullable();
-            $table->boolean('emergency_contact')->default(false);
+            $table->string('emergency_contact')->nullable();
             $table->timestamp('deleted_at')->nullable();
             $table->timestamps();
         });
