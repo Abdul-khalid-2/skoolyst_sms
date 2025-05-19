@@ -63,9 +63,9 @@
                             <span class="mini-click-non">Fees Management</span>
                         </a>
                         <ul class="submenu-angle" aria-expanded="false">
-                            <li><a href="#">Categories</a></li>
-                            <li><a href="#">Structures</a></li>
-                            <li><a href="#">Payments</a></li>
+                            <li><a  href="javascript:void(0)">Categories</a></li>
+                            <li><a  href="javascript:void(0)">Structures</a></li>
+                            <li><a  href="javascript:void(0)">Payments</a></li>
                         </ul>
                     </li>
                     <li>
@@ -74,8 +74,8 @@
                             <span class="mini-click-non">Exams</span>
                         </a>
                         <ul class="submenu-angle" aria-expanded="false">
-                            <li><a href="#">Schedule</a></li>
-                            <li><a href="#">Results</a></li>
+                            <li><a  href="javascript:void(0)">Schedule</a></li>
+                            <li><a  href="javascript:void(0)">Results</a></li>
                         </ul>
                     </li>
                     <li>
@@ -84,36 +84,36 @@
                             <span class="mini-click-non">Library</span>
                         </a>
                         <ul class="submenu-angle" aria-expanded="false">
-                            <li><a href="#">Books</a></li>
-                            <li><a href="#">Issues</a></li>
+                            <li><a  href="javascript:void(0)">Books</a></li>
+                            <li><a  href="javascript:void(0)">Issues</a></li>
                         </ul>
                     </li>
                     <li>
-                        <a title="Inventory" href="#" aria-expanded="false">
+                        <a title="Inventory"  href="javascript:void(0)" aria-expanded="false">
                             <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
                             <span class="mini-click-non">Inventory</span>
                         </a>
                     </li>
                     <li>
-                        <a title="Notices" href="#" aria-expanded="false">
+                        <a title="Notices"  href="javascript:void(0)" aria-expanded="false">
                             <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
                             <span class="mini-click-non">Notices</span>
                         </a>
                     </li>
                     <li>
-                        <a title="Holidays" href="#" aria-expanded="false">
+                        <a title="Holidays"  href="javascript:void(0)" aria-expanded="false">
                             <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
                             <span class="mini-click-non">Holidays</span>
                         </a>
                     </li>
                     <li>
-                        <a title="Reports" href="#" aria-expanded="false">
+                        <a title="Reports"  href="javascript:void(0)" aria-expanded="false">
                             <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
                             <span class="mini-click-non">Reports</span>
                         </a>
                     </li>
                     <li>
-                        <a title="Settings" href="#" aria-expanded="false">
+                        <a title="Settings"  href="javascript:void(0)" aria-expanded="false">
                             <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
                             <span class="mini-click-non">Settings</span>
                         </a>
@@ -122,19 +122,19 @@
                     <!-- Common Features -->
                     <span>Common Features</span>
                     <li>
-                        <a title="Notifications" href="#" aria-expanded="false">
+                        <a title="Notifications"  href="javascript:void(0)" aria-expanded="false">
                             <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
                             <span class="mini-click-non">Notifications</span>
                         </a>
                     </li>
                     <li>
-                        <a title="My Account" href="#" aria-expanded="false">
+                        <a title="My Account"  href="javascript:void(0)" aria-expanded="false">
                             <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
                             <span class="mini-click-non">My Account</span>
                         </a>
                     </li>
                     <li>
-                        <a title="Logout" href="#" aria-expanded="false">
+                        <a title="Logout"  href="{{ route('logout') }}" aria-expanded="false">
                             <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
                             <span class="mini-click-non">Logout</span>
                         </a>

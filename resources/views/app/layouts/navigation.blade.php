@@ -119,25 +119,25 @@
                             <div class="col-lg-6 col-md-7 col-sm-6 col-xs-12">
                                 {{-- <div class="header-top-menu tabl-d-n">
                                     <ul class="nav navbar-nav mai-top-nav">
-                                        <li class="nav-item"><a href="#" class="nav-link">Home</a>
+                                        <li class="nav-item"><a  href="javascript:void(0)" class="nav-link">Home</a>
                                         </li>
-                                        <li class="nav-item"><a href="#" class="nav-link">About</a>
+                                        <li class="nav-item"><a  href="javascript:void(0)" class="nav-link">About</a>
                                         </li>
-                                        <li class="nav-item"><a href="#" class="nav-link">Services</a>
+                                        <li class="nav-item"><a  href="javascript:void(0)" class="nav-link">Services</a>
                                         </li>
                                         <li class="nav-item dropdown res-dis-nn">
-                                            <a href="#" data-toggle="dropdown" role="button"
+                                            <a  href="javascript:void(0)" data-toggle="dropdown" role="button"
                                                 aria-expanded="false" class="nav-link dropdown-toggle">Project
                                                 <span class="angle-down-topmenu"><i
                                                         class="fa fa-angle-down"></i></span></a>
                                             <div role="menu" class="dropdown-menu animated zoomIn">
-                                                <a href="#" class="dropdown-item">Documentation</a>
-                                                <a href="#" class="dropdown-item">Expert Backend</a>
-                                                <a href="#" class="dropdown-item">Expert FrontEnd</a>
-                                                <a href="#" class="dropdown-item">Contact Support</a>
+                                                <a  href="javascript:void(0)" class="dropdown-item">Documentation</a>
+                                                <a  href="javascript:void(0)" class="dropdown-item">Expert Backend</a>
+                                                <a  href="javascript:void(0)" class="dropdown-item">Expert FrontEnd</a>
+                                                <a  href="javascript:void(0)" class="dropdown-item">Contact Support</a>
                                             </div>
                                         </li>
-                                        <li class="nav-item"><a href="#" class="nav-link">Support</a>
+                                        <li class="nav-item"><a  href="javascript:void(0)" class="nav-link">Support</a>
                                         </li>
                                     </ul>
                                 </div> --}}
@@ -146,7 +146,7 @@
                                 <div class="header-right-info">
                                     <ul class="nav navbar-nav mai-top-nav header-right-menu">
                                         <li class="nav-item dropdown">
-                                            <a href="#" data-toggle="dropdown" role="button"
+                                            <a  href="javascript:void(0)" data-toggle="dropdown" role="button"
                                                 aria-expanded="false" class="nav-link dropdown-toggle"><i
                                                     class="educate-icon educate-message edu-chat-pro"
                                                     aria-hidden="true"></i><span
@@ -158,7 +158,7 @@
                                                 </div>
                                                 <ul class="message-menu">
                                                     <li>
-                                                        <a href="#">
+                                                        <a  href="javascript:void(0)">
                                                             <div class="message-img">
                                                                 <img src="{{ asset('backend/img/contact/1.jpg') }}" alt="">
                                                             </div>
@@ -171,7 +171,7 @@
                                                         </a>
                                                     </li>
                                                     <li>
-                                                        <a href="#">
+                                                        <a  href="javascript:void(0)">
                                                             <div class="message-img">
                                                                 <img src="{{ asset('backend/img/contact/4.jpg') }}" alt="">
                                                             </div>
@@ -184,7 +184,7 @@
                                                         </a>
                                                     </li>
                                                     <li>
-                                                        <a href="#">
+                                                        <a  href="javascript:void(0)">
                                                             <div class="message-img">
                                                                 <img src="{{ asset('backend/img/contact/3.jpg') }}" alt="">
                                                             </div>
@@ -197,7 +197,7 @@
                                                         </a>
                                                     </li>
                                                     <li>
-                                                        <a href="#">
+                                                        <a  href="javascript:void(0)">
                                                             <div class="message-img">
                                                                 <img src="{{ asset('backend/img/contact/2.jpg') }}" alt="">
                                                             </div>
@@ -211,11 +211,11 @@
                                                     </li>
                                                 </ul>
                                                 <div class="message-view">
-                                                    <a href="#">View All Messages</a>
+                                                    <a  href="javascript:void(0)">View All Messages</a>
                                                 </div>
                                             </div>
                                         </li>
-                                        <li class="nav-item"><a href="#" data-toggle="dropdown" role="button"
+                                        <li class="nav-item"><a  href="javascript:void(0)" data-toggle="dropdown" role="button"
                                                 aria-expanded="false" class="nav-link dropdown-toggle"><i
                                                     class="educate-icon educate-bell"
                                                     aria-hidden="true"></i><span
@@ -227,7 +227,7 @@
                                                 </div>
                                                 <ul class="notification-menu">
                                                     <li>
-                                                        <a href="#">
+                                                        <a  href="javascript:void(0)">
                                                             <div class="notification-icon">
                                                                 <i class="educate-icon educate-checked edu-checked-pro admin-check-pro"
                                                                     aria-hidden="true"></i>
@@ -241,7 +241,7 @@
                                                         </a>
                                                     </li>
                                                     <li>
-                                                        <a href="#">
+                                                        <a  href="javascript:void(0)">
                                                             <div class="notification-icon">
                                                                 <i class="fa fa-cloud edu-cloud-computing-down"
                                                                     aria-hidden="true"></i>
@@ -255,7 +255,7 @@
                                                         </a>
                                                     </li>
                                                     <li>
-                                                        <a href="#">
+                                                        <a  href="javascript:void(0)">
                                                             <div class="notification-icon">
                                                                 <i class="fa fa-eraser edu-shield"
                                                                     aria-hidden="true"></i>
@@ -269,7 +269,7 @@
                                                         </a>
                                                     </li>
                                                     <li>
-                                                        <a href="#">
+                                                        <a  href="javascript:void(0)">
                                                             <div class="notification-icon">
                                                                 <i class="fa fa-line-chart edu-analytics-arrow"
                                                                     aria-hidden="true"></i>
@@ -284,12 +284,12 @@
                                                     </li>
                                                 </ul>
                                                 <div class="notification-view">
-                                                    <a href="#">View All Notification</a>
+                                                    <a  href="javascript:void(0)">View All Notification</a>
                                                 </div>
                                             </div>
                                         </li>
                                         <li class="nav-item">
-                                            <a href="#" data-toggle="dropdown" role="button"
+                                            <a  href="javascript:void(0)" data-toggle="dropdown" role="button"
                                                 aria-expanded="false" class="nav-link dropdown-toggle">
                                                 <img src="{{ auth()->user()->profile_pic ? asset(auth()->user()->profile_pic):asset('backend/img/product/pro4.jpg') }}" alt="" />
                                                 <span class="admin-name">{{ auth()->user()->name??"--" }}</span>
@@ -302,7 +302,7 @@
                                                     <a href="{{ route('profile.edit') }}"><span class="edu-icon edu-user-rounded author-log-ic"></span>My Profile</a>
                                                 </li>
                                                 <li>
-                                                    {{-- <a href="#">Log Out</a> --}}
+                                                    {{-- <a  href="javascript:void(0)">Log Out</a> --}}
                                                     <form method="POST" action="{{ route('logout') }}">
                                                         @csrf
                                                         <span class="edu-icon edu-locked author-log-ic"></span>
@@ -315,7 +315,7 @@
                                                 </li>
                                             </ul>
                                         </li>
-                                        <li class="nav-item nav-setting-open"><a href="#" data-toggle="dropdown"
+                                        <li class="nav-item nav-setting-open"><a  href="javascript:void(0)" data-toggle="dropdown"
                                                 role="button" aria-expanded="false"
                                                 class="nav-link dropdown-toggle"><i
                                                     class="educate-icon educate-menu"></i></a>
@@ -343,7 +343,7 @@
                                                             <div class="notes-list-area notes-menu-scrollbar">
                                                                 <ul class="notes-menu-list">
                                                                     <li>
-                                                                        <a href="#">
+                                                                        <a  href="javascript:void(0)">
                                                                             <div class="notes-list-flow">
                                                                                 <div class="notes-img">
                                                                                     <img src="{{ asset('backend/img/contact/4.jpg') }}"
@@ -360,7 +360,7 @@
                                                                         </a>
                                                                     </li>
                                                                     <li>
-                                                                        <a href="#">
+                                                                        <a  href="javascript:void(0)">
                                                                             <div class="notes-list-flow">
                                                                                 <div class="notes-img">
                                                                                     <img src="{{ asset('backend/img/contact/1.jpg') }}"
@@ -377,7 +377,7 @@
                                                                         </a>
                                                                     </li>
                                                                     <li>
-                                                                        <a href="#">
+                                                                        <a  href="javascript:void(0)">
                                                                             <div class="notes-list-flow">
                                                                                 <div class="notes-img">
                                                                                     <img src="{{ asset('backend/img/contact/2.jpg') }}"
@@ -394,7 +394,7 @@
                                                                         </a>
                                                                     </li>
                                                                     <li>
-                                                                        <a href="#">
+                                                                        <a  href="javascript:void(0)">
                                                                             <div class="notes-list-flow">
                                                                                 <div class="notes-img">
                                                                                     <img src="{{ asset('backend/img/contact/3.jpg') }}"
@@ -411,7 +411,7 @@
                                                                         </a>
                                                                     </li>
                                                                     <li>
-                                                                        <a href="#">
+                                                                        <a  href="javascript:void(0)">
                                                                             <div class="notes-list-flow">
                                                                                 <div class="notes-img">
                                                                                     <img src="{{ asset('backend/img/contact/4.jpg') }}"
@@ -428,7 +428,7 @@
                                                                         </a>
                                                                     </li>
                                                                     <li>
-                                                                        <a href="#">
+                                                                        <a  href="javascript:void(0)">
                                                                             <div class="notes-list-flow">
                                                                                 <div class="notes-img">
                                                                                     <img src="{{ asset('backend/img/contact/1.jpg') }}"
@@ -445,7 +445,7 @@
                                                                         </a>
                                                                     </li>
                                                                     <li>
-                                                                        <a href="#">
+                                                                        <a  href="javascript:void(0)">
                                                                             <div class="notes-list-flow">
                                                                                 <div class="notes-img">
                                                                                     <img src="{{ asset('backend/img/contact/2.jpg') }}"
@@ -462,7 +462,7 @@
                                                                         </a>
                                                                     </li>
                                                                     <li>
-                                                                        <a href="#">
+                                                                        <a  href="javascript:void(0)">
                                                                             <div class="notes-list-flow">
                                                                                 <div class="notes-img">
                                                                                     <img src="{{ asset('backend/img/contact/1.jpg') }}"
@@ -479,7 +479,7 @@
                                                                         </a>
                                                                     </li>
                                                                     <li>
-                                                                        <a href="#">
+                                                                        <a  href="javascript:void(0)">
                                                                             <div class="notes-list-flow">
                                                                                 <div class="notes-img">
                                                                                     <img src="{{ asset('backend/img/contact/2.jpg') }}"
@@ -496,7 +496,7 @@
                                                                         </a>
                                                                     </li>
                                                                     <li>
-                                                                        <a href="#">
+                                                                        <a  href="javascript:void(0)">
                                                                             <div class="notes-list-flow">
                                                                                 <div class="notes-img">
                                                                                     <img src="{{ asset('backend/img/contact/3.jpg') }}"
@@ -527,7 +527,7 @@
                                                                 class="project-st-list-area project-st-menu-scrollbar">
                                                                 <ul class="projects-st-menu-list">
                                                                     <li>
-                                                                        <a href="#">
+                                                                        <a  href="javascript:void(0)">
                                                                             <div class="project-list-flow">
                                                                                 <div
                                                                                     class="projects-st-heading">
@@ -555,7 +555,7 @@
                                                                         </a>
                                                                     </li>
                                                                     <li>
-                                                                        <a href="#">
+                                                                        <a  href="javascript:void(0)">
                                                                             <div class="project-list-flow">
                                                                                 <div
                                                                                     class="projects-st-heading">
@@ -584,7 +584,7 @@
                                                                         </a>
                                                                     </li>
                                                                     <li>
-                                                                        <a href="#">
+                                                                        <a  href="javascript:void(0)">
                                                                             <div class="project-list-flow">
                                                                                 <div
                                                                                     class="projects-st-heading">
@@ -612,7 +612,7 @@
                                                                         </a>
                                                                     </li>
                                                                     <li>
-                                                                        <a href="#">
+                                                                        <a  href="javascript:void(0)">
                                                                             <div class="project-list-flow">
                                                                                 <div
                                                                                     class="projects-st-heading">
@@ -640,7 +640,7 @@
                                                                         </a>
                                                                     </li>
                                                                     <li>
-                                                                        <a href="#">
+                                                                        <a  href="javascript:void(0)">
                                                                             <div class="project-list-flow">
                                                                                 <div
                                                                                     class="projects-st-heading">
@@ -668,7 +668,7 @@
                                                                         </a>
                                                                     </li>
                                                                     <li>
-                                                                        <a href="#">
+                                                                        <a  href="javascript:void(0)">
                                                                             <div class="project-list-flow">
                                                                                 <div
                                                                                     class="projects-st-heading">
@@ -696,7 +696,7 @@
                                                                         </a>
                                                                     </li>
                                                                     <li>
-                                                                        <a href="#">
+                                                                        <a  href="javascript:void(0)">
                                                                             <div class="project-list-flow">
                                                                                 <div
                                                                                     class="projects-st-heading">
@@ -724,7 +724,7 @@
                                                                         </a>
                                                                     </li>
                                                                     <li>
-                                                                        <a href="#">
+                                                                        <a  href="javascript:void(0)">
                                                                             <div class="project-list-flow">
                                                                                 <div
                                                                                     class="projects-st-heading">
@@ -956,7 +956,7 @@
                                     <li><a href="{{ route('dashboard') }}">Dashboard</a></li>
                                     <li><a href="{{ route('schools.show') }}">School Profile</a></li>
                                     
-                                    <li><a data-toggle="collapse" data-target="#academic" href="#">Academic <span class="admin-project-icon edu-icon edu-down-arrow"></span></a>
+                                    <li><a data-toggle="collapse" data-target="#academic"  href="javascript:void(0)">Academic <span class="admin-project-icon edu-icon edu-down-arrow"></span></a>
                                         <ul id="academic" class="collapse dropdown-header-top">
                                             <li><a href="{{ route('admin.academic.classes.index') }}">Classes</a></li>
                                             <li><a href="{{ route('admin.academic.sections.index') }}">Sections</a></li>
@@ -965,7 +965,7 @@
                                         </ul>
                                     </li>
                                     
-                                    <li><a data-toggle="collapse" data-target="#people" href="#">People <span class="admin-project-icon edu-icon edu-down-arrow"></span></a>
+                                    <li><a data-toggle="collapse" data-target="#people"  href="javascript:void(0)">People <span class="admin-project-icon edu-icon edu-down-arrow"></span></a>
                                         <ul id="people" class="collapse dropdown-header-top">
                                             <li><a href="{{ route('dashboard.teachers') }}">Teachers</a></li>
                                             <li><a href="{{ route('dashboard.students') }}">Students</a></li>
@@ -975,82 +975,82 @@
                                     
                                     <li><a href="{{ route('admin.attendance.index') }}">Attendance</a></li>
                                     
-                                    <li><a data-toggle="collapse" data-target="#fees" href="#">Fees Management <span class="admin-project-icon edu-icon edu-down-arrow"></span></a>
+                                    <li><a data-toggle="collapse" data-target="#fees"  href="javascript:void(0)">Fees Management <span class="admin-project-icon edu-icon edu-down-arrow"></span></a>
                                         <ul id="fees" class="collapse dropdown-header-top">
-                                            <li><a href="#">Categories</a></li>
-                                            <li><a href="#">Structures</a></li>
-                                            <li><a href="#">Payments</a></li>
+                                            <li><a  href="javascript:void(0)">Categories</a></li>
+                                            <li><a  href="javascript:void(0)">Structures</a></li>
+                                            <li><a  href="javascript:void(0)">Payments</a></li>
                                         </ul>
                                     </li>
                                     
-                                    <li><a data-toggle="collapse" data-target="#exams" href="#">Exams <span class="admin-project-icon edu-icon edu-down-arrow"></span></a>
+                                    <li><a data-toggle="collapse" data-target="#exams"  href="javascript:void(0)">Exams <span class="admin-project-icon edu-icon edu-down-arrow"></span></a>
                                         <ul id="exams" class="collapse dropdown-header-top">
-                                            <li><a href="#">Schedule</a></li>
-                                            <li><a href="#">Results</a></li>
+                                            <li><a  href="javascript:void(0)">Schedule</a></li>
+                                            <li><a  href="javascript:void(0)">Results</a></li>
                                         </ul>
                                     </li>
                                     
-                                    <li><a data-toggle="collapse" data-target="#library" href="#">Library <span class="admin-project-icon edu-icon edu-down-arrow"></span></a>
+                                    <li><a data-toggle="collapse" data-target="#library"  href="javascript:void(0)">Library <span class="admin-project-icon edu-icon edu-down-arrow"></span></a>
                                         <ul id="library" class="collapse dropdown-header-top">
-                                            <li><a href="#">Books</a></li>
-                                            <li><a href="#">Issues</a></li>
+                                            <li><a  href="javascript:void(0)">Books</a></li>
+                                            <li><a  href="javascript:void(0)">Issues</a></li>
                                         </ul>
                                     </li>
                                     
-                                    <li><a href="#">Inventory</a></li>
-                                    <li><a href="#">Notices</a></li>
-                                    <li><a href="#">Holidays</a></li>
-                                    <li><a href="#">Reports</a></li>
-                                    <li><a href="#">Settings</a></li>
+                                    <li><a  href="javascript:void(0)">Inventory</a></li>
+                                    <li><a  href="javascript:void(0)">Notices</a></li>
+                                    <li><a  href="javascript:void(0)">Holidays</a></li>
+                                    <li><a  href="javascript:void(0)">Reports</a></li>
+                                    <li><a  href="javascript:void(0)">Settings</a></li>
                                     
                                 @elseif (Auth::user()->Role('teacher'))
                                     <!-- Teacher Mobile Menu -->
-                                    <li><a href="#">Dashboard</a></li>
-                                    <li><a href="#">My Profile</a></li>
-                                    <li><a href="#">My Students</a></li>
-                                    <li><a href="#">Mark Attendance</a></li>
+                                    <li><a  href="javascript:void(0)">Dashboard</a></li>
+                                    <li><a  href="javascript:void(0)">My Profile</a></li>
+                                    <li><a  href="javascript:void(0)">My Students</a></li>
+                                    <li><a  href="javascript:void(0)">Mark Attendance</a></li>
                                     
-                                    <li><a data-toggle="collapse" data-target="#exams" href="#">Exams <span class="admin-project-icon edu-icon edu-down-arrow"></span></a>
+                                    <li><a data-toggle="collapse" data-target="#exams"  href="javascript:void(0)">Exams <span class="admin-project-icon edu-icon edu-down-arrow"></span></a>
                                         <ul id="exams" class="collapse dropdown-header-top">
-                                            <li><a href="#">Create Tests</a></li>
-                                            <li><a href="#">Enter Marks</a></li>
+                                            <li><a  href="javascript:void(0)">Create Tests</a></li>
+                                            <li><a  href="javascript:void(0)">Enter Marks</a></li>
                                         </ul>
                                     </li>
                                     
-                                    <li><a href="#">Subjects</a></li>
-                                    <li><a href="#">My Reports</a></li>
+                                    <li><a  href="javascript:void(0)">Subjects</a></li>
+                                    <li><a  href="javascript:void(0)">My Reports</a></li>
                                     
                                 @elseif (Auth::user()->Role('parent'))
                                     <!-- Parent Mobile Menu -->
-                                    <li><a href="#">Dashboard</a></li>
+                                    <li><a  href="javascript:void(0)">Dashboard</a></li>
                                     
-                                    <li><a data-toggle="collapse" data-target="#children" href="#">My Children <span class="admin-project-icon edu-icon edu-down-arrow"></span></a>
+                                    <li><a data-toggle="collapse" data-target="#children"  href="javascript:void(0)">My Children <span class="admin-project-icon edu-icon edu-down-arrow"></span></a>
                                         <ul id="children" class="collapse dropdown-header-top">
-                                            <li><a href="#">Profile</a></li>
-                                            <li><a href="#">Attendance</a></li>
-                                            <li><a href="#">Results</a></li>
+                                            <li><a  href="javascript:void(0)">Profile</a></li>
+                                            <li><a  href="javascript:void(0)">Attendance</a></li>
+                                            <li><a  href="javascript:void(0)">Results</a></li>
                                         </ul>
                                     </li>
                                     
-                                    <li><a href="#">Fee Payments</a></li>
-                                    <li><a href="#">Library Books</a></li>
-                                    <li><a href="#">Notices</a></li>
+                                    <li><a  href="javascript:void(0)">Fee Payments</a></li>
+                                    <li><a  href="javascript:void(0)">Library Books</a></li>
+                                    <li><a  href="javascript:void(0)">Notices</a></li>
                                     
                                 @elseif (Auth::user()->Role('student'))
                                     <!-- Student Mobile Menu -->
-                                    <li><a href="#">Dashboard</a></li>
-                                    <li><a href="#">My Profile</a></li>
-                                    <li><a href="#">My Attendance</a></li>
-                                    <li><a href="#">My Results</a></li>
-                                    <li><a href="#">Fee Status</a></li>
-                                    <li><a href="#">Book Issues</a></li>
+                                    <li><a  href="javascript:void(0)">Dashboard</a></li>
+                                    <li><a  href="javascript:void(0)">My Profile</a></li>
+                                    <li><a  href="javascript:void(0)">My Attendance</a></li>
+                                    <li><a  href="javascript:void(0)">My Results</a></li>
+                                    <li><a  href="javascript:void(0)">Fee Status</a></li>
+                                    <li><a  href="javascript:void(0)">Book Issues</a></li>
                                 @endif
                                 
                                 <!-- Common Mobile Menu Items -->
-                                <li><a data-toggle="collapse" data-target="#account" href="#">Account <span class="admin-project-icon edu-icon edu-down-arrow"></span></a>
+                                <li><a data-toggle="collapse" data-target="#account"  href="javascript:void(0)">Account <span class="admin-project-icon edu-icon edu-down-arrow"></span></a>
                                     <ul id="account" class="collapse dropdown-header-top">
-                                        <li><a href="#">Notifications</a></li>
-                                        <li><a href="#">My Account</a></li>
+                                        <li><a  href="javascript:void(0)">Notifications</a></li>
+                                        <li><a  href="javascript:void(0)">My Account</a></li>
                                         <li><a href="{{ route('logout') }}">Logout</a></li>
                                     </ul>
                                 </li>
