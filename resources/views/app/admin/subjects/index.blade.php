@@ -71,7 +71,8 @@
     <div class="data-table-area mg-b-15">
         <div class="container-fluid">
             <div class="row">
-                {{-- <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                     <div class="breadcome-list">
                         <div class="row">
                             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
@@ -80,55 +81,31 @@
                                 </div>
                             </div>
                             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                <ul class="breadcome-menu">
-                                    <li>
-                                        <a href="{{ route('admin.academic.subjects.create') }}" class="btn btn-primary btn-sm" style="color: white">
-                                            <i class="fa fa-plus"></i> Add Subject
-                                        </a>
-                                        <a href="{{ route('admin.academic.subjects.assign') }}" class="btn btn-info btn-sm" style="color: white; margin-left: 10px">
-                                            <i class="fa fa-user-tie"></i> Assign Teachers
-                                        </a>
-                                    </li>
-                                </ul>
+                                <div class="action-buttons">
+                                    <a href="{{ route('admin.academic.subjects.create') }}" class="btn btn-primary btn-sm" style="color: white">
+                                        <i class="fa fa-plus"></i> Add Subject
+                                    </a>
+                                    <a href="{{ route('admin.academic.subjects.assign') }}" class="btn btn-info btn-sm" style="color: white;">
+                                        <i class="fa fa-user-tie"></i> Assign Teachers
+                                    </a>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                </div>               --}}
-
-                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                <div class="breadcome-list">
-                    <div class="row">
-                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                            <div class="breadcome-heading" style="margin-top: 10px">
-                                <h3>All Subjects</h3>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                            <div class="action-buttons">
-                                <a href="{{ route('admin.academic.subjects.create') }}" class="btn btn-primary btn-sm" style="color: white">
-                                    <i class="fa fa-plus"></i> Add Subject
-                                </a>
-                                <a href="{{ route('admin.academic.subjects.assign') }}" class="btn btn-info btn-sm" style="color: white;">
-                                    <i class="fa fa-user-tie"></i> Assign Teachers
-                                </a>
-                            </div>
-                        </div>
-                        <div class="dropdown-container">
-                            <button class="dropdown-toggle-custom">
-                                <i class="fa fa-ellipsis-v"></i>
-                            </button>
-                            <div class="dropdown-menu-custom">
-                                <a href="{{ route('admin.academic.subjects.create') }}" class="btn btn-primary btn-sm" style="color: white">
-                                    <i class="fa fa-plus"></i> Add Subject
-                                </a>
-                                <a href="{{ route('admin.academic.subjects.assign') }}" class="btn btn-info btn-sm" style="color: white;">
-                                    <i class="fa fa-user-tie"></i> Assign Teachers
-                                </a>
+                            <div class="dropdown-container">
+                                <button class="dropdown-toggle-custom">
+                                    <i class="fa fa-ellipsis-v"></i>
+                                </button>
+                                <div class="dropdown-menu-custom">
+                                    <a href="{{ route('admin.academic.subjects.create') }}" class="btn btn-primary btn-sm" style="color: white">
+                                        <i class="fa fa-plus"></i> Add Subject
+                                    </a>
+                                    <a href="{{ route('admin.academic.subjects.assign') }}" class="btn btn-info btn-sm" style="color: white;">
+                                        <i class="fa fa-user-tie"></i> Assign Teachers
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                     <div class="sparkline13-list">
                         <div class="sparkline13-hd">
