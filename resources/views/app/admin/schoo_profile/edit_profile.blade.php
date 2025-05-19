@@ -123,7 +123,7 @@
                                         <i class="fa fa-ellipsis-v"></i>
                                     </button>
                                     <div class="dropdown-menu-custom">
-                                        <a href="{{ route('schools.show') }}">
+                                        <a href="{{ route('schools.show') }}" class="btn btn-primary btn-sm" style="color: white">
                                             <i class="fa fa-arrow-left"></i> Back
                                         </a>
                                     </div>

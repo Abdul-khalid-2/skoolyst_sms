@@ -143,13 +143,13 @@
                                 <i class="fa fa-ellipsis-v"></i>
                             </button>
                             <div class="dropdown-menu-custom">
-                                <a href="{{ route('schools.cms') }}">
+                                <a href="{{ route('schools.cms') }}" class="btn btn-primary btn-sm" style="color: white">
                                     <i class="fa fa-graduation-cap"></i> CMS
                                 </a>
-                                <a href="{{ route('schools.edit') }}">
+                                <a href="{{ route('schools.edit') }}" class="btn btn-primary btn-sm" style="color: white">
                                     <i class="fa fa-graduation-cap"></i> Profile Edit
                                 </a>
-                                <a href="{{ route('schools.settings') }}">
+                                <a href="{{ route('schools.settings') }}" class="btn btn-primary btn-sm" style="color: white">
                                     <i class="fa fa-cog"></i> Setting
                                 </a>
                             </div>
