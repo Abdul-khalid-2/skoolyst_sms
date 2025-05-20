@@ -22,15 +22,11 @@ class SectionController extends Controller
 
     public function index()
     {
-        // Get sections (including deleted) with their class and students count
         $sections = Section::withTrashed()
             ->with(['class' => function ($query) {
-                $query->withTrashed(); // Include deleted classes if needed
+                $query->withTrashed();
             }, 'students'])
             ->where('school_id', $this->schoolId)
-            // ->whereHas('class', function ($query) {
-            //     $query->whereNull('deleted_at'); // Only sections with non-deleted classes
-            // })
             ->orderBy('class_id')
             ->orderBy('name')
             ->get();
@@ -41,9 +37,7 @@ class SectionController extends Controller
 
     public function create()
     {
-        $classes = Classes::orderBy('numeric_value')
-            ->get();
-
+        $classes = Classes::orderBy('numeric_value')->get();
         return view('app.admin.sections.create', compact('classes'));
     }
 
@@ -64,19 +58,20 @@ class SectionController extends Controller
             Section::create($validated);
 
             return redirect()->route('admin.academic.sections.index')
-                ->with('success', 'Section created successfully');
+                ->with('alert-type', 'success')
+                ->with('message', 'Section created successfully!');
         } catch (QueryException $e) {
             if ($e->errorInfo[1] == 1062) {
-                // 1062 is MySQL error code for duplicate entry
                 return redirect()->back()
                     ->withInput()
-                    ->withErrors(['duplicate' => 'A section with this name already exists for the class.']);
+                    ->with('alert-type', 'error')
+                    ->with('message', 'A section with this name already exists for the selected class.');
             }
 
-            // rethrow or handle other DB errors
             return redirect()->back()
                 ->withInput()
-                ->withErrors(['db' => 'An unexpected database error occurred.']);
+                ->with('alert-type', 'error')
+                ->with('message', 'An unexpected error occurred while creating the section.');
         }
     }
 
@@ -111,7 +106,8 @@ class SectionController extends Controller
         $section->update($validated);
 
         return redirect()->route('admin.academic.sections.index')
-            ->with('success', 'Section updated successfully');
+            ->with('alert-type', 'success')
+            ->with('message', 'Section updated successfully!');
     }
 
 
@@ -124,23 +120,26 @@ class SectionController extends Controller
 
             if ($section->students()->count() > 0) {
                 return redirect()->route('admin.academic.sections.index')
-                    ->with('error', 'Cannot delete section with students');
+                    ->with('alert-type', 'error')
+                    ->with('message', 'Cannot delete section because it contains students.');
             }
 
             $section->delete();
 
-            // Check if this was the last active section
             if (!$section->class->sections()->whereNull('deleted_at')->exists()) {
                 $section->class->delete();
                 return redirect()->route('admin.academic.sections.index')
-                    ->with('success', 'Section deleted successfully. Class was also deleted as it had no active sections');
+                    ->with('alert-type', 'success')
+                    ->with('message', 'Section deleted successfully. The associated class was also deleted as it had no remaining active sections.');
             }
 
             return redirect()->route('admin.academic.sections.index')
-                ->with('success', 'Section deleted successfully');
+                ->with('alert-type', 'success')
+                ->with('message', 'Section deleted successfully!');
         } catch (\Exception $e) {
             return redirect()->route('admin.academic.sections.index')
-                ->with('error', 'Error deleting section: ' . $e->getMessage());
+                ->with('alert-type', 'error')
+                ->with('message', 'Failed to delete section: ' . $e->getMessage());
         }
     }
 
@@ -159,14 +158,17 @@ class SectionController extends Controller
             if ($section->class->trashed()) {
                 $section->class->restore();
                 return redirect()->route('admin.academic.sections.index')
-                    ->with('success', 'Section and its parent class restored successfully');
+                    ->with('alert-type', 'success')
+                    ->with('message', 'Section and its associated class restored successfully!');
             }
 
             return redirect()->route('admin.academic.sections.index')
-                ->with('success', 'Section restored successfully');
+                ->with('alert-type', 'success')
+                ->with('message', 'Section restored successfully!');
         } catch (\Exception $e) {
             return redirect()->route('admin.academic.sections.index')
-                ->with('error', 'Error restoring section: ' . $e->getMessage());
+                ->with('alert-type', 'error')
+                ->with('message', 'Failed to restore section: ' . $e->getMessage());
         }
     }
 
