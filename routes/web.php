@@ -167,11 +167,13 @@ Route::group(['middleware' => ['role:admin|super-admin']], function () {
     // Section Routes
     Route::prefix('sections')->middleware(['auth', 'verified'])->name('admin.academic.sections.')->group(function () {
         Route::get('/', [SectionController::class, 'index'])->name('index');
-        Route::get('/create', [SectionController::class, 'create'])->name('create');
         Route::post('/', [SectionController::class, 'store'])->name('store');
-        Route::get('/{id}/edit', [SectionController::class, 'edit'])->name('edit');
         Route::put('/{id}', [SectionController::class, 'update'])->name('update');
+        Route::get('/{id}/edit', [SectionController::class, 'edit'])->name('edit');
+        Route::get('/create', [SectionController::class, 'create'])->name('create');
+        Route::delete('/{id}/show', [SectionController::class, 'show'])->name('show');
         Route::delete('/{id}', [SectionController::class, 'destroy'])->name('destroy');
+        Route::post('/{id}/restore', [SectionController::class, 'restore'])->name('restore');
     });
     Route::get('/get-sections/{class_id}', [SectionController::class, 'getSectionsByClass']);
 

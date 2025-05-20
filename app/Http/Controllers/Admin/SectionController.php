@@ -8,6 +8,7 @@ use App\Models\School;
 use App\Models\Section;
 use Illuminate\Http\Request;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Crypt;
 
 class SectionController extends Controller
 {
@@ -18,17 +19,18 @@ class SectionController extends Controller
     {
         $this->schoolId = auth()->user()->school_id ?? School::first()->id ?? null;
     }
-    /**
-     * Display a listing of the sections.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index()
     {
-        // Get sections with their class and students count
-        $sections = Section::with(['students'])
+        // Get sections (including deleted) with their class and students count
+        $sections = Section::withTrashed()
+            ->with(['class' => function ($query) {
+                $query->withTrashed(); // Include deleted classes if needed
+            }, 'students'])
             ->where('school_id', $this->schoolId)
-            ->whereHas('class') // This implicitly checks the class exists and isn't deleted
+            // ->whereHas('class', function ($query) {
+            //     $query->whereNull('deleted_at'); // Only sections with non-deleted classes
+            // })
             ->orderBy('class_id')
             ->orderBy('name')
             ->get();
@@ -36,11 +38,7 @@ class SectionController extends Controller
         return view('app.admin.sections.index', compact('sections'));
     }
 
-    /**
-     * Show the form for creating a new section.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function create()
     {
         $classes = Classes::orderBy('numeric_value')
@@ -49,12 +47,7 @@ class SectionController extends Controller
         return view('app.admin.sections.create', compact('classes'));
     }
 
-    /**
-     * Store a newly created section in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+
     public function store(Request $request)
     {
 
@@ -88,12 +81,7 @@ class SectionController extends Controller
     }
 
 
-    /**
-     * Show the form for editing the specified section.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+
     public function edit($id)
     {
 
@@ -107,13 +95,7 @@ class SectionController extends Controller
         return view('app.admin.sections.edit', compact('section', 'classes'));
     }
 
-    /**
-     * Update the specified section in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+
     public function update(Request $request, $id)
     {
 
@@ -132,27 +114,60 @@ class SectionController extends Controller
             ->with('success', 'Section updated successfully');
     }
 
-    /**
-     * Remove the specified section from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+
     public function destroy($id)
     {
+        try {
+            $section = Section::with(['class'])
+                ->where('school_id', $this->schoolId)
+                ->findOrFail(decrypt($id));
 
-        $section = Section::where('school_id', $this->schoolId)
-            ->findOrFail($id);
+            if ($section->students()->count() > 0) {
+                return redirect()->route('admin.academic.sections.index')
+                    ->with('error', 'Cannot delete section with students');
+            }
 
-        // Check if section has students before deleting
-        if ($section->students()->count() > 0) {
-            return back()->with('error', 'Cannot delete section with students');
+            $section->delete();
+
+            // Check if this was the last active section
+            if (!$section->class->sections()->whereNull('deleted_at')->exists()) {
+                $section->class->delete();
+                return redirect()->route('admin.academic.sections.index')
+                    ->with('success', 'Section deleted successfully. Class was also deleted as it had no active sections');
+            }
+
+            return redirect()->route('admin.academic.sections.index')
+                ->with('success', 'Section deleted successfully');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.academic.sections.index')
+                ->with('error', 'Error deleting section: ' . $e->getMessage());
         }
+    }
 
-        $section->delete();
+    public function restore($id)
+    {
+        try {
+            $section = Section::withTrashed()
+                ->with(['class' => function ($query) {
+                    $query->withTrashed();
+                }])
+                ->where('school_id', $this->schoolId)
+                ->findOrFail(decrypt($id));
 
-        return redirect()->route('admin.academic.sections.index')
-            ->with('success', 'Section deleted successfully');
+            $section->restore();
+
+            if ($section->class->trashed()) {
+                $section->class->restore();
+                return redirect()->route('admin.academic.sections.index')
+                    ->with('success', 'Section and its parent class restored successfully');
+            }
+
+            return redirect()->route('admin.academic.sections.index')
+                ->with('success', 'Section restored successfully');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.academic.sections.index')
+                ->with('error', 'Error restoring section: ' . $e->getMessage());
+        }
     }
 
     public function getSectionsByClass($class_id)

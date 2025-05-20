@@ -147,38 +147,59 @@
                                     </thead>
                                     <tbody>
                                         @foreach($sections as $section)
-                                        <tr>
-                                            {{-- <td></td> --}}
-                                            <td>{{ $section->id }}</td>
-                                            <td>{{ $section->class->name ?? 'N/A' }}</td>
-                                            <td>{{ $section->name }}</td>
-                                            <td>{{ $section->capacity }}</td>
-                                            <td>{{ $section->students_count }}</td>
-                                            <td>
-                                                <div style="display: flex; align-items: center; gap: 4px;">
-                                                    <a href="{{ route('admin.academic.sections.edit', $section->id) }}" 
-                                                       class="btn btn-xs btn-primary" 
-                                                       title="Edit">
-                                                        <i class="fa fa-edit"></i>
-                                                    </a>
-                                            
-                                                    <form action="{{ route('admin.academic.sections.destroy', $section->id) }}" 
-                                                          method="POST" 
-                                                          class="delete-form">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" 
-                                                                class="btn btn-xs btn-danger" 
-                                                                title="Delete"
-                                                                onclick="return confirm('Are you sure you want to delete this section?')">
-                                                            <i class="fa fa-trash"></i>
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </td>
-                                            
-                                            
-                                        </tr>
+                                            <tr @if($section->trashed()) style="opacity: 0.6; background-color: #f8f9fa;" @endif>
+                                                <td>
+                                                    {{ $section->id }}
+                                                    @if($section->trashed())
+                                                        <span class="badge badge-danger">Deleted</span>
+                                                    @endif
+                                                </td>
+                                                <td>{{ $section->class->name ?? 'N/A' }}</td>
+                                                <td>{{ $section->name }}</td>
+                                                <td>{{ $section->capacity }}</td>
+                                                <td>{{ $section->students->count() }}</td>
+                                                <td>
+                                                    <div style="display: flex; align-items: center; gap: 4px;">
+                                                        <a href="{{ route('admin.academic.sections.show', encrypt($section->id)) }}"
+                                                        class="btn btn-xs btn-success" 
+                                                        title="View">
+                                                            <i class="fa fa-eye"></i>
+                                                        </a>
+                                                        
+                                                        @unless($section->trashed())
+                                                            <a href="{{ route('admin.academic.sections.edit', encrypt($section->id)) }}" 
+                                                            class="btn btn-xs btn-primary" 
+                                                            title="Edit">
+                                                                <i class="fa fa-edit"></i>
+                                                            </a>
+                                                        
+                                                            <form action="{{ route('admin.academic.sections.destroy', encrypt($section->id)) }}" 
+                                                                method="POST" 
+                                                                class="delete-form">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" 
+                                                                        class="btn btn-xs btn-danger" 
+                                                                        title="Delete"
+                                                                        onclick="return confirm('Are you sure you want to delete this section?')">
+                                                                    <i class="fa fa-close"></i>
+                                                                </button>
+                                                            </form>
+                                                        @else
+                                                            <form action="{{ route('admin.academic.sections.restore', encrypt($section->id)) }}" 
+                                                                method="POST">
+                                                                @csrf
+                                                                <button type="submit" 
+                                                                        class="btn btn-xs btn-warning" 
+                                                                        title="Restore"
+                                                                        onclick="return confirm('Are you sure you want to restore this section?')">
+                                                                    <i class="fa fa-refresh"></i> Restore
+                                                                </button>
+                                                            </form>
+                                                        @endunless
+                                                    </div>
+                                                </td>
+                                            </tr>
                                         @endforeach
                                     </tbody>
                                 </table>
