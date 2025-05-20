@@ -69,7 +69,7 @@
         <link rel="stylesheet" href="{{ asset('backend/css/ionRangeSlider/ion.rangeSlider.skinFlat.css') }}">
         <!-- style CSS
             ============================================ -->
-        <link rel="stylesheet" href="{{ asset('backend/style.css') }}">
+        
         <!-- responsive CSS
             ============================================ -->
         <link rel="stylesheet" href="{{ asset('backend/css/responsive.css') }}">
@@ -128,7 +128,7 @@
                         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                             <div class="action-buttons">
                                 <a href="{{ route('schools.cms') }}" class="btn btn-primary btn-sm" style="color: white">
-                                    <i class="fa fa-graduation-cap"></i> CMS
+                                    CMS
                                 </a>
                                 <a href="{{ route('schools.edit') }}" class="btn btn-primary btn-sm" style="color: white">
                                     <i class="fa fa-graduation-cap"></i> Profile Edit

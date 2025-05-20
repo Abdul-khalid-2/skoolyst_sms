@@ -10,6 +10,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="shortcut icon" type="image/x-icon" href="{{ asset('backend/img/favicon.ico') }}">
     @stack('css')
+    <link rel="stylesheet" href="{{ asset('backend/style.css') }}">
+    
     <style>
         .main-logo {
             height: 30px; /* or whatever size you prefer */

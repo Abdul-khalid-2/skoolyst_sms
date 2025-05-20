@@ -69,7 +69,7 @@
         <link rel="stylesheet" href="{{ asset('backend/css/ionRangeSlider/ion.rangeSlider.skinFlat.css') }}">
         <!-- style CSS
                 ============================================ -->
-        <link rel="stylesheet" href="{{ asset('backend/style.css') }}">
+        
         <!-- responsive CSS
                 ============================================ -->
         <link rel="stylesheet" href="{{ asset('backend/css/responsive.css') }}">

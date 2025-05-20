@@ -58,7 +58,7 @@
 
 
 
-    <link rel="stylesheet" href="{{ asset('backend/style.css') }}">
+    
     <!-- responsive CSS
         ============================================ -->
     <link rel="stylesheet" href="{{ asset('backend/css/responsive.css') }}">

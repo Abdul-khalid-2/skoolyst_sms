@@ -27,7 +27,7 @@
         <link rel="stylesheet" href="{{ asset('backend/css/chosen/bootstrap-chosen.css') }}">
         <link rel="stylesheet" href="{{ asset('backend/css/ionRangeSlider/ion.rangeSlider.css') }}">
         <link rel="stylesheet" href="{{ asset('backend/css/ionRangeSlider/ion.rangeSlider.skinFlat.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/style.css') }}">
+        
         <link rel="stylesheet" href="{{ asset('backend/css/responsive.css') }}">
         <script src="{{ asset('backend/js/vendor/modernizr-2.8.3.min.js') }}"></script>
     

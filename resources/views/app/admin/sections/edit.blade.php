@@ -1,5 +1,7 @@
 <x-tenant-app-layout>
     @push('css')
+		{{-- ============================================ --> --}}
+        <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
         <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,700,900" rel="stylesheet">
         <link rel="stylesheet" href="{{ asset('backend/css/bootstrap.min.css') }}">
         <link rel="stylesheet" href="{{ asset('backend/css/font-awesome.min.css') }}">
@@ -36,18 +38,18 @@
     <div class="advanced-form-area mg-b-15">
         <div class="container-fluid">
             <div class="row">
-                
+
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                     <div class="breadcome-list">
                         <div class="row">
                             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                 <div class="breadcome-heading" style="margin-top: 10px">
-                                    <h3>Add New Class</h3>
+                                    <h3>Add New Section</h3>
                                 </div>
                             </div>
                             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                 <div class="action-buttons">
-                                    <a href="{{ route('admin.academic.classes.index') }}" 
+                                    <a href="{{ route('admin.academic.sections.index') }}" 
                                            class="btn btn-primary btn-sm" style="color: white">
                                             <i class="fa fa-arrow-left"></i> Back
                                         </a>
@@ -57,7 +59,7 @@
                                         <i class="fa fa-ellipsis-v"></i>
                                     </button>
                                     <div class="dropdown-menu-custom">
-                                        <a href="{{ route('admin.academic.classes.index') }}" 
+                                        <a href="{{ route('admin.academic.sections.index') }}" 
                                            class="btn btn-primary btn-sm" style="color: white">
                                             <i class="fa fa-arrow-left"></i> Back
                                         </a>
@@ -67,30 +69,51 @@
                         </div>
                     </div>
                 </div>
-
-
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                     <div class="sparkline12-list">
                         <div class="sparkline12-graph">
                             <div class="basic-login-form-ad">
                                 <div class="row">
-                                    <form method="POST" action="{{ route('admin.academic.classes.store') }}">
+                                    <form method="POST" action="{{ route('admin.academic.sections.update', encrypt($section->id)) }}">
                                         @csrf
+                                        @method('PUT')
                                         
                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                             <div class="all-form-element-inner">
                                                 <div class="section-headline">
-                                                    <h3>Class Information</h3>
+                                                    <h3>Update Section Information</h3>
+                                                </div>
+                                                
+                                                <div class="form-group-inner {{ $errors->has('class_id') ? 'has-error' : '' }}">
+                                                    <div class="row">
+                                                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                                            <label class="login2">Class*</label>
+                                                        </div>
+                                                        <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+                                                            <select class="form-control chosen-select" name="class_id" required>
+                                                                <option value="">-- Select Class --</option>
+                                                                @foreach($classes as $class)
+                                                                    <option value="{{ $class->id }}" 
+                                                                        {{ $section->class_id == $class->id ? 'selected' : '' }}>
+                                                                        {{ $class->name }}
+                                                                    </option>
+                                                                @endforeach
+                                                            </select>
+                                                            @if($errors->has('class_id'))
+                                                                <span class="help-block text-danger">{{ $errors->first('class_id') }}</span>
+                                                            @endif
+                                                        </div>
+                                                    </div>
                                                 </div>
                                                 
                                                 <div class="form-group-inner {{ $errors->has('name') ? 'has-error' : '' }}">
                                                     <div class="row">
                                                         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                                                            <label class="login2">Class Name*</label>
+                                                            <label class="login2">Section Name*</label>
                                                         </div>
                                                         <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
                                                             <input type="text" class="form-control" name="name" 
-                                                                   value="{{ old('name') }}" required />
+                                                                value="{{ old('name', $section->name) }}" required />
                                                             @if($errors->has('name'))
                                                                 <span class="help-block text-danger">{{ $errors->first('name') }}</span>
                                                             @endif
@@ -98,38 +121,16 @@
                                                     </div>
                                                 </div>
                                                 
-                                                <div class="form-group-inner {{ $errors->has('numeric_value') ? 'has-error' : '' }}">
+                                                <div class="form-group-inner {{ $errors->has('capacity') ? 'has-error' : '' }}">
                                                     <div class="row">
                                                         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                                                            <label class="login2">Numeric Value*</label>
+                                                            <label class="login2">Capacity*</label>
                                                         </div>
                                                         <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-                                                            <input type="number" class="form-control" name="numeric_value" 
-                                                                   value="{{ old('numeric_value') }}" min="0" required />
-                                                            @if($errors->has('numeric_value'))
-                                                                <span class="help-block text-danger">{{ $errors->first('numeric_value') }}</span>
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                
-                                                <div class="form-group-inner {{ $errors->has('teacher_id') ? 'has-error' : '' }}">
-                                                    <div class="row">
-                                                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                                                            <label class="login2">Class Teacher</label>
-                                                        </div>
-                                                        <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-                                                            <select class="form-control chosen-select" name="teacher_id">
-                                                                <option value="">-- Select Teacher --</option>
-                                                                @foreach($teachers as $teacher)
-                                                                    <option value="{{ $teacher->id }}" 
-                                                                        {{ old('teacher_id') == $teacher->id ? 'selected' : '' }}>
-                                                                        {{ $teacher->name }}
-                                                                    </option>
-                                                                @endforeach
-                                                            </select>
-                                                            @if($errors->has('teacher_id'))
-                                                                <span class="help-block text-danger">{{ $errors->first('teacher_id') }}</span>
+                                                            <input type="number" class="form-control" name="capacity" 
+                                                                value="{{ old('capacity', $section->capacity) }}" min="1" required />
+                                                            @if($errors->has('capacity'))
+                                                                <span class="help-block text-danger">{{ $errors->first('capacity') }}</span>
                                                             @endif
                                                         </div>
                                                     </div>
@@ -141,7 +142,7 @@
                                                         <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
                                                             <div class="login-horizental">
                                                                 <button class="btn btn-sm btn-primary login-submit-cs" type="submit">
-                                                                    Create Class
+                                                                    Update Section
                                                                 </button>
                                                             </div>
                                                         </div>
@@ -159,6 +160,7 @@
         </div>
     </div>
     <!-- Advanced Form End-->
+
     @push('js')
 
         <!-- jquery============================================ -->
@@ -224,4 +226,3 @@
 
     @endpush
 </x-tenant-app-layout>
-

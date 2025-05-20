@@ -45,11 +45,10 @@ class SectionController extends Controller
     public function store(Request $request)
     {
 
-
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'class_id' => 'required|exists:classes,id',
-            'capacity' => 'required|integer|min:1'
+            'name'      => 'required|string|max:255',
+            'class_id'  => 'required|exists:classes,id',
+            'capacity'  => 'required|integer|min:1'
         ]);
 
         $validated['school_id'] = $this->schoolId;
@@ -81,7 +80,7 @@ class SectionController extends Controller
     {
 
         $section = Section::where('school_id', $this->schoolId)
-            ->findOrFail($id);
+            ->findOrFail(decrypt($id));
 
         $classes = Classes::where('school_id', $this->schoolId)
             ->orderBy('numeric_value')
@@ -93,21 +92,34 @@ class SectionController extends Controller
 
     public function update(Request $request, $id)
     {
-
         $section = Section::where('school_id', $this->schoolId)
-            ->findOrFail($id);
+            ->findOrFail(decrypt($id));
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'class_id' => 'required|exists:classes,id',
-            'capacity' => 'required|integer|min:1'
+            'name'      => 'required|string|max:255',
+            'class_id'  => 'required|exists:classes,id',
+            'capacity'  => 'required|integer|min:1'
         ]);
 
-        $section->update($validated);
+        try {
+            $section->update($validated);
 
-        return redirect()->route('admin.academic.sections.index')
-            ->with('alert-type', 'success')
-            ->with('message', 'Section updated successfully!');
+            return redirect()->route('admin.academic.sections.index')
+                ->with('alert-type', 'success')
+                ->with('message', 'Section updated successfully!');
+        } catch (QueryException $e) {
+            if ($e->errorInfo[1] == 1062) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('alert-type', 'error')
+                    ->with('message', 'A section with this name already exists for the selected class.');
+            }
+
+            return redirect()->back()
+                ->withInput()
+                ->with('alert-type', 'error')
+                ->with('message', 'An unexpected error occurred while updating the section.');
+        }
     }
 
 
