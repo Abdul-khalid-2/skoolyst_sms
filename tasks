@@ -1,0 +1,14 @@
+1) profile_setting  ( add favicon )
+1) profile_setting  ( add second profile image)
+2) teacher          ( mobile back and add teacher button)
+3) teacher          ( delete teacher )
+4) student          ( view details )
+5) student          ( delete student )
+6) parent           ( delete parent ) -> under construction
+7) parent           ( view parent details )
+8) parent           ( update parent )
+9) cms              ( button icon change)
+10) cms             ( landing page modification need)
+11) classes         ( view class details )
+12) section         ( view section details) 
+12) section         ( edit and update section ) -> done
