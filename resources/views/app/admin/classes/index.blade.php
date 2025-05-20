@@ -147,53 +147,61 @@
                                         </tr>
                                      </thead>
                                      <tbody>
-                                         @foreach ($classes as $class)
-                                             <tr>
-                                                <td>{{ $class->id??"" }}</td>
+                                        @foreach ($classes as $class)
+                                            <tr @if($class->trashed()) style="opacity: 0.6; background-color: #f8f9fa;" @endif>
+                                                <td>
+                                                    {{ $class->id??"" }}
+                                                    @if($class->trashed())
+                                                        <span class="badge badge-danger">Deleted</span>
+                                                    @endif
+                                                </td>
                                                 <td>{{ $class->name??"" }}</td>
                                                 <td>{{ $class->numeric_value??"" }}</td>
-                                                {{-- <td>
-                                                    @foreach ($class->classTeachersSubjects as $subject)
-                                                        @if ($subject->class_id == $class->id)
-                                                            <span class="badge badge-primary">{{ $subject->teacher->name }}</span>
-                                                        @endif  
-                                                    @endforeach
-                                                </td> --}}
-                                                <td>
-                                                    {{ $class->sections->count() }}
-                                                </td>
-                                                <td>
-                                                    {{ $class->classStudents->count() }}
-                                                </td>
+                                                <td>{{ $class->sections->count() }}</td>
+                                                <td>{{ $class->classStudents->count() }}</td>
                                                 <td>
                                                     <div style="display: flex; align-items: center; gap: 4px;">
                                                         <a href="{{ route('admin.academic.classes.show', encrypt($class->id)) }}"
                                                             class="btn btn-xs btn-success" 
-                                                            title="Edit">
-                                                                <i class="fa fa-eye"></i>
-                                                            </a>
-                                                        <a href="{{ route('admin.academic.classes.edit', encrypt($class->id)) }}" 
-                                                           class="btn btn-xs btn-primary" 
-                                                           title="Edit">
-                                                            <i class="fa fa-edit"></i>
+                                                            title="View">
+                                                            <i class="fa fa-eye"></i>
                                                         </a>
-                                                
-                                                        <form action="{{ route('admin.academic.classes.destroy', encrypt($class->id)) }}" 
-                                                              method="POST" 
-                                                              class="delete-form">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" 
-                                                                    class="btn btn-xs btn-danger" 
-                                                                    title="Delete"
-                                                                    onclick="return confirm('Are you sure you want to delete this section?')">
-                                                                <i class="fa fa-trash"></i>
-                                                            </button>
-                                                        </form>
+                                                        
+                                                        @unless($class->trashed())
+                                                            <a href="{{ route('admin.academic.classes.edit', encrypt($class->id)) }}" 
+                                                            class="btn btn-xs btn-primary" 
+                                                            title="Edit">
+                                                                <i class="fa fa-edit"></i>
+                                                            </a>
+                                                        
+                                                            <form action="{{ route('admin.academic.classes.destroy', encrypt($class->id)) }}" 
+                                                                method="POST" 
+                                                                class="delete-form">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" 
+                                                                        class="btn btn-xs btn-danger" 
+                                                                        title="Delete"
+                                                                        onclick="return confirm('Are you sure you want to delete this class?')">
+                                                                    <i class="fa fa-close"></i>
+                                                                </button>
+                                                            </form>
+                                                        @else
+                                                            <form action="{{ route('admin.academic.classes.restore', encrypt($class->id)) }}" 
+                                                                method="POST">
+                                                                @csrf
+                                                                <button type="submit" 
+                                                                        class="btn btn-xs btn-warning" 
+                                                                        title="Restore"
+                                                                        onclick="return confirm('Are you sure you want to restore this class?')">
+                                                                    <i class="fa fa-refresh"></i> Restore
+                                                                </button>
+                                                            </form>
+                                                        @endunless
                                                     </div>
                                                 </td>
-                                             </tr>
-                                         @endforeach
+                                            </tr>
+                                        @endforeach
                                      </tbody>
                                 </table>
                             </div>

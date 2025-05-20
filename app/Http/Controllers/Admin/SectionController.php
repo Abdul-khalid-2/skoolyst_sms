@@ -11,6 +11,13 @@ use Illuminate\Database\QueryException;
 
 class SectionController extends Controller
 {
+
+    protected $schoolId;
+
+    public function __construct()
+    {
+        $this->schoolId = auth()->user()->school_id ?? School::first()->id ?? null;
+    }
     /**
      * Display a listing of the sections.
      *
@@ -18,14 +25,13 @@ class SectionController extends Controller
      */
     public function index()
     {
-        $school = School::first();
         // Get sections with their class and students count
-        $sections = Section::with(['class', 'students'])
-            ->where('school_id', auth()->user()->school_id ?? $school->id)
+        $sections = Section::with(['students'])
+            ->where('school_id', $this->schoolId)
+            ->whereHas('class') // This implicitly checks the class exists and isn't deleted
             ->orderBy('class_id')
             ->orderBy('name')
             ->get();
-
 
         return view('app.admin.sections.index', compact('sections'));
     }
@@ -51,7 +57,7 @@ class SectionController extends Controller
      */
     public function store(Request $request)
     {
-        $school = School::first();
+
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -59,7 +65,7 @@ class SectionController extends Controller
             'capacity' => 'required|integer|min:1'
         ]);
 
-        $validated['school_id'] = auth()->user()->school_id ?? $school->id;
+        $validated['school_id'] = $this->schoolId;
 
         try {
             Section::create($validated);
@@ -90,11 +96,11 @@ class SectionController extends Controller
      */
     public function edit($id)
     {
-        $school = School::first();
-        $section = Section::where('school_id', auth()->user()->school_id ?? $school->id)
+
+        $section = Section::where('school_id', $this->schoolId)
             ->findOrFail($id);
 
-        $classes = Classes::where('school_id', auth()->user()->school_id ?? $school->id)
+        $classes = Classes::where('school_id', $this->schoolId)
             ->orderBy('numeric_value')
             ->get();
 
@@ -110,8 +116,8 @@ class SectionController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $school = School::first();
-        $section = Section::where('school_id', auth()->user()->school_id ?? $school->id)
+
+        $section = Section::where('school_id', $this->schoolId)
             ->findOrFail($id);
 
         $validated = $request->validate([
@@ -134,8 +140,8 @@ class SectionController extends Controller
      */
     public function destroy($id)
     {
-        $school = School::first();
-        $section = Section::where('school_id', auth()->user()->school_id ?? $school->id)
+
+        $section = Section::where('school_id', $this->schoolId)
             ->findOrFail($id);
 
         // Check if section has students before deleting

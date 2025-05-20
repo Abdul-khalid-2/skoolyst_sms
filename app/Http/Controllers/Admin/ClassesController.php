@@ -13,29 +13,39 @@ use Illuminate\Support\Facades\Crypt;
 
 class ClassesController extends Controller
 {
-    /**
-     * Display a listing of the classes.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    protected $schoolId;
+
+    public function __construct()
+    {
+        $this->schoolId = auth()->user()->school_id ?? School::first()->id ?? null;
+    }
+
+    private function redirectWithMessage($route, $message, $type = 'success')
+    {
+        return redirect()->route($route)
+            ->with([
+                'alert-type' => $type,
+                'message' => $message
+            ]);
+    }
+
     public function index()
     {
-
-        // Get classes with their class teacher and sections count
-        // $classes = Classes::with(['classTeacher', 'sections', 'classStudents'])->orderBy('numeric_value')->get();
-        $classes = Classes::with(['classTeachersSubjects.teacher', 'classTeachersSubjects.subject'])->orderBy('numeric_value')->get();
+        $classes = Classes::withTrashed()
+            ->where('school_id', $this->schoolId)
+            ->with(['classTeachersSubjects.teacher' => function ($query) {
+                $query->withTrashed();
+            }, 'classTeachersSubjects.subject' => function ($query) {
+                $query->withTrashed();
+            }])
+            ->orderBy('numeric_value')
+            ->get();
 
         return view('app.admin.classes.index', compact('classes'));
     }
 
-    /**
-     * Show the form for creating a new class.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
-        // Get teachers for dropdown
         $teachers = User::role('teacher')
             ->orderBy('name')
             ->get();
@@ -43,12 +53,6 @@ class ClassesController extends Controller
         return view('app.admin.classes.create', compact('teachers'));
     }
 
-    /**
-     * Store a newly created class in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -57,35 +61,26 @@ class ClassesController extends Controller
             'teacher_id' => 'nullable|exists:users,id'
         ]);
 
-        $school = School::first();
-        $validated['school_id'] = auth()->user()->school_id ?? $school->id;
+        $validated['school_id'] = $this->schoolId;
 
-        $class          = Classes::create($validated);
-        $systemSetting  =  SystemSetting::where('setting_key', 'default_class_capacity')->first();
-        $capacity       = $systemSetting->setting_value ?? 20;
+        $class = Classes::create($validated);
+        $systemSetting = SystemSetting::where('setting_key', 'default_class_capacity')->first();
+        $capacity = $systemSetting->setting_value ?? 20;
 
         Section::create([
-            'schoo_id' => auth()->user()->school_id ?? $school->id,
+            'school_id' => $this->schoolId, // Fixed typo: schoo_id -> school_id
             'class_id' => $class->id,
-            'name'     => 'A',
+            'name' => 'A',
             'capacity' => $capacity,
-
         ]);
 
-        return redirect()->route('admin.academic.classes.index')
-            ->with('success', 'Class created successfully');
+        return $this->redirectWithMessage('admin.academic.classes.index', 'Class created successfully');
     }
 
-    /**
-     * Show the form for editing the specified class.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function edit($encodedId)
     {
         $id = Crypt::decrypt($encodedId);
-        $class = Classes::findOrFail($id);
+        $class = Classes::where('school_id', $this->schoolId)->findOrFail($id);
 
         $teachers = User::role('teacher')
             ->orderBy('name')
@@ -94,28 +89,20 @@ class ClassesController extends Controller
         return view('app.admin.classes.edit', compact('class', 'teachers'));
     }
 
-
     public function show($encodedId)
     {
         $id = Crypt::decrypt($encodedId);
-        echo "<h1>Under Construction</h1>";
+        $class = Classes::withTrashed()
+            ->where('school_id', $this->schoolId)
+            ->with(['sections', 'classTeachersSubjects.teacher', 'classTeachersSubjects.subject'])
+            ->findOrFail($id);
 
-        // $teachers = User::role('teacher')
-        //     ->orderBy('name')
-        //     ->get();
-
-        // return view('app.admin.classes.edit', compact('class', 'teachers'));
+        return view('app.admin.classes.show', compact('class'));
     }
-    /**
-     * Update the specified class in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+
     public function update(Request $request, $id)
     {
-        $class = Classes::findOrFail($id);
+        $class = Classes::where('school_id', $this->schoolId)->findOrFail($id);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -125,29 +112,33 @@ class ClassesController extends Controller
 
         $class->update($validated);
 
-        return redirect()->route('admin.academic.classes.index')
-            ->with('success', 'Class updated successfully');
+        return $this->redirectWithMessage('admin.academic.classes.index', 'Class updated successfully');
     }
 
-    /**
-     * Remove the specified class from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
-        $class = Classes::findOrFail($id);
+        $id = Crypt::decrypt($id);
+        $class = Classes::where('school_id', $this->schoolId)->findOrFail($id);
 
-        // Check if class has sections before deleting
         if ($class->sections()->count() > 1) {
-            return back()->with('error', 'Cannot delete class with sections');
+            return $this->redirectWithMessage('admin.academic.classes.index', 'Cannot delete class with sections', 'error');
         }
 
         $class->delete();
         $class->sections()->delete();
 
-        return redirect()->route('admin.academic.classes.index')
-            ->with('success', 'Class deleted successfully');
+        return $this->redirectWithMessage('admin.academic.classes.index', 'Class deleted successfully');
+    }
+
+    public function restore($id)
+    {
+        $class = Classes::withTrashed()
+            ->where('school_id', $this->schoolId)
+            ->findOrFail(decrypt($id));
+
+        $class->restore();
+        $class->sections()->restore();
+
+        return $this->redirectWithMessage('admin.academic.classes.index', 'Class restored successfully');
     }
 }

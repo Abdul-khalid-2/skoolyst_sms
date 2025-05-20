@@ -130,20 +130,31 @@
 
         {{ $slot }}
 
-        {{-- <div class="footer-copyright-area">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="footer-copy-right">
-                            <p>Copyright © 2025. All rights reserved. Template by Abudl Khalid</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div> --}}
+
     </div>
 
     @stack('js')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        @if(Session::has('message'))
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            })
+            
+            Toast.fire({
+                icon: '{{ Session::get("alert-type") }}',
+                title: '{{ Session::get("message") }}'
+            })
+        @endif
+    </script>
 </body>
 
 </html>

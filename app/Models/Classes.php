@@ -22,10 +22,6 @@ class Classes extends Model
         return $this->belongsTo(School::class);
     }
 
-    // public function classTeacher()
-    // {
-    //     return $this->belongsTo(User::class, 'teacher_id');
-    // }
     public function classStudents()
     {
         return $this->hasMany(StudentProfile::class, 'class_id');
@@ -35,18 +31,6 @@ class Classes extends Model
     {
         return $this->hasMany(Section::class, 'class_id');
     }
-
-    // remove this if no use 
-    // public function subjects()
-    // {
-    //     return $this->belongsToMany(Subject::class, 'subject_classes');
-    // }
-
-
-
-
-    // relationships of class with teacher and subject 
-
 
     public function classTeachersSubjects()
     {

@@ -161,6 +161,7 @@ Route::group(['middleware' => ['role:admin|super-admin']], function () {
         Route::get('/{id}/show', [ClassesController::class, 'show'])->name('show');
         Route::put('/{id}', [ClassesController::class, 'update'])->name('update');
         Route::delete('/{id}', [ClassesController::class, 'destroy'])->name('destroy'); // <-- DELETE route
+        Route::post('/{id}/restore', [ClassesController::class, 'restore'])->name('restore');
     });
 
     // Section Routes
