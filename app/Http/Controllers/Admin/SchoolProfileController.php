@@ -82,7 +82,7 @@ class SchoolProfileController extends Controller
 
             // Store new logo
             $logoPath = $request->file('logo')
-                ->store("tenants/school/profile", 'website');
+                ->store("school/profile", 'website');
 
             $validated['logo'] = $logoPath;
         }
@@ -237,7 +237,7 @@ class SchoolProfileController extends Controller
             
             // Store new logo
             $schoolProfile = $request->file('logo')
-                ->store("tenants/school/logo", 'website');
+                ->store("school/logo", 'website');
         } elseif ($request->boolean('remove_logo')) {
             // Remove existing logo
             if ($school->logo) {
@@ -254,13 +254,13 @@ class SchoolProfileController extends Controller
         if ($request->hasFile('hero_image')) {
             // Delete old hero image if exists
             if ($school->hero_image) {
-                Storage::delete($school->hero_image);
+                Storage::disk('website')->delete($school->hero_image);
             }
-            $path = $request->file('hero_image')->store('public/school');
+            $path = $request->file('hero_image')->store("school/hero", 'website');
             $school->hero_image = str_replace('public/', '', $path);
         } elseif ($request->has('remove_hero_image')) {
             if ($school->hero_image) {
-                Storage::delete($school->hero_image);
+                Storage::disk('website')->delete($school->hero_image);
                 $school->hero_image = null;
             }
         }
@@ -335,7 +335,7 @@ class SchoolProfileController extends Controller
                         if ($avatarPath) {
                             // Delete old avatar if exists
                             if ($testimonial->avatar) {
-                                Storage::delete($testimonial->avatar);
+                                Storage::disk('website')->delete($testimonial->avatar);
                             }
                             $updateData['avatar'] = $avatarPath;
                         }

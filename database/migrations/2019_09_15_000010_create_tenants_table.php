@@ -15,16 +15,16 @@ class CreateTenantsTable extends Migration
      */
     public function up(): void
     {
-        Schema::create('tenants', function (Blueprint $table) {
-            $table->string('id')->primary();
+        // Schema::create('tenants', function (Blueprint $table) {
+        //     $table->string('id')->primary();
 
-            $table->string('name');
-            $table->string('email');
-            $table->string('password');
+        //     $table->string('name');
+        //     $table->string('email');
+        //     $table->string('password');
 
-            $table->timestamps();
-            $table->json('data')->nullable();
-        });
+        //     $table->timestamps();
+        //     $table->json('data')->nullable();
+        // });
     }
 
     /**
@@ -34,6 +34,6 @@ class CreateTenantsTable extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tenants');
+        // Schema::dropIfExists('tenants');
     }
 }

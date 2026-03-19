@@ -199,7 +199,7 @@
                                                         <input type="file" name="hero_image" class="form-control">
                                                         @if($school->hero_image)
                                                             <div class="mt-2">
-                                                                <img src="{{ asset($school->hero_image) }}" alt="Current Hero Image" style="max-height: 100px;">
+                                                                <img src="{{ asset('assets/' . $school->hero_image) }}" alt="Current Hero Image" style="max-height: 100px;">
                                                                 <label class="mt-2">
                                                                     <input type="checkbox" name="remove_hero_image"> Remove current hero image
                                                                 </label>

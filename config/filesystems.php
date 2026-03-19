@@ -49,7 +49,7 @@ return [
 
         'website' => [
             'driver' => 'local',
-            'root' => public_path('tenancy/assets'),
+            'root' => public_path('assets'),
             'url' => env('APP_URL') . '/website',
             'visibility' => 'public',
             'throw' => false,
