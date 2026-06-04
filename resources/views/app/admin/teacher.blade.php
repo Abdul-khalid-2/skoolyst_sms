@@ -9,7 +9,7 @@
                         <div class="row">
                             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                 <div class="breadcome-heading" style="margin-top: 10px">
-                                    <h3>All Teacherxxs</h3>
+                                    <h3>All Teachers</h3>
                                 </div>
                             </div>
                             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
