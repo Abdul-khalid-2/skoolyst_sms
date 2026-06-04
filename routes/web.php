@@ -105,6 +105,7 @@ Route::middleware(['auth', 'verified', 'scope.branch', 'role:super-admin|admin']
         Route::put('/{id}', [SectionController::class, 'update'])->name('update');
         Route::get('/{id}/edit', [SectionController::class, 'edit'])->name('edit');
         Route::get('/create', [SectionController::class, 'create'])->name('create');
+        Route::get('/{id}', [SectionController::class, 'show'])->name('show');
         Route::delete('/{id}', [SectionController::class, 'destroy'])->name('destroy');
         Route::post('/{id}/restore', [SectionController::class, 'restore'])->name('restore');
     });

@@ -76,6 +76,19 @@ class SectionController extends Controller
 
 
 
+    public function show($id)
+    {
+        $section = Section::withTrashed()
+            ->with([
+                'class' => fn($q) => $q->withTrashed(),
+                'students.studentProfile',
+            ])
+            ->where('branch_id', $this->branchId)
+            ->findOrFail(decrypt($id));
+
+        return view('app.admin.sections.show', compact('section'));
+    }
+
     public function edit($id)
     {
 
