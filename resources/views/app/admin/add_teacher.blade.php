@@ -1,5 +1,6 @@
 <x-tenant-app-layout>
     @push('css')
+        <link rel="stylesheet" href="{{ asset('backend/css/datapicker/datepicker3.css') }}">
         <style>
             #profilePicPreview {
                 display: none;
@@ -145,15 +146,19 @@
                                                                 <label class="login2">Date of birth*</label>
                                                             </div>
                                                             <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-                                                                <input
-                                                                    type="date"
-                                                                    name="dob"
-                                                                    class="form-control @error('dob') is-invalid @enderror"
-                                                                    value="{{ old('dob') }}"
-                                                                    max="{{ date('Y-m-d') }}"
-                                                                    required
-                                                                >
-                                                                @error('dob') <small class="text-danger">{{ $message }}</small> @enderror
+                                                                <div class="sparkline16-graph">
+                                                                    <div class="date-picker-inner">
+                                                                        <div class="form-group data-custon-pick" id="data_1">
+                                                                            <div class="input-group date">
+                                                                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                                                <input type="text" name="dob" readonly
+                                                                                       class="form-control @error('dob') is-invalid @enderror"
+                                                                                       value="{{ old('dob') }}" required>
+                                                                            </div>
+                                                                            @error('dob') <small class="text-danger">{{ $message }}</small> @enderror
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -243,14 +248,19 @@
                                                                 <label class="login2">Joining Date*</label>
                                                             </div>
                                                             <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-                                                                <input
-                                                                    type="date"
-                                                                    name="joining_date"
-                                                                    class="form-control @error('joining_date') is-invalid @enderror"
-                                                                    value="{{ old('joining_date') }}"
-                                                                    required
-                                                                >
-                                                                @error('joining_date') <small class="text-danger">{{ $message }}</small> @enderror
+                                                                <div class="sparkline16-graph">
+                                                                    <div class="date-picker-inner">
+                                                                        <div class="form-group data-custon-pick" id="data_1">
+                                                                            <div class="input-group date">
+                                                                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                                                <input type="text" name="joining_date" readonly
+                                                                                       class="form-control @error('joining_date') is-invalid @enderror"
+                                                                                       value="{{ old('joining_date') }}" required>
+                                                                            </div>
+                                                                            @error('joining_date') <small class="text-danger">{{ $message }}</small> @enderror
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -431,6 +441,8 @@
             <!-- Advanced Form End-->
         </div>
         @push('js')
+            <script src="{{ asset('backend/js/datapicker/bootstrap-datepicker.js') }}"></script>
+            <script src="{{ asset('backend/js/datapicker/datepicker-active.js') }}"></script>
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
                     var profileInput = document.getElementById('profile_pic');

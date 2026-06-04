@@ -1,4 +1,8 @@
 <x-tenant-app-layout>
+    @push('css')
+        <link rel="stylesheet" href="{{ asset('backend/css/datapicker/datepicker3.css') }}">
+        <link rel="stylesheet" href="{{ asset('backend/css/chosen/bootstrap-chosen.css') }}">
+    @endpush
 
     <x-slot name="header"></x-slot>
         <!-- Advanced Form Start -->
@@ -155,7 +159,7 @@
                                                                         <div class="form-group data-custon-pick" id="data_1">
                                                                             <div class="input-group date">
                                                                                 <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                                                                                <input type="text" name="dob" readonly class="form-control" value="{{ old('dob', $user->dob) }}" required>
+                                                                                <input type="text" name="dob" readonly class="form-control" value="{{ old('dob', $user->dob ? \Carbon\Carbon::parse($user->dob)->format('Y/m/d') : '') }}" required>
                                                                             </div>
                                                                             @error('dob')
                                                                                 <small class="text-danger">{{ $message }}</small>
@@ -254,4 +258,16 @@
             <!-- Advanced Form End-->
         </div>
 
+    @push('js')
+        <script src="{{ asset('backend/js/datapicker/bootstrap-datepicker.js') }}"></script>
+        <script src="{{ asset('backend/js/datapicker/datepicker-active.js') }}"></script>
+        <script src="{{ asset('backend/js/chosen/chosen.jquery.js') }}"></script>
+        <script>
+            $(document).ready(function() {
+                $('.chosen-select').chosen({
+                    placeholder_text_multiple: 'Select Role'
+                });
+            });
+        </script>
+    @endpush
 </x-tenant-app-layout>
