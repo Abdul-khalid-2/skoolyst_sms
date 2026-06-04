@@ -127,6 +127,9 @@
                         </div>
                         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                             <div class="action-buttons">
+                                <a href="{{ route('schools.show') }}" class="btn btn-primary btn-sm" style="color: white">
+                                    <i class="fa fa-building"></i>  Profile
+                                </a>
                                 <a href="{{ route('schools.cms') }}" class="btn btn-primary btn-sm" style="color: white">
                                     CMS
                                 </a>

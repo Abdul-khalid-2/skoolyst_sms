@@ -1,82 +1,5 @@
 <x-tenant-app-layout>
     @push('css')
-    
-        <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
-        <!-- Google Fonts
-            ============================================ -->
-        <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,700,900" rel="stylesheet">
-        <!-- Bootstrap CSS
-            ============================================ -->
-        <link rel="stylesheet" href="{{ asset('backend/css/bootstrap.min.css') }}">
-        <!-- Bootstrap CSS
-            ============================================ -->
-        <link rel="stylesheet" href="{{ asset('backend/css/font-awesome.min.css') }}">
-        <!-- owl.carousel CSS
-            ============================================ -->
-        <link rel="stylesheet" href="{{ asset('backend/css/owl.carousel.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/css/owl.theme.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/css/owl.transitions.css') }}">
-        <!-- animate CSS
-            ============================================ -->
-        <link rel="stylesheet" href="{{ asset('backend/css/animate.css') }}">
-        <!-- normalize CSS
-            ============================================ -->
-        <link rel="stylesheet" href="{{ asset('backend/css/normalize.css') }}">
-        <!-- meanmenu icon CSS
-            ============================================ -->
-        <link rel="stylesheet" href="{{ asset('backend/css/meanmenu.min.css') }}">
-        <!-- main CSS
-            ============================================ -->
-        <link rel="stylesheet" href="{{ asset('backend/css/main.css') }}">
-        <!-- educate icon CSS
-            ============================================ -->
-        <link rel="stylesheet" href="{{ asset('backend/css/educate-custon-icon.css') }}">
-        <!-- morrisjs CSS
-            ============================================ -->
-        <link rel="stylesheet" href="{{ asset('backend/css/morrisjs/morris.css') }}">
-        <!-- mCustomScrollbar CSS
-            ============================================ -->
-        <link rel="stylesheet" href="{{ asset('backend/css/scrollbar/jquery.mCustomScrollbar.min.css') }}">
-        <!-- metisMenu CSS
-            ============================================ -->
-        <link rel="stylesheet" href="{{ asset('backend/css/metisMenu/metisMenu.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/css/metisMenu/metisMenu-vertical.css') }}">
-        <!-- calendar CSS
-            ============================================ -->
-        <link rel="stylesheet" href="{{ asset('backend/css/calendar/fullcalendar.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/css/calendar/fullcalendar.print.min.css') }}">
-        <!-- touchspin CSS
-            ============================================ -->
-        <link rel="stylesheet" href="{{ asset('backend/css/touchspin/jquery.bootstrap-touchspin.min.css') }}">
-        <!-- datapicker CSS
-            ============================================ -->
-        <link rel="stylesheet" href="{{ asset('backend/css/datapicker/datepicker3.css') }}">
-        <!-- forms CSS
-            ============================================ -->
-        <link rel="stylesheet" href="{{ asset('backend/css/form/themesaller-forms.css') }}">
-        <!-- colorpicker CSS
-            ============================================ -->
-        <link rel="stylesheet" href="{{ asset('backend/css/colorpicker/colorpicker.css') }}">
-        <!-- select2 CSS
-            ============================================ -->
-        <link rel="stylesheet" href="{{ asset('backend/css/select2/select2.min.css') }}">
-        <!-- chosen CSS
-            ============================================ -->
-        <link rel="stylesheet" href="{{ asset('backend/css/chosen/bootstrap-chosen.css') }}">
-        <!-- ionRangeSlider CSS
-            ============================================ -->
-        <link rel="stylesheet" href="{{ asset('backend/css/ionRangeSlider/ion.rangeSlider.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/css/ionRangeSlider/ion.rangeSlider.skinFlat.css') }}">
-        <!-- style CSS
-            ============================================ -->
-        
-        <!-- responsive CSS
-            ============================================ -->
-        <link rel="stylesheet" href="{{ asset('backend/css/responsive.css') }}">
-        <!-- modernizr JS
-            ============================================ -->
-        <script src="{{ asset('backend/js/vendor/modernizr-2.8.3.min.js') }}"></script>
-
         <style>
             .color-preview {
                 width: 30px;
@@ -113,18 +36,17 @@
                             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                 <div class="action-buttons">
                                     <a href="{{ route('schools.show') }}" class="btn btn-primary btn-sm" style="color: white">
-                                        <i class="fa fa-arrow-left"></i> Back
+                                        <i class="fa fa-building"></i>  Profile
                                     </a>
-                                </div>
-                                <div class="dropdown-container">
-                                    <button class="dropdown-toggle-custom">
-                                        <i class="fa fa-ellipsis-v"></i>
-                                    </button>
-                                    <div class="dropdown-menu-custom">
-                                        <a href="{{ route('schools.show') }}" class="btn btn-primary btn-sm" style="color: white">
-                                            <i class="fa fa-arrow-left"></i> Back
-                                        </a>
-                                    </div>
+                                    <a href="{{ route('schools.cms') }}" class="btn btn-primary btn-sm" style="color: white">
+                                        CMS
+                                    </a>
+                                    <a href="{{ route('schools.edit') }}" class="btn btn-primary btn-sm" style="color: white">
+                                        <i class="fa fa-graduation-cap"></i> Profile Edit
+                                    </a>
+                                    <a href="{{ route('schools.settings') }}" class="btn btn-primary btn-sm" style="color: white">
+                                        <i class="fa fa-cog"></i> Setting
+                                    </a>
                                 </div>
                             </div>
                         </div>

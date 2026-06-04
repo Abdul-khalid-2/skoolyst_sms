@@ -53,8 +53,7 @@ class TeacherController extends Controller
             'address'   => 'required|string',
             'gender'    => 'required|in:male,female,other',
             'dob'       => 'required|date',
-            'roles'     => 'required|array',
-            'roles.*'   => 'in:admin,teacher',
+            'role'      => 'required|in:admin,teacher',
 
             // Teacher profile fields
             'employee_id'       => 'required|string|max:50|unique:teacher_profiles,employee_id',
@@ -99,14 +98,10 @@ class TeacherController extends Controller
                 'gender'      => $validated['gender'],
                 'dob'         => $validated['dob'],
                 'password'    => bcrypt('12345678'), // Default password
-                'role'        => in_array('admin', $validated['roles']) ? 'admin' : 'teacher',
+                'role'        => $validated['role'],
             ]);
 
-            // dd($profilePicPath);
-            // Assign roles
-            foreach ($validated['roles'] as $role) {
-                $user->assignRole($role);
-            }
+            $user->assignRole($validated['role']);
 
             // Handle file uploads
             $qualificationDocPath = null;

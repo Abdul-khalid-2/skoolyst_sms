@@ -43,7 +43,7 @@
                     <li>
                         <a class="has-arrow" href="javascript:void(0)">
                             <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
-                            <span class="mini-click-non">People Management</span>
+                            <span class="mini-click-non">Users Manage</span>
                         </a>
                         <ul class="submenu-angle" aria-expanded="false">
                             <li><a href="{{ route('dashboard.teachers') }}">Teachers</a></li>
