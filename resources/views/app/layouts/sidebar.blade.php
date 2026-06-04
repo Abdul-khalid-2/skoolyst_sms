@@ -13,24 +13,24 @@
         <div class="left-custom-menu-adp-wrap comment-scrollbar" style="height: calc(100vh - 100px); overflow-y: auto;">
             <nav class="sidebar-nav left-sidebar-menu-pro">
                 <ul class="metismenu" id="menu1">
-                    
+
                     <!-- School Admin Panel -->
                     <li><h6 style="color: rgb(95, 95, 95);padding-left:20px" class="mini-click-non">School Admin Panel</h6></li>
                     <li>
                         <a title="Dashboard" href="{{ route('dashboard') }}" aria-expanded="false">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-tachometer" aria-hidden="true"></i></span>
                             <span class="mini-click-non">Dashboard</span>
                         </a>
                     </li>
                     <li>
                         <a title="School Profile" href="{{ route('schools.show') }}" aria-expanded="false">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-university" aria-hidden="true"></i></span>
                             <span class="mini-click-non">School Profile</span>
                         </a>
                     </li>
                     <li>
                         <a class="has-arrow" href="javascript:void(0)">
-                            <span class="educate-icon educate-home icon-wrap"></span>
+                            <span class="icon-wrap"><i class="fa fa-graduation-cap" aria-hidden="true"></i></span>
                             <span class="mini-click-non">Academic Setup</span>
                         </a>
                         <ul class="submenu-angle" aria-expanded="false">
@@ -42,7 +42,7 @@
                     </li>
                     <li>
                         <a class="has-arrow" href="javascript:void(0)">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-users" aria-hidden="true"></i></span>
                             <span class="mini-click-non">Users Manage</span>
                         </a>
                         <ul class="submenu-angle" aria-expanded="false">
@@ -53,89 +53,89 @@
                     </li>
                     <li>
                         <a title="Attendance" href="{{ route('admin.attendance.index') }}" aria-expanded="false">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-calendar-check-o" aria-hidden="true"></i></span>
                             <span class="mini-click-non">Attendance</span>
                         </a>
                     </li>
                     <li>
                         <a class="has-arrow" href="javascript:void(0)">
-                            <span class="educate-icon educate-home icon-wrap"></span>
+                            <span class="icon-wrap"><i class="fa fa-money" aria-hidden="true"></i></span>
                             <span class="mini-click-non">Fees Management</span>
                         </a>
                         <ul class="submenu-angle" aria-expanded="false">
-                            <li><a  href="javascript:void(0)">Categories</a></li>
-                            <li><a  href="javascript:void(0)">Structures</a></li>
-                            <li><a  href="javascript:void(0)">Payments</a></li>
+                            <li><a href="javascript:void(0)">Categories</a></li>
+                            <li><a href="javascript:void(0)">Structures</a></li>
+                            <li><a href="javascript:void(0)">Payments</a></li>
                         </ul>
                     </li>
                     <li>
                         <a class="has-arrow" href="javascript:void(0)">
-                            <span class="educate-icon educate-home icon-wrap"></span>
+                            <span class="icon-wrap"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></span>
                             <span class="mini-click-non">Exams</span>
                         </a>
                         <ul class="submenu-angle" aria-expanded="false">
-                            <li><a  href="javascript:void(0)">Schedule</a></li>
-                            <li><a  href="javascript:void(0)">Results</a></li>
+                            <li><a href="javascript:void(0)">Schedule</a></li>
+                            <li><a href="javascript:void(0)">Results</a></li>
                         </ul>
                     </li>
                     <li>
                         <a class="has-arrow" href="javascript:void(0)">
-                            <span class="educate-icon educate-home icon-wrap"></span>
+                            <span class="icon-wrap"><i class="fa fa-book" aria-hidden="true"></i></span>
                             <span class="mini-click-non">Library</span>
                         </a>
                         <ul class="submenu-angle" aria-expanded="false">
-                            <li><a  href="javascript:void(0)">Books</a></li>
-                            <li><a  href="javascript:void(0)">Issues</a></li>
+                            <li><a href="javascript:void(0)">Books</a></li>
+                            <li><a href="javascript:void(0)">Issues</a></li>
                         </ul>
                     </li>
                     <li>
-                        <a title="Inventory"  href="javascript:void(0)" aria-expanded="false">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
+                        <a title="Inventory" href="javascript:void(0)" aria-expanded="false">
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-cubes" aria-hidden="true"></i></span>
                             <span class="mini-click-non">Inventory</span>
                         </a>
                     </li>
                     <li>
-                        <a title="Notices"  href="javascript:void(0)" aria-expanded="false">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
+                        <a title="Notices" href="javascript:void(0)" aria-expanded="false">
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-bullhorn" aria-hidden="true"></i></span>
                             <span class="mini-click-non">Notices</span>
                         </a>
                     </li>
                     <li>
-                        <a title="Holidays"  href="javascript:void(0)" aria-expanded="false">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
+                        <a title="Holidays" href="javascript:void(0)" aria-expanded="false">
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-calendar" aria-hidden="true"></i></span>
                             <span class="mini-click-non">Holidays</span>
                         </a>
                     </li>
                     <li>
-                        <a title="Reports"  href="javascript:void(0)" aria-expanded="false">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
+                        <a title="Reports" href="javascript:void(0)" aria-expanded="false">
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-bar-chart" aria-hidden="true"></i></span>
                             <span class="mini-click-non">Reports</span>
                         </a>
                     </li>
                     <li>
-                        <a title="Settings"  href="javascript:void(0)" aria-expanded="false">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
+                        <a title="Settings" href="javascript:void(0)" aria-expanded="false">
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-cog" aria-hidden="true"></i></span>
                             <span class="mini-click-non">Settings</span>
                         </a>
                     </li>
-                    
+
                     <!-- Common Features -->
-                    <span>Common Features</span>
+                    <li><h6 style="color: rgb(95, 95, 95);padding-left:20px" class="mini-click-non">Common Features</h6></li>
                     <li>
-                        <a title="Notifications"  href="javascript:void(0)" aria-expanded="false">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
+                        <a title="Notifications" href="javascript:void(0)" aria-expanded="false">
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-bell" aria-hidden="true"></i></span>
                             <span class="mini-click-non">Notifications</span>
                         </a>
                     </li>
                     <li>
-                        <a title="My Account"  href="javascript:void(0)" aria-expanded="false">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
+                        <a title="My Account" href="javascript:void(0)" aria-expanded="false">
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-user-circle" aria-hidden="true"></i></span>
                             <span class="mini-click-non">My Account</span>
                         </a>
                     </li>
                     <li>
-                        <a title="Logout"  href="{{ route('logout') }}" aria-expanded="false">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
+                        <a title="Logout" href="{{ route('logout') }}" aria-expanded="false">
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-sign-out" aria-hidden="true"></i></span>
                             <span class="mini-click-non">Logout</span>
                         </a>
                     </li>
@@ -156,31 +156,31 @@
                     <li><h6 style="color: rgb(95, 95, 95);padding-left:20px" class="mini-click-non">Teacher Panel</h6></li>
                     <li>
                         <a title="Dashboard" href="" aria-expanded="false">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-tachometer" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> Dashboard</span>
                         </a>
                     </li>
                     <li>
                         <a title="My Profile" href="" aria-expanded="false">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-id-card" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> My Profile</span>
                         </a>
                     </li>
                     <li>
                         <a title="My Students" href="" aria-expanded="false">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-user-graduate fa fa-users" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> My Students</span>
                         </a>
                     </li>
                     <li>
                         <a title="Mark Attendance" href="" aria-expanded="false">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-calendar-check-o" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> Mark Attendance</span>
                         </a>
                     </li>
                     <li>
                         <a class="has-arrow" href="javascript:void(0)">
-                            <span class="educate-icon educate-home icon-wrap"></span>
+                            <span class="icon-wrap"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> Exams</span>
                         </a>
                         <ul class="submenu-angle" aria-expanded="false">
@@ -190,34 +190,34 @@
                     </li>
                     <li>
                         <a title="Subjects" href="" aria-expanded="false">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-flask" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> Subjects</span>
                         </a>
                     </li>
                     <li>
                         <a title="My Reports" href="" aria-expanded="false">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-bar-chart" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> My Reports</span>
                         </a>
                     </li>
-                    
+
                     <!-- Common Features -->
                     <li><h6 style="color: rgb(95, 95, 95);padding-left:20px" class="mini-click-non">Common Features</h6></li>
                     <li>
                         <a title="Notifications" href="" aria-expanded="false">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-bell" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> Notifications</span>
                         </a>
                     </li>
                     <li>
                         <a title="My Account" href="" aria-expanded="false">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-user-circle" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> My Account</span>
                         </a>
                     </li>
                     <li>
                         <a title="Logout" href="" aria-expanded="false">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-sign-out" aria-hidden="true"></i></span>
                             <span class="mini-click-non">Logout</span>
                         </a>
                     </li>
@@ -226,7 +226,7 @@
         </div>
     </nav>
 @elseif (Auth::user()->hasRole('parent'))
-    
+
     <!-- Parent Panel -->
     <nav id="sidebar" class="">
         <div class="sidebar-header">
@@ -239,13 +239,13 @@
                     <li><h6 style="color: rgb(95, 95, 95);padding-left:20px" class="mini-click-non">Parent Panel</h6></li>
                     <li>
                         <a title="Dashboard" href="" aria-expanded="false">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-tachometer" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> Dashboard</span>
                         </a>
                     </li>
                     <li>
                         <a class="has-arrow" href="javascript:void(0)">
-                            <span class="educate-icon educate-home icon-wrap"></span>
+                            <span class="icon-wrap"><i class="fa fa-child" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> My Children</span>
                         </a>
                         <ul class="submenu-angle" aria-expanded="false">
@@ -256,41 +256,41 @@
                     </li>
                     <li>
                         <a title="Fee Payments" href="" aria-expanded="false">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-credit-card" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> Fee Payments</span>
                         </a>
                     </li>
                     <li>
                         <a title="Library Books" href="" aria-expanded="false">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-book" aria-hidden="true"></i></span>
                             <span class="mini-click-non">Library Books</span>
                         </a>
                     </li>
                     <li>
                         <a title="Notices" href="" aria-expanded="false">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-bullhorn" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> Notices</span>
                         </a>
                     </li>
-                    
+
                     <!-- Common Features -->
                     <li><h6 style="color: rgb(95, 95, 95);padding-left:20px" class="mini-click-non">Common Features</h6></li>
                     <li>
                         <a title="Notifications" href="" aria-expanded="false">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-bell" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> Notifications</span>
                         </a>
                     </li>
                     <li>
                         <a title="My Account" href="" aria-expanded="false">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-user-circle" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> My Account</span>
                         </a>
                     </li>
                     <li>
                         <a title="Logout" href="{{ route('logout') }}" aria-expanded="false">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
-                            <span class="mini-click-non">🚪 Logout</span>
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-sign-out" aria-hidden="true"></i></span>
+                            <span class="mini-click-non">Logout</span>
                         </a>
                     </li>
                 </ul>
@@ -310,58 +310,58 @@
                     <li><h6 style="color: rgb(95, 95, 95);padding-left:20px" class="mini-click-non">Student Panel</h6></li>
                     <li>
                         <a title="Dashboard" href="" aria-expanded="false">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-tachometer" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> Dashboard</span>
                         </a>
                     </li>
                     <li>
                         <a title="My Profile" href="" aria-expanded="false">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-id-card" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> My Profile</span>
                         </a>
                     </li>
                     <li>
                         <a title="My Attendance" href="" aria-expanded="false">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-calendar-check-o" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> My Attendance</span>
                         </a>
                     </li>
                     <li>
                         <a title="My Results" href="" aria-expanded="false">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-trophy" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> My Results</span>
                         </a>
                     </li>
                     <li>
                         <a title="Fee Status" href="" aria-expanded="false">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-credit-card" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> Fee Status</span>
                         </a>
                     </li>
                     <li>
                         <a title="Book Issues" href="" aria-expanded="false">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-book" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> Book Issues</span>
                         </a>
                     </li>
-                    
+
                     <!-- Common Features -->
                     <li><h6 style="color: rgb(95, 95, 95);padding-left:20px" class="mini-click-non">Common Features</h6></li>
                     <li>
                         <a title="Notifications" href="" aria-expanded="false">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-bell" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> Notifications</span>
                         </a>
                     </li>
                     <li>
                         <a title="My Account" href="" aria-expanded="false">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-user-circle" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> My Account</span>
                         </a>
                     </li>
                     <li>
                         <a title="Logout" href="{{ route('logout') }}" aria-expanded="false">
-                            <span class="educate-icon educate-event icon-wrap sub-icon-mg" aria-hidden="true"></span>
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-sign-out" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> Logout</span>
                         </a>
                     </li>
