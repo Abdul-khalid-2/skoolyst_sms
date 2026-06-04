@@ -174,7 +174,7 @@
                                             <li><a href="#contact-details" data-toggle="tab"><i class="fa fa-address-book"></i> Contact Details</a></li>
                                             <li><a href="#academic-structure" data-toggle="tab"><i class="fa fa-sitemap"></i> Academic Structure</a></li>
                                             <li><a href="#general" data-toggle="tab"><i class="fa fa-cog"></i> System Settings</a></li>
-                                            <li><a href="#academic" data-toggle="tab"><i class="fa fa-graduation-cap"></i> Academic Settings</a></li>
+                                            <li><a href="#academic-settings" data-toggle="tab"><i class="fa fa-graduation-cap"></i> Academic Settings</a></li>
                                             <li><a href="#attendance" data-toggle="tab"><i class="fa fa-calendar-check"></i> Attendance Settings</a></li>
                                             <li><a href="#fee" data-toggle="tab"><i class="fa fa-money-bill-wave"></i> Fee Settings</a></li>
                                             <li><a href="#notifications" data-toggle="tab"><i class="fa fa-bell"></i> Notifications</a></li>
@@ -199,7 +199,7 @@
                                                         <div class="row">
                                                             <div class="col-md-4">
                                                                 @if($school->logo)
-                                                                    <img src="{{ asset('storage/'.$school->logo) }}" alt="School Logo" class="img-thumbnail" style="max-height: 100px;">
+                                                                    <img src="{{ $school->logo_url }}" alt="School Logo" class="img-thumbnail" style="max-height: 100px;">
                                                                 @else
                                                                     <div class="no-logo-placeholder" style="width: 100px; height: 100px; background: #eee; display: flex; align-items: center; justify-content: center;">
                                                                         No Logo
@@ -537,7 +537,7 @@
                                         </div>
     
                                         <!-- Academic Settings Tab -->
-                                        <div class="tab-pane" id="academic">
+                                        <div class="tab-pane" id="academic-settings">
                                             <form action="{{ route('schools.update-academic-settings') }}" method="POST">
                                                 @csrf
                                                 @method('PUT')
@@ -1068,54 +1068,7 @@
    
 
     @push('js')
-    <!-- jquery ============================================ -->
-    <script src="{{ asset('backend/js/vendor/jquery-1.12.4.min.js') }}"></script>
-    <!-- bootstrap JS ============================================ -->
-    <script src="{{ asset('backend/js/bootstrap.min.js') }}"></script>
-    <!-- wow JS ============================================ -->
-    <script src="{{ asset('backend/js/wow.min.js') }}"></script>
-    <!-- price-slider JS ============================================ -->
-    <script src="{{ asset('backend/js/jquery-price-slider.js') }}"></script>
-    <!-- meanmenu JS ============================================ -->
-    <script src="{{ asset('backend/js/jquery.meanmenu.js') }}"></script>
-    <!-- owl.carousel JS ============================================ -->
-    <script src="{{ asset('backend/js/owl.carousel.min.js') }}"></script>
-    <!-- sticky JS ============================================ -->
-    <script src="{{ asset('backend/js/jquery.sticky.js') }}"></script>
-    <!-- scrollUp JS ============================================ -->
-    <script src="{{ asset('backend/js/jquery.scrollUp.min.js') }}"></script>
-    <!-- mCustomScrollbar JS ============================================ -->
-    <script src="{{ asset('backend/js/scrollbar/jquery.mCustomScrollbar.concat.min.js') }}"></script>
-    <script src="{{ asset('backend/js/scrollbar/mCustomScrollbar-active.js') }}"></script>
-    <!-- metisMenu JS ============================================ -->
-    <script src="{{ asset('backend/js/metisMenu/metisMenu.min.js') }}"></script>
-    <script src="{{ asset('backend/js/metisMenu/metisMenu-active.js') }}"></script>
-    <!-- data table JS ============================================ -->
-    <script src="{{ asset('backend/js/data-table/bootstrap-table.js') }}"></script>
-    <script src="{{ asset('backend/js/data-table/tableExport.js') }}"></script>
-    <script src="{{ asset('backend/js/data-table/data-table-active.js') }}"></script>
-    <script src="{{ asset('backend/js/data-table/bootstrap-table-editable.js') }}"></script>
-    <script src="{{ asset('backend/js/data-table/bootstrap-editable.js') }}"></script>
-    <script src="{{ asset('backend/js/data-table/bootstrap-table-resizable.js') }}"></script>
-    <script src="{{ asset('backend/js/data-table/colResizable-1.5.source.js') }}"></script>
-    <script src="{{ asset('backend/js/data-table/bootstrap-table-export.js') }}"></script>
-    <!--  editable JS ============================================ -->
-    <script src="{{ asset('backend/js/editable/jquery.mockjax.js') }}"></script>
-    <script src="{{ asset('backend/js/editable/mock-active.js') }}"></script>
-    <script src="{{ asset('backend/js/editable/select2.js') }}"></script>
-    <script src="{{ asset('backend/js/editable/moment.min.js') }}"></script>
-    <script src="{{ asset('backend/js/editable/bootstrap-datetimepicker.js') }}"></script>
-    <script src="{{ asset('backend/js/editable/bootstrap-editable.js') }}"></script>
-    <script src="{{ asset('backend/js/editable/xediable-active.js') }}"></script>
-    <!-- Chart JS ============================================ -->
-    <script src="{{ asset('backend/js/chart/jquery.peity.min.js') }}"></script>
-    <script src="{{ asset('backend/js/peity/peity-active.js') }}"></script>
-    <!-- tab JS ============================================ -->
-    <script src="{{ asset('backend/js/tab.js') }}"></script>
-    <!-- plugins JS ============================================ -->
-    <script src="{{ asset('backend/js/plugins.js') }}"></script>
-    <!-- main JS ============================================ -->
-    <script src="{{ asset('backend/js/main.js') }}"></script>
+    
     <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 
     <script>

@@ -122,7 +122,7 @@
                     <div class="row">
                         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                             <div class="breadcome-heading" style="margin-top: 10px">
-                                <h3>School Profiledd</h3>
+                                <h3>School Profile</h3>
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
@@ -200,7 +200,7 @@
                                 <ul class="nav nav-tabs">
                                     <li class="active"><a href="#basic" data-toggle="tab">Basic Information</a></li>
                                     <li><a href="#contact" data-toggle="tab">Contact Details</a></li>
-                                    <li><a href="#academic" data-toggle="tab">Academic Structure</a></li>
+                                    <li><a href="#academic-structure" data-toggle="tab">Academic Structure</a></li>
                                 </ul>
                                 
                                 <div class="tab-content">
@@ -278,7 +278,7 @@
                                         </table>
                                     </div>
                                     
-                                    <div class="tab-pane " id="academic">
+                                    <div class="tab-pane" id="academic-structure">
                                         <div class="row">
                                             <div class="col-md-6" style="margin-top: 20px">
                                                 <h4>Classes & Sections</h4>
@@ -292,23 +292,22 @@
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-                                                            @foreach($classes as $class)
+                                                            @forelse($classes as $class)
                                                             <tr>
                                                                 <td>{{ $class->name??"" }}</td>
                                                                 <td>
-                                                                    @foreach($class->sections as $section)
+                                                                    @forelse($class->sections as $section)
                                                                         <span class="badge badge-primary">{{ $section->name??"" }}</span>
-                                                                    @endforeach
+                                                                    @empty
+                                                                        <span class="text-muted">No sections</span>
+                                                                    @endforelse
                                                                 </td>
-                                                                {{-- <td>
-                                                                    @foreach ($class->classTeachersSubjects as $subject)
-                                                                        @if ($subject->class_id == $class->id)
-                                                                            <span class="badge badge-primary">{{ $subject->teacher->name }}</span>
-                                                                        @endif  
-                                                                    @endforeach
-                                                                </td> --}}
                                                             </tr>
-                                                            @endforeach
+                                                            @empty
+                                                            <tr>
+                                                                <td colspan="2" class="text-muted text-center">No classes found</td>
+                                                            </tr>
+                                                            @endforelse
                                                             
                                                         </tbody>
                                                     </table>
@@ -328,21 +327,16 @@
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-                                                            @foreach($subjects as $subject)
+                                                            @forelse($subjects as $subject)
                                                             <tr>
                                                                 <td>{{ $subject->name??"" }}</td>
                                                                 <td>{{ $subject->code ?? '-' }}</td>
-                                                                {{-- <td>
-                                                                    @if($subject->teacherSubjects && $subject->teacherSubjects->count())
-                                                                        @foreach($subject->teacherSubjects as $class)
-                                                                            <span class="badge badge-info">{{ $class->class->name??"" }}</span>
-                                                                        @endforeach
-                                                                    @else
-                                                                        Not assigned
-                                                                    @endif
-                                                                </td> --}}
                                                             </tr>
-                                                            @endforeach
+                                                            @empty
+                                                            <tr>
+                                                                <td colspan="2" class="text-muted text-center">No subjects found</td>
+                                                            </tr>
+                                                            @endforelse
                                                         </tbody>
                                                     </table>
                                                 </div>

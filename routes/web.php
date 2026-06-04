@@ -53,9 +53,15 @@ Route::middleware(['auth', 'verified', 'scope.branch', 'role:super-admin|admin']
 
     Route::prefix('schools/settings')->group(function () {
         Route::get('/', [SchoolProfileController::class, 'showSettings'])->name('schools.settings');
+        Route::put('/basic-info', [SchoolProfileController::class, 'updateBasicInfo'])->name('schools.update-basic-info');
+        Route::put('/contact-details', [SchoolProfileController::class, 'updateContactDetails'])->name('schools.update-contact-details');
+        Route::put('/academic-structure', [SchoolProfileController::class, 'updateAcademicStructure'])->name('schools.update-academic-structure');
         Route::put('/', [SchoolProfileController::class, 'updateSettings'])->name('schools.update-settings');
         Route::put('/academic', [SchoolProfileController::class, 'updateAcademicSettings'])->name('schools.update-academic-settings');
         Route::put('/attendance', [SchoolProfileController::class, 'updateAttendanceSettings'])->name('schools.update-attendance-settings');
+        Route::put('/fee', [SchoolProfileController::class, 'updateFeeSettings'])->name('schools.update-fee-settings');
+        Route::put('/notifications', [SchoolProfileController::class, 'updateNotificationSettings'])->name('schools.update-notification-settings');
+        Route::put('/security', [SchoolProfileController::class, 'updateSecuritySettings'])->name('schools.update-security-settings');
     });
 
     Route::get('/parents', [ParentController::class, 'index'])->name('dashboard.parents');
