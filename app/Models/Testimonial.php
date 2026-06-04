@@ -2,15 +2,20 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToSchoolBranch;
 use Illuminate\Database\Eloquent\Model;
 
 class Testimonial extends Model
 {
-    //
-    protected $guarded = [];
+    use BelongsToSchoolBranch;
 
-    public function school()
-    {
-        return $this->belongsTo(School::class);
-    }
+    protected $fillable = [
+        'branch_id',
+        'author',
+        'role',
+        'content',
+        'rating',
+        'avatar',
+        'order',
+    ];
 }

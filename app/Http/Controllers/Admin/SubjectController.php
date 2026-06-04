@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Branch;
 use App\Models\Classes;
-use App\Models\School;
 use App\Models\Subject;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -13,11 +13,11 @@ use Illuminate\Support\Facades\DB;
 class SubjectController extends Controller
 {
 
-    protected $schoolId;
+    protected $branchId;
 
     public function __construct()
     {
-        $this->schoolId = auth()->user()->school_id ?? School::first()->id ?? null;
+        $this->branchId = auth()->user()->branch_id ?? Branch::first()->id ?? null;
     }
     /**
      * Display a listing of the subjects.
@@ -31,7 +31,7 @@ class SubjectController extends Controller
             'subjectTeacherClass.teacher',
             'subjectTeacherClass.class',
         ])
-            ->where('school_id', $this->schoolId)
+            ->where('branch_id', $this->branchId)
             ->orderBy('name')
             ->get();
 
@@ -46,7 +46,7 @@ class SubjectController extends Controller
     public function create()
     {
 
-        $classes = Classes::where('school_id', $this->schoolId)
+        $classes = Classes::where('branch_id', $this->branchId)
             ->orderBy('numeric_value')
             ->get();
 
@@ -67,13 +67,13 @@ class SubjectController extends Controller
             'class_id' => 'nullable|exists:classes,id'
         ]);
 
-        $validated['school_id'] = auth()->user()->school_id ?? School::first()->id;
+        $validated['branch_id'] = auth()->user()->branch_id ?? Branch::first()->id;
 
         Subject::updateOrCreate(
             [
                 'code' => $validated['code'],
                 'name' => $validated['name'],
-                'school_id' => $validated['school_id'],
+                'branch_id' => $validated['branch_id'],
             ],
             $validated
         );
@@ -91,10 +91,10 @@ class SubjectController extends Controller
     public function edit($id)
     {
 
-        $subject = Subject::where('school_id', $this->schoolId)
+        $subject = Subject::where('branch_id', $this->branchId)
             ->findOrFail($id);
 
-        $classes = Classes::where('school_id', $this->schoolId)
+        $classes = Classes::where('branch_id', $this->branchId)
             ->orderBy('numeric_value')
             ->get();
 
@@ -111,7 +111,7 @@ class SubjectController extends Controller
     public function update(Request $request, $id)
     {
 
-        $subject = Subject::where('school_id', $this->schoolId)
+        $subject = Subject::where('branch_id', $this->branchId)
             ->findOrFail($id);
 
         $validated = $request->validate([
@@ -135,7 +135,7 @@ class SubjectController extends Controller
     public function destroy($id)
     {
 
-        $subject = Subject::where('school_id', $this->schoolId)
+        $subject = Subject::where('branch_id', $this->branchId)
             ->findOrFail($id);
 
         if ($subject->teachers()->count() > 0) {
@@ -156,16 +156,16 @@ class SubjectController extends Controller
     public function assign()
     {
 
-        $subjects = Subject::where('school_id', $this->schoolId)
+        $subjects = Subject::where('branch_id', $this->branchId)
             ->orderBy('name')
             ->get();
 
         $teachers = User::role('teacher')
-            ->where('school_id', $this->schoolId)
+            ->where('branch_id', $this->branchId)
             ->orderBy('name')
             ->get();
 
-        $classes = Classes::where('school_id', $this->schoolId)
+        $classes = Classes::where('branch_id', $this->branchId)
             ->orderBy('numeric_value')
             ->get();
 
@@ -201,7 +201,7 @@ class SubjectController extends Controller
             DB::beginTransaction();
 
             foreach ($request->subject_assignments as $subjectId => $teacherIds) {
-                $subject = Subject::where('school_id', $this->schoolId)
+                $subject = Subject::where('branch_id', $this->branchId)
                     ->findOrFail($subjectId);
                 $subject->teachers()->sync($teacherIds ?? []);
             }
@@ -228,7 +228,7 @@ class SubjectController extends Controller
             DB::beginTransaction();
 
             foreach ($request->class_teachers as $classId => $teacherId) {
-                $class = Classes::where('school_id', $this->schoolId)
+                $class = Classes::where('branch_id', $this->branchId)
                     ->findOrFail($classId);
                 $class->update(['teacher_id' => $teacherId]);
             }
@@ -244,3 +244,5 @@ class SubjectController extends Controller
         }
     }
 }
+
+

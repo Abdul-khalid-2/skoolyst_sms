@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToSchoolBranch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class SalaryPayment extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, BelongsToSchoolBranch;
 
     protected $fillable = [
-        'school_id',
+        'branch_id',
         'teacher_id',
         'payment_date',
         'month_year',
@@ -28,11 +29,6 @@ class SalaryPayment extends Model
     protected $dates = ['payment_date', 'deleted_at'];
 
     // Relationships
-    public function school()
-    {
-        return $this->belongsTo(School::class);
-    }
-
     public function teacher()
     {
         return $this->belongsTo(User::class, 'teacher_id');
@@ -59,3 +55,4 @@ class SalaryPayment extends Model
         return $query->where('teacher_id', $teacherId);
     }
 }
+

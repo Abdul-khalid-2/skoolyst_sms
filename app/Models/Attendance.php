@@ -2,15 +2,17 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToSchoolBranch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Attendance extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, BelongsToSchoolBranch;
     protected $table = 'student_attendances';
 
     protected $fillable = [
+        'branch_id',
         'session_id',
         'user_id',
         'status',

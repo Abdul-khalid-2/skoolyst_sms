@@ -56,6 +56,24 @@
             <!-- modernizr JS
                 ============================================ -->
             <script src=" {{ asset('backend/js/vendor/modernizr-2.8.3.min.js') }}"></script>
+            <style>
+                .chart-empty-state {
+                    min-height: 356px;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    text-align: center;
+                    background: #fff;
+                    border: 1px dashed #d9d9d9;
+                    border-radius: 6px;
+                    color: #555;
+                    padding: 24px;
+                }
+                .chart-empty-state p {
+                    margin: 0;
+                    font-size: 16px;
+                }
+            </style>
     @endpush
     <x-slot name="header"></x-slot>
     
@@ -114,7 +132,7 @@
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                    <div class="analytics-sparkle-line reso-mg-b-30 table-mg-t-pro dk-res-t-pro-30">
+                    <div class="analytics-sparkle-line reso-mg-b-30">
                         <div class="analytics-content">
                             <h5>Collected Fees</h5>
                             <h2>$<span class="counter">2000</span> <span class="tuition-fees">Tuition Fees</span>
@@ -129,7 +147,7 @@
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                    <div class="analytics-sparkle-line table-mg-t-pro dk-res-t-pro-30">
+                    <div class="analytics-sparkle-line reso-mg-b-30">
                         <div class="analytics-content">
                             <h5>Payed Salaries</h5>
                             <h2>$<span class="counter">3500</span> <span class="tuition-fees">Tuition Fees</span>
@@ -165,6 +183,10 @@
                                 </div>
                             </div>
                         </div>
+                        @php
+                            $showEarningsChart = isset($earningsData) && collect($earningsData)->sum() > 0;
+                        @endphp
+                        @if ($showEarningsChart)
                         <ul class="list-inline cus-product-sl-rp">
                             <li>
                                 <h5><i class="fa fa-circle" style="color: #006DF0;"></i>CSE</h5>
@@ -176,7 +198,15 @@
                                 <h5><i class="fa fa-circle" style="color: #65b12d;"></i>Electrical</h5>
                             </li>
                         </ul>
-                        <div id="extra-area-chart" style="height: 356px;"></div>
+                            <div id="extra-area-chart" style="height: 356px;"></div>
+                        @else
+                            <div class="chart-empty-state">
+                                <div>
+                                    <i class="fa fa-info-circle" style="font-size: 28px; margin-bottom: 10px; display: block;"></i>
+                                    <p>No earnings data available yet.</p>
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
@@ -229,70 +259,4 @@
             </div>
         </div>
     </div>
-
-    @push('js')
-        
-    <!-- jquery
-		============================================ -->
-    <script src=" {{ asset('backend/js/vendor/jquery-1.12.4.min.js') }}"></script>
-    <!-- bootstrap JS
-		============================================ -->
-    <script src=" {{ asset('backend/js/bootstrap.min.js') }}"></script>
-    <!-- wow JS
-		============================================ -->
-    <script src=" {{ asset('backend/js/wow.min.js') }}"></script>
-    <!-- price-slider JS
-		============================================ -->
-    <script src=" {{ asset('backend/js/jquery-price-slider.js') }}"></script>
-    <!-- meanmenu JS
-		============================================ -->
-    <script src=" {{ asset('backend/js/jquery.meanmenu.js') }}"></script>
-    <!-- owl.carousel JS
-		============================================ -->
-    <script src=" {{ asset('backend/js/owl.carousel.min.js') }}"></script>
-    <!-- sticky JS
-		============================================ -->
-    <script src=" {{ asset('backend/js/jquery.sticky.js') }}"></script>
-    <!-- scrollUp JS
-		============================================ -->
-    <script src=" {{ asset('backend/js/jquery.scrollUp.min.js') }}"></script>
-    <!-- counterup JS
-		============================================ -->
-    <script src=" {{ asset('backend/js/counterup/jquery.counterup.min.js') }}"></script>
-    <script src=" {{ asset('backend/js/counterup/waypoints.min.js') }}"></script>
-    <script src=" {{ asset('backend/js/counterup/counterup-active.js') }}"></script>
-    <!-- mCustomScrollbar JS
-		============================================ -->
-    <script src=" {{ asset('backend/js/scrollbar/jquery.mCustomScrollbar.concat.min.js') }}"></script>
-    <script src=" {{ asset('backend/js/scrollbar/mCustomScrollbar-active.js') }}"></script>
-    <!-- metisMenu JS
-		============================================ -->
-    <script src=" {{ asset('backend/js/metisMenu/metisMenu.min.js') }}"></script>
-    <script src=" {{ asset('backend/js/metisMenu/metisMenu-active.js') }}"></script>
-    <!-- morrisjs JS
-		============================================ -->
-    <script src=" {{ asset('backend/js/morrisjs/raphael-min.js') }}"></script>
-    {{-- <script src=" {{ asset('backend/js/morrisjs/morris.js') }}"></script> --}}
-    {{-- <script src=" {{ asset('backend/js/morrisjs/morris-active.js') }}"></script> --}}
-    <!-- morrisjs JS
-		============================================ -->
-    <script src=" {{ asset('backend/js/sparkline/jquery.sparkline.min.js') }}"></script>
-    <script src=" {{ asset('backend/js/sparkline/jquery.charts-sparkline.js') }}"></script>
-    <script src=" {{ asset('backend/js/sparkline/sparkline-active.js') }}"></script>
-    <!-- calendar JS
-		============================================ -->
-    <script src=" {{ asset('backend/js/calendar/moment.min.js') }}"></script>
-    <script src=" {{ asset('backend/js/calendar/fullcalendar.min.js') }}"></script>
-    <script src=" {{ asset('backend/js/calendar/fullcalendar-active.js') }}"></script>
-    <!-- plugins JS
-		============================================ -->
-    <script src=" {{ asset('backend/js/plugins.js') }}"></script>
-    <!-- main JS
-		============================================ -->
-    <script src=" {{ asset('backend/js/main.js') }}"></script>
-    <!-- tawk chat JS
-		============================================ -->
-    {{-- <!-- <script src=" {{ asset('backend/js/tawk-chat.js') }}"></script> --> --}}
-    <!-- ---------------------------------------- -->
-    @endpush
 </x-tenant-app-layout>

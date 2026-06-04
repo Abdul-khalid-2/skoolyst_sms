@@ -2,13 +2,17 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToSchoolBranch;
 use Illuminate\Database\Eloquent\Model;
 
 class Program extends Model
 {
-    protected $guarded = [];
-    public function school()
-    {
-        return $this->belongsTo(School::class);
-    }
+    use BelongsToSchoolBranch;
+
+    protected $fillable = [
+        'branch_id',
+        'name',
+        'description',
+        'order',
+    ];
 }

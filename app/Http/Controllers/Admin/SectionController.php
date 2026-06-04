@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Branch;
 use App\Models\Classes;
-use App\Models\School;
 use App\Models\Section;
 use Illuminate\Http\Request;
 use Illuminate\Database\QueryException;
@@ -13,11 +13,11 @@ use Illuminate\Support\Facades\Crypt;
 class SectionController extends Controller
 {
 
-    protected $schoolId;
+    protected $branchId;
 
     public function __construct()
     {
-        $this->schoolId = auth()->user()->school_id ?? School::first()->id ?? null;
+        $this->branchId = auth()->user()->branch_id ?? Branch::first()->id ?? null;
     }
 
     public function index()
@@ -26,7 +26,7 @@ class SectionController extends Controller
             ->with(['class' => function ($query) {
                 $query->withTrashed();
             }, 'students'])
-            ->where('school_id', $this->schoolId)
+            ->where('branch_id', $this->branchId)
             ->orderBy('class_id')
             ->orderBy('name')
             ->get();
@@ -51,7 +51,7 @@ class SectionController extends Controller
             'capacity'  => 'required|integer|min:1'
         ]);
 
-        $validated['school_id'] = $this->schoolId;
+        $validated['branch_id'] = $this->branchId;
 
         try {
             Section::create($validated);
@@ -79,10 +79,10 @@ class SectionController extends Controller
     public function edit($id)
     {
 
-        $section = Section::where('school_id', $this->schoolId)
+        $section = Section::where('branch_id', $this->branchId)
             ->findOrFail(decrypt($id));
 
-        $classes = Classes::where('school_id', $this->schoolId)
+        $classes = Classes::where('branch_id', $this->branchId)
             ->orderBy('numeric_value')
             ->get();
 
@@ -92,7 +92,7 @@ class SectionController extends Controller
 
     public function update(Request $request, $id)
     {
-        $section = Section::where('school_id', $this->schoolId)
+        $section = Section::where('branch_id', $this->branchId)
             ->findOrFail(decrypt($id));
 
         $validated = $request->validate([
@@ -127,7 +127,7 @@ class SectionController extends Controller
     {
         try {
             $section = Section::with(['class'])
-                ->where('school_id', $this->schoolId)
+                ->where('branch_id', $this->branchId)
                 ->findOrFail(decrypt($id));
 
             if ($section->students()->count() > 0) {
@@ -162,7 +162,7 @@ class SectionController extends Controller
                 ->with(['class' => function ($query) {
                     $query->withTrashed();
                 }])
-                ->where('school_id', $this->schoolId)
+                ->where('branch_id', $this->branchId)
                 ->findOrFail(decrypt($id));
 
             $section->restore();
@@ -190,3 +190,5 @@ class SectionController extends Controller
         return response()->json(['sections' => $sections]);
     }
 }
+
+

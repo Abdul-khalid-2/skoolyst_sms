@@ -70,17 +70,17 @@ class StudentParent extends Model
     }
 
     /**
-     * Get the school through either student or parent
+     * Get the branch through the student user.
      */
-    public function school()
+    public function branch()
     {
         return $this->hasOneThrough(
-            School::class,
+            Branch::class,
             User::class,
-            'id', // Foreign key on users table
-            'id', // Foreign key on schools table
-            'student_id', // Local key on student_parents table
-            'school_id' // Local key on users table
+            'id',
+            'id',
+            'student_id',
+            'branch_id'
         );
     }
 
@@ -130,3 +130,4 @@ class StudentParent extends Model
         );
     }
 }
+

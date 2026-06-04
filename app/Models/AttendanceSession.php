@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToSchoolBranch;
 use Illuminate\Database\Eloquent\Model;
 
 class AttendanceSession extends Model
 {
+    use BelongsToSchoolBranch;
     protected $fillable = [
-        'school_id',
+        'branch_id',
         'time_table_id',
         'date',
         'recorded_by',
@@ -15,11 +17,6 @@ class AttendanceSession extends Model
     ];
 
     // Relationships
-    public function school()
-    {
-        return $this->belongsTo(School::class);
-    }
-
     public function timeTable()
     {
         return $this->belongsTo(TimeTable::class);
@@ -35,3 +32,4 @@ class AttendanceSession extends Model
         return $this->hasMany(Attendance::class, 'session_id');
     }
 }
+

@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 use App\Models\StudentProfile;
 use App\Models\AttendanceSession;
 use App\Models\Attendance;
-use App\Models\School;
+use App\Models\Branch;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -22,10 +22,10 @@ class AttendanceController extends Controller
     public function index()
     {
         $today = now()->format('Y-m-d');
-        $schoolId = auth()->user()->school_id ?? School::first()->id;
+        $schoolId = auth()->user()->branch_id ?? Branch::first()->id;
 
         // Get today's attendance sessions
-        $todaySessions = AttendanceSession::where('school_id', $schoolId)
+        $todaySessions = AttendanceSession::where('branch_id', $schoolId)
             ->whereDate('date', $today)
             ->with(['attendances' => function ($query) {
                 $query->with('user');
@@ -95,7 +95,7 @@ class AttendanceController extends Controller
         // Get monthly data (last 30 days)
         $monthStart = now()->subDays(30)->format('Y-m-d');
         $monthlyAttendances = Attendance::whereHas('session', function ($query) use ($schoolId, $monthStart) {
-            $query->where('school_id', $schoolId)
+            $query->where('branch_id', $schoolId)
                 ->whereDate('date', '>=', $monthStart);
         })->whereHas('user', function ($query) {
             $query->role('student');
@@ -108,7 +108,7 @@ class AttendanceController extends Controller
         }
 
         // Get classes with lowest attendance
-        $lowestClasses = AttendanceSession::where('school_id', $schoolId)
+        $lowestClasses = AttendanceSession::where('branch_id', $schoolId)
             ->whereDate('date', $today)
             ->with(['attendances', 'timeTable.class', 'timeTable.section'])
             ->get()
@@ -131,7 +131,7 @@ class AttendanceController extends Controller
             ->all();
 
         // Recent attendance records
-        $recentRecords = AttendanceSession::where('school_id', $schoolId)
+        $recentRecords = AttendanceSession::where('branch_id', $schoolId)
             ->with(['timeTable.class', 'timeTable.section', 'attendances'])
             ->orderBy('date', 'desc')
             ->limit(5)
@@ -156,7 +156,7 @@ class AttendanceController extends Controller
             });
 
         // Calendar events
-        $calendarEvents = AttendanceSession::where('school_id', $schoolId)
+        $calendarEvents = AttendanceSession::where('branch_id', $schoolId)
             ->whereDate('date', '>=', now()->subMonth())
             ->with(['timeTable.class', 'timeTable.section', 'attendances'])
             ->get()
@@ -200,7 +200,7 @@ class AttendanceController extends Controller
 
             $counts = Attendance::whereHas('session', function ($q) use ($date, $schoolId) {
                 $q->whereDate('date', $date->format('Y-m-d'))
-                    ->where('school_id', $schoolId);
+                    ->where('branch_id', $schoolId);
             })
                 ->selectRaw('status, count(*) as count')
                 ->groupBy('status')
@@ -218,7 +218,7 @@ class AttendanceController extends Controller
     public function getAttendanceTrends(Request $request)
     {
         $period = $request->input('period', 'daily');
-        $schoolId = auth()->user()->school_id ?? School::first()->id;
+        $schoolId = auth()->user()->branch_id ?? Branch::first()->id;
 
         $days = [];
         $present = [];
@@ -245,7 +245,7 @@ class AttendanceController extends Controller
 
             $counts = Attendance::whereHas('session', function ($q) use ($date, $schoolId) {
                 $q->whereDate('date', $date->format('Y-m-d'))
-                    ->where('school_id', $schoolId);
+                    ->where('branch_id', $schoolId);
             })
                 ->selectRaw('status, count(*) as count')
                 ->groupBy('status')
@@ -280,7 +280,7 @@ class AttendanceController extends Controller
         $classId = $request->input('class_id');
 
         $sections = Section::where('class_id', $classId)
-            ->where('school_id', auth()->user()->school_id)
+            ->where('branch_id', auth()->user()->branch_id)
             ->orderBy('name')
             ->get();
 
@@ -297,7 +297,7 @@ class AttendanceController extends Controller
         $classId = $request->input('class_id');
 
         $subjects = Subject::where('class_id', $classId)
-            ->where('school_id', auth()->user()->school_id)
+            ->where('branch_id', auth()->user()->branch_id)
             ->orderBy('name')
             ->get();
 
@@ -330,7 +330,7 @@ class AttendanceController extends Controller
         $students = StudentProfile::with(['student'])
             ->where('class_id', $classId)
             ->where('section_id', $sectionId)
-            // ->where('school_id', auth()->user()->school_id)
+            // ->where('branch_id', auth()->user()->branch_id)
             ->orderBy('admission_no')
             ->get();
 
@@ -345,7 +345,7 @@ class AttendanceController extends Controller
                 ->where('section_id', $sectionId)
                 ->where('subject_id', $subjectId)
                 ->where('day_of_week', $dayOfWeek)
-                ->where('school_id', auth()->user()->school_id)
+                ->where('branch_id', auth()->user()->branch_id)
                 ->first();
 
             $timetableId = $timetable ? $timetable->id : null;
@@ -389,7 +389,7 @@ class AttendanceController extends Controller
 
         try {
 
-            $school_id = School::first();
+            $branchId = auth()->user()->branch_id ?? Branch::query()->value('id');
             $classId = $request->input('class_id');
             $sectionId = $request->input('section_id');
             $date = $request->input('date');
@@ -406,14 +406,14 @@ class AttendanceController extends Controller
                 ->where('section_id', $sectionId)
                 // ->where('subject_id', $subjectId)
                 ->where('day_of_week', $dayOfWeek)
-                ->where('school_id', auth()->user()->school_id ?? $school_id->id)
+                ->where('branch_id', $branchId)
                 ->first();
 
             $timetableId = $timetable ? $timetable->id : null;
             // Create or update attendance session
             $session = AttendanceSession::updateOrCreate(
                 [
-                    'school_id' => auth()->user()->school_id ?? $school_id->id,
+                    'branch_id' => $branchId,
                     'time_table_id' => $timetableId,
                     'date' => $date,
                 ],
@@ -468,7 +468,7 @@ class AttendanceController extends Controller
             ->where('section_id', $sectionId)
             ->where('subject_id', $subjectId)
             ->where('day_of_week', $dayOfWeek)
-            // ->where('school_id', auth()->user()->school_id)
+            // ->where('branch_id', auth()->user()->branch_id)
             ->first();
 
         return $timetable ? $timetable->id : null;
@@ -499,3 +499,5 @@ class AttendanceController extends Controller
 
     public function destroy($id) {}
 }
+
+

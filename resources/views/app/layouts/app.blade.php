@@ -9,8 +9,27 @@
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="shortcut icon" type="image/x-icon" href="{{ asset('backend/img/favicon.ico') }}">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,700,900" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('backend/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/css/font-awesome.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/css/owl.carousel.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/css/owl.theme.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/css/owl.transitions.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/css/animate.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/css/normalize.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/css/meanmenu.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/css/main.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/css/educate-custon-icon.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/css/morrisjs/morris.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/css/scrollbar/jquery.mCustomScrollbar.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/css/metisMenu/metisMenu.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/css/metisMenu/metisMenu-vertical.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/css/calendar/fullcalendar.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/css/calendar/fullcalendar.print.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/css/responsive.css') }}">
     @stack('css')
     <link rel="stylesheet" href="{{ asset('backend/style.css') }}">
+    <script src="{{ asset('backend/js/vendor/modernizr-2.8.3.min.js') }}"></script>
     
     <style>
         .main-logo {
@@ -108,16 +127,10 @@
             <div class="row">
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" style="margin-bottom: 20px">
                     <div class="logo-pro">
-                        @if($invormentdata->logo)
-                            <a href="index.html">
-                                <img class="main-logo" height="8px" src="{{ asset('tenancy/assets/' . $invormentdata->logo) }}" alt="{{ $invormentdata->name }} Logo"/>
-                            </a>                                
-                        @else
-                            <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"></path>
-                            </svg>
-                        @endif
-                        <span class="ml-2 text-2xl font-bold text-gray-800">{{ $invormentdata->name??"school" }}</span>
+                        <a href="{{ route('dashboard') }}">
+                            <img class="main-logo" src="{{ $invormentdata->logo_url }}" alt="{{ $invormentdata->name }} Logo"/>
+                        </a>
+                        <span class="ml-2 text-2xl font-bold text-gray-800">{{ $invormentdata->name ?? 'Skoolyst' }}</span>
                     </div>
                 </div>
             </div>
@@ -136,6 +149,29 @@
     </div>
 
     @stack('js')
+    <script src="{{ asset('backend/js/vendor/jquery-1.12.4.min.js') }}"></script>
+    <script src="{{ asset('backend/js/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('backend/js/wow.min.js') }}"></script>
+    <script src="{{ asset('backend/js/jquery-price-slider.js') }}"></script>
+    <script src="{{ asset('backend/js/jquery.meanmenu.js') }}"></script>
+    <script src="{{ asset('backend/js/owl.carousel.min.js') }}"></script>
+    <script src="{{ asset('backend/js/jquery.sticky.js') }}"></script>
+    <script src="{{ asset('backend/js/jquery.scrollUp.min.js') }}"></script>
+    <script src="{{ asset('backend/js/counterup/jquery.counterup.min.js') }}"></script>
+    <script src="{{ asset('backend/js/counterup/waypoints.min.js') }}"></script>
+    <script src="{{ asset('backend/js/counterup/counterup-active.js') }}"></script>
+    <script src="{{ asset('backend/js/scrollbar/jquery.mCustomScrollbar.concat.min.js') }}"></script>
+    <script src="{{ asset('backend/js/scrollbar/mCustomScrollbar-active.js') }}"></script>
+    <script src="{{ asset('backend/js/metisMenu/metisMenu.min.js') }}"></script>
+    <script src="{{ asset('backend/js/metisMenu/metisMenu-active.js') }}"></script>
+    <script src="{{ asset('backend/js/sparkline/jquery.sparkline.min.js') }}"></script>
+    <script src="{{ asset('backend/js/sparkline/jquery.charts-sparkline.js') }}"></script>
+    <script src="{{ asset('backend/js/sparkline/sparkline-active.js') }}"></script>
+    <script src="{{ asset('backend/js/calendar/moment.min.js') }}"></script>
+    <script src="{{ asset('backend/js/calendar/fullcalendar.min.js') }}"></script>
+    <script src="{{ asset('backend/js/calendar/fullcalendar-active.js') }}"></script>
+    <script src="{{ asset('backend/js/plugins.js') }}"></script>
+    <script src="{{ asset('backend/js/main.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         @if(Session::has('message'))

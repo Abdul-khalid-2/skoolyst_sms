@@ -1,184 +1,110 @@
-<?php
+﻿<?php
 
-// use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\TenantController;
-
-use App\Http\Controllers\App\{
-    ProfileController,
-    UserController
-};
-use App\Http\Controllers\Admin\{
-    DashboardController,
-    TeacherController,
-    StudentController,
-    ParentController,
-    ClassesController,
-    SectionController,
-    SubjectController,
-    SchoolProfileController,
-};
-use App\Http\Controllers\Timetable\{
-    TimetableController
-};
-use App\Http\Controllers\Attendance\{
-    AttendanceController
-};
-use App\Models\School;
+use App\Http\Controllers\Admin\ClassesController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\ParentController;
+use App\Http\Controllers\Admin\SchoolProfileController;
+use App\Http\Controllers\Admin\SectionController;
+use App\Http\Controllers\Admin\StudentController;
+use App\Http\Controllers\Admin\SubjectController;
+use App\Http\Controllers\Admin\TeacherController;
+use App\Http\Controllers\App\ProfileController;
+use App\Http\Controllers\App\UserController;
+use App\Http\Controllers\Attendance\AttendanceController as SessionAttendanceController;
+use App\Http\Controllers\BranchController;
+use App\Http\Controllers\SettingController;
+use App\Http\Controllers\SidebarSettingController;
+use App\Http\Controllers\Timetable\TimetableController;
+use App\Models\Setting;
 use Illuminate\Support\Facades\Route;
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
-
-// Route::get('/dashboard', function () {
-//     return view('dashboard');
-// })->middleware(['auth', 'verified'])->name('dashboard');
-
-// Route::middleware('auth')->group(function () {
-//     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-//     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-//     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-//     Route::resource('tenant', TenantController::class);
-//     Route::get('tenants', [TenantController::class, 'index'])->name('tenants.index');
-//     Route::post('tenants', [TenantController::class, 'store'])->name('tenants.store');
-// });
-
-
-use Illuminate\Support\Facades\Artisan;
-use Symfony\Component\Process\Process;
-use Symfony\Component\Process\Exception\ProcessFailedException;
-
-Route::get('/install-composer-dependencies', function () {
-    // SECURITY WARNING: This should be protected in production!
-
-    $process = new Process(['composer', 'install']);
-    $process->setWorkingDirectory(base_path());
-    $process->setTimeout(300); // 5 minutes
-
-    try {
-        $process->mustRun();
-        return response()->json([
-            'success' => true,
-            'output' => $process->getOutput()
-        ]);
-    } catch (ProcessFailedException $exception) {
-        return response()->json([
-            'success' => false,
-            'error' => $exception->getMessage(),
-            'output' => $process->getErrorOutput()
-        ], 500);
-    }
-})->middleware('auth'); // At minimum, add authentication
-
 Route::get('/', function () {
-    $school = School::with(['programs', 'testimonials'])->first();
+    $school = Setting::get();
 
-    if (!$school) {
-        // Fallback to default data if no school exists
-        $school = [
-            'name' => 'Greenwood International School',
-            'motto' => 'Learning for Life, Excellence in Education',
-            'logo' => null,
-            'hero_image' => null,
-            'established_year' => '1998',
-            'student_count' => '1250+',
-            'teacher_count' => '85+',
-            'facility_count' => '30+',
-            'primary_color' => '#2563eb',
-            'secondary_color' => '#1e40af',
-            'address' => '123 Education Avenue, Springfield, ST 12345',
-            'phone' => '+1 (555) 123-4567',
-            'email' => 'info@greenwood.edu',
-            'short_description' => 'Greenwood International provides a world-class education with a focus on holistic development and academic excellence.',
-            'programs' => [
-                (object)[
-                    'name' => 'Early Years Program',
-                    'description' => 'Play-based learning for ages 3-5 focusing on social, emotional and cognitive development'
-                ],
-                // ... other default programs
-            ],
-            'testimonials' => [
-                (object)[
-                    'author' => 'Sarah Johnson',
-                    'role' => 'Parent of 3rd Grader',
-                    'content' => 'The teachers at Greenwood truly care about each student. My daughter has flourished both academically and socially.',
-                    'rating' => 5,
-                    'avatar' => null
-                ],
-                // ... other default testimonials
-            ]
-        ];
-        $school = (object)$school;
-    }
-
-    return view('app.welcome', compact('school'));
+    return view('app.welcome', ['school' => $school]);
 });
 
-use Illuminate\Support\Facades\Auth;
+require __DIR__.'/auth.php';
 
-Route::get('/custom_logout', function () {
+Route::middleware(['auth', 'verified', 'scope.branch'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    Auth::logout();
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::group(['middleware' => ['role:admin|super-admin']], function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
+Route::middleware(['auth', 'verified', 'scope.branch', 'role:super-admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
+    Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
 
-    // Parent
-    Route::get('/parents', [ParentController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard.parents');
-    Route::post('/add_parent', [ParentController::class, 'Store'])->middleware(['auth', 'verified'])->name('admin.store.parent');
-    Route::get('/add_parent', [ParentController::class, 'create'])->middleware(['auth', 'verified'])->name('dashboard.add.parent');
-    Route::get('/edit_parent', [ParentController::class, 'edit'])->middleware(['auth', 'verified'])->name('admin.edit.parent');
-    Route::post('/edit_parent', [ParentController::class, 'update'])->middleware(['auth', 'verified'])->name('admin.update.parent');
-    Route::get('/destroy_parent/{encryptedId}', [ParentController::class, 'destroy'])->middleware(['auth', 'verified'])->name('admin.destroy.parent');
+    Route::apiResource('branches', BranchController::class);
 
-    // Student
-    Route::get('/students', [StudentController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard.students');
-    Route::get('/add_student', [StudentController::class, 'create'])->middleware(['auth', 'verified'])->name('dashboard.add.student');
-    Route::post('/add_student', [StudentController::class, 'store'])->middleware(['auth', 'verified'])->name('admin.store.student');
-    Route::get('/edit_student', [StudentController::class, 'edit'])->middleware(['auth', 'verified'])->name('admin.edit.student');
-    Route::post('/edit_student', [StudentController::class, 'update'])->middleware(['auth', 'verified'])->name('admin.update.student');
-    Route::delete('/destroy_student', [StudentController::class, 'destroy'])->middleware(['auth', 'verified'])->name('admin.destroy.student');
-    Route::get('/get-sections/{classId}', [StudentController::class, 'getSections'])->middleware(['auth', 'verified']);
+    Route::get('/sidebar-settings', [SidebarSettingController::class, 'index'])->name('sidebar.index');
+    Route::put('/sidebar-settings/{sidebarSetting}', [SidebarSettingController::class, 'update'])->name('sidebar.update');
+});
 
-    // Teacher
-    Route::get('/teachers', [TeacherController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard.teachers');
-    Route::get('/add_teacher', [TeacherController::class, 'create'])->middleware(['auth', 'verified'])->name('dashboard.add.teacher');
-    Route::post('/add_teacher', [TeacherController::class, 'store'])->middleware(['auth', 'verified'])->name('admin.store.teacher');
-    Route::get('/edit_teacher/{id?}', [TeacherController::class, 'edit'])->middleware(['auth', 'verified'])->name('admin.edit.teacher');
-    Route::get('/teacher/{id?}', [TeacherController::class, 'show'])->middleware(['auth', 'verified'])->name('admin.show.teacher');
-    Route::put('/edit_teacher/{id?}', [TeacherController::class, 'update'])->middleware(['auth', 'verified'])->name('admin.update.teacher');
-    Route::delete('/destroy_teacher', [TeacherController::class, 'destroy'])->middleware(['auth', 'verified'])->name('admin.destroy.teacher');
+Route::middleware(['auth', 'verified', 'scope.branch', 'role:super-admin|admin'])->group(function () {
+    Route::get('/school', [SchoolProfileController::class, 'index'])->name('schools.show');
+    Route::get('/schools/edit', [SchoolProfileController::class, 'edit'])->name('schools.edit');
+    Route::put('/schools', [SchoolProfileController::class, 'update'])->name('schools.update');
+    Route::get('/cms', [SchoolProfileController::class, 'cms'])->name('schools.cms');
+    Route::put('/cms_update', [SchoolProfileController::class, 'cmsUpdate'])->name('schools.cms.update');
+
+    Route::prefix('schools/settings')->group(function () {
+        Route::get('/', [SchoolProfileController::class, 'showSettings'])->name('schools.settings');
+        Route::put('/', [SchoolProfileController::class, 'updateSettings'])->name('schools.update-settings');
+        Route::put('/academic', [SchoolProfileController::class, 'updateAcademicSettings'])->name('schools.update-academic-settings');
+        Route::put('/attendance', [SchoolProfileController::class, 'updateAttendanceSettings'])->name('schools.update-attendance-settings');
+    });
+
+    Route::get('/parents', [ParentController::class, 'index'])->name('dashboard.parents');
+    Route::post('/add_parent', [ParentController::class, 'Store'])->name('admin.store.parent');
+    Route::get('/add_parent', [ParentController::class, 'create'])->name('dashboard.add.parent');
+    Route::get('/edit_parent', [ParentController::class, 'edit'])->name('admin.edit.parent');
+    Route::post('/edit_parent', [ParentController::class, 'update'])->name('admin.update.parent');
+    Route::get('/destroy_parent/{encryptedId}', [ParentController::class, 'destroy'])->name('admin.destroy.parent');
+
+    Route::get('/students', [StudentController::class, 'index'])->name('dashboard.students');
+    Route::get('/add_student', [StudentController::class, 'create'])->name('dashboard.add.student');
+    Route::post('/add_student', [StudentController::class, 'store'])->name('admin.store.student');
+    Route::get('/edit_student', [StudentController::class, 'edit'])->name('admin.edit.student');
+    Route::post('/edit_student', [StudentController::class, 'update'])->name('admin.update.student');
+    Route::delete('/destroy_student', [StudentController::class, 'destroy'])->name('admin.destroy.student');
+    Route::get('/get-sections/{classId}', [StudentController::class, 'getSections'])->name('students.sections');
+
+    Route::get('/teachers', [TeacherController::class, 'index'])->name('dashboard.teachers');
+    Route::get('/add_teacher', [TeacherController::class, 'create'])->name('dashboard.add.teacher');
+    Route::post('/add_teacher', [TeacherController::class, 'store'])->name('admin.store.teacher');
+    Route::get('/edit_teacher/{id?}', [TeacherController::class, 'edit'])->name('admin.edit.teacher');
+    Route::get('/teacher/{id?}', [TeacherController::class, 'show'])->name('admin.show.teacher');
+    Route::put('/edit_teacher/{id?}', [TeacherController::class, 'update'])->name('admin.update.teacher');
+    Route::delete('/destroy_teacher', [TeacherController::class, 'destroy'])->name('admin.destroy.teacher');
     Route::post('/teacher/status-update', [TeacherController::class, 'updateStatus'])->name('teacher.update.status');
 
-    // Class Routes
-    Route::prefix('classes')->middleware(['auth', 'verified'])->name('admin.academic.classes.')->group(function () {
+    Route::prefix('classes')->name('admin.academic.classes.')->group(function () {
         Route::get('/', [ClassesController::class, 'index'])->name('index');
         Route::get('/create', [ClassesController::class, 'create'])->name('create');
         Route::post('/', [ClassesController::class, 'store'])->name('store');
         Route::get('/{id}/edit', [ClassesController::class, 'edit'])->name('edit');
         Route::get('/{id}/show', [ClassesController::class, 'show'])->name('show');
         Route::put('/{id}', [ClassesController::class, 'update'])->name('update');
-        Route::delete('/{id}', [ClassesController::class, 'destroy'])->name('destroy'); // <-- DELETE route
+        Route::delete('/{id}', [ClassesController::class, 'destroy'])->name('destroy');
         Route::post('/{id}/restore', [ClassesController::class, 'restore'])->name('restore');
     });
 
-    // Section Routes
-    Route::prefix('sections')->middleware(['auth', 'verified'])->name('admin.academic.sections.')->group(function () {
+    Route::prefix('sections')->name('admin.academic.sections.')->group(function () {
         Route::get('/', [SectionController::class, 'index'])->name('index');
         Route::post('/', [SectionController::class, 'store'])->name('store');
         Route::put('/{id}', [SectionController::class, 'update'])->name('update');
         Route::get('/{id}/edit', [SectionController::class, 'edit'])->name('edit');
         Route::get('/create', [SectionController::class, 'create'])->name('create');
-        Route::delete('/{id}/show', [SectionController::class, 'show'])->name('show');
         Route::delete('/{id}', [SectionController::class, 'destroy'])->name('destroy');
         Route::post('/{id}/restore', [SectionController::class, 'restore'])->name('restore');
     });
     Route::get('/get-sections/{class_id}', [SectionController::class, 'getSectionsByClass']);
 
-    // Subject Routes
-    Route::prefix('subjects')->middleware(['auth', 'verified'])->name('admin.academic.subjects.')->group(function () {
+    Route::prefix('subjects')->name('admin.academic.subjects.')->group(function () {
         Route::get('/', [SubjectController::class, 'index'])->name('index');
         Route::get('/create', [SubjectController::class, 'create'])->name('create');
         Route::post('/', [SubjectController::class, 'store'])->name('store');
@@ -190,33 +116,7 @@ Route::group(['middleware' => ['role:admin|super-admin']], function () {
     Route::post('subject_assign/', [SubjectController::class, 'assignTeacherStore'])->name('admin.academic.subjects.assign_teacher');
     Route::post('/subjects/assign-class-teacher', [SubjectController::class, 'assignClassTeacherStore'])->name('admin.academic.subjects.assign_class_teacher');
 
-    Route::middleware(['auth', 'verified'])->group(function () {
-        // School Profile Routes
-        Route::get('/cms', [SchoolProfileController::class, 'cms'])->name('schools.cms');
-        Route::put('/cms_update', [SchoolProfileController::class, 'cmsUpdate'])->name('schools.cms.update');
-        Route::get('/school', [SchoolProfileController::class, 'index'])->name('schools.show');
-        Route::get('/schools/edit', [SchoolProfileController::class, 'edit'])->name('schools.edit');
-        Route::put('/schools', [SchoolProfileController::class, 'update'])->name('schools.update');
-
-        // School Settings Routes
-        Route::prefix('schools/settings')->group(function () {
-            Route::get('/', [SchoolProfileController::class, 'showSettings'])->name('schools.settings');
-            Route::put('/', [SchoolProfileController::class, 'updateSettings'])->name('schools.update-settings');
-            Route::put('/academic', [SchoolProfileController::class, 'updateAcademicSettings'])->name('schools.update-academic-settings');
-            Route::put('/attendance', [SchoolProfileController::class, 'updateAttendanceSettings'])->name('schools.update-attendance-settings');
-        });
-    });
-
-    // User Profile
-    Route::middleware('auth')->group(function () {
-        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-        Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-        Route::resource('user', UserController::class);
-    });
-
-    // Timetable
-    Route::prefix('timetable')->middleware(['auth', 'verified'])->name('admin.timetable.')->group(function () {
+    Route::prefix('timetable')->name('admin.timetable.')->group(function () {
         Route::get('/', [TimetableController::class, 'index'])->name('index');
         Route::get('/create', [TimetableController::class, 'create'])->name('create');
         Route::post('/', [TimetableController::class, 'store'])->name('store');
@@ -228,38 +128,51 @@ Route::group(['middleware' => ['role:admin|super-admin']], function () {
     Route::post('store_schedule', [TimetableController::class, 'store_schedule'])->name('admin.timetable.store.schedule');
     Route::get('/admin/get-teachers-by-subject', [TimetableController::class, 'getTeachersBySubject'])->name('admin.getTeachersBySubject');
 
-    // Attendance
-    // Attendance Routes
     Route::prefix('attendance')->group(function () {
-        Route::get('/', [AttendanceController::class, 'index'])->name('admin.attendance.index');
-        Route::get('/take', [AttendanceController::class, 'create'])->name('admin.attendance.create');
-
-        // AJAX endpoints
-        Route::get('/get-sections', [AttendanceController::class, 'getSections'])->name('attendance.get-sections');
-        Route::get('/get-subjects', [AttendanceController::class, 'getSubjects'])->name('attendance.get-subjects');
-        Route::get('/get-students', [AttendanceController::class, 'getStudents'])->name('attendance.get-students');
-        Route::post('/save', [AttendanceController::class, 'store'])->name('attendance.store');
+        Route::get('/', [SessionAttendanceController::class, 'index'])->name('admin.attendance.index');
+        Route::get('/take', [SessionAttendanceController::class, 'create'])->name('admin.attendance.create');
+        Route::get('/get-sections', [SessionAttendanceController::class, 'getSections'])->name('attendance.get-sections');
+        Route::get('/get-subjects', [SessionAttendanceController::class, 'getSubjects'])->name('attendance.get-subjects');
+        Route::get('/get-students', [SessionAttendanceController::class, 'getStudents'])->name('attendance.get-students');
+        Route::post('/save', [SessionAttendanceController::class, 'store'])->name('attendance.store');
     });
-    Route::get('/check-classes', [AttendanceController::class, 'checkClasses']);
-    Route::get('/attendance/trends', [AttendanceController::class, 'getAttendanceTrends']);
+    Route::get('/check-classes', [SessionAttendanceController::class, 'checkClasses']);
+    Route::get('/attendance/trends', [SessionAttendanceController::class, 'getAttendanceTrends']);
+
+    Route::get('/fees', fn () => response()->json(['message' => 'Fees module']))->name('fees.index');
+    Route::get('/exams', fn () => response()->json(['message' => 'Exams module']))->name('exams.index');
+    Route::get('/library', fn () => response()->json(['message' => 'Library module']))->name('library.index');
+    Route::get('/inventory', fn () => response()->json(['message' => 'Inventory module']))->name('inventory.index');
+    Route::get('/notices', fn () => response()->json(['message' => 'Notices module']))->name('notices.index');
+    Route::get('/holidays', fn () => response()->json(['message' => 'Holidays module']))->name('holidays.index');
+    Route::get('/reports', fn () => response()->json(['message' => 'Reports module']))->name('reports.index');
+    Route::get('/branch-settings', fn () => response()->json(['message' => 'Branch settings']))->name('branch.settings');
+    Route::get('/notifications', fn () => response()->json(['message' => 'Notifications']))->name('notifications.index');
+
+    Route::resource('user', UserController::class);
 });
 
+Route::middleware(['auth', 'verified', 'scope.branch', 'role:teacher'])->group(function () {
+    Route::get('/teacher/timetable', [TimetableController::class, 'index'])->name('teacher.timetable');
+    Route::get('/teacher/attendance', [SessionAttendanceController::class, 'create'])->name('teacher.attendance');
+});
 
+Route::middleware(['auth', 'verified', 'scope.branch', 'role:student'])->group(function () {
+    Route::get('/student/timetable', [TimetableController::class, 'index'])->name('student.timetable');
+    Route::get('/student/attendance', fn () => response()->json(['message' => 'Student attendance']))->name('student.attendance');
+    Route::get('/student/results', fn () => response()->json(['message' => 'Student results']))->name('student.results');
+    Route::get('/student/fees', fn () => response()->json(['message' => 'Student fees']))->name('student.fees');
+});
 
+Route::middleware(['auth', 'verified', 'scope.branch', 'role:parent'])->group(function () {
+    Route::get('/parent/children', fn () => response()->json(['message' => 'Parent children']))->name('parent.children');
+    Route::get('/parent/attendance', fn () => response()->json(['message' => 'Parent attendance']))->name('parent.attendance');
+    Route::get('/parent/results', fn () => response()->json(['message' => 'Parent results']))->name('parent.results');
+    Route::get('/parent/fees', fn () => response()->json(['message' => 'Parent fees']))->name('parent.fees');
+});
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-require __DIR__ . '/auth.php';
+Route::middleware(['auth', 'verified', 'scope.branch', 'role:accountant'])->group(function () {
+    Route::get('/accountant/fees', fn () => response()->json(['message' => 'Accountant fees']))->name('accountant.fees');
+    Route::get('/accountant/payments', fn () => response()->json(['message' => 'Accountant payments']))->name('accountant.payments');
+    Route::get('/accountant/reports', fn () => response()->json(['message' => 'Accountant reports']))->name('accountant.reports');
+});

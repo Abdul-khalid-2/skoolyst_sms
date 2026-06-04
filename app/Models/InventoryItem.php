@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToSchoolBranch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class InventoryItem extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, BelongsToSchoolBranch;
 
     protected $fillable = [
-        'school_id',
+        'branch_id',
         'name',
         'category',
         'quantity',
@@ -21,13 +22,9 @@ class InventoryItem extends Model
     ];
 
     // Relationships
-    public function school()
-    {
-        return $this->belongsTo(School::class);
-    }
-
     public function transactions()
     {
         return $this->hasMany(InventoryTransaction::class, 'item_id');
     }
 }
+

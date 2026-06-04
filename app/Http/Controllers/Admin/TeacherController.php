@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Classes;
-use App\Models\School;
+use App\Models\Branch;
 use App\Models\TeacherProfile;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -18,11 +18,11 @@ use Illuminate\Support\Facades\Storage;
 class TeacherController extends Controller
 {
 
-    protected $schoolId;
+    protected $branchId;
 
     public function __construct()
     {
-        $this->schoolId = auth()->user()->school_id ?? School::first()->id ?? null;
+        $this->branchId = auth()->user()->branch_id ?? Branch::first()->id ?? null;
     }
     /**
      * Display the user's profile form.
@@ -30,7 +30,7 @@ class TeacherController extends Controller
     public function index(Request $request): View
     {
         $teachers = User::role('teacher')->with('teacherProfile')
-            ->where('school_id', $this->schoolId)
+            ->where('branch_id', $this->branchId)
             ->orderBy('name')
             ->get();
 
@@ -39,7 +39,7 @@ class TeacherController extends Controller
 
     public function create()
     {
-        $classes = Classes::where('school_id', $this->schoolId)
+        $classes = Classes::where('branch_id', $this->branchId)
             ->get();
         return view('app.admin.add_teacher', compact('classes'));
     }
@@ -90,7 +90,7 @@ class TeacherController extends Controller
 
             // Create user account
             $user = User::create([
-                'school_id'   => $this->schoolId,
+                'branch_id'   => $this->branchId,
                 'name'        => $validated['name'],
                 'email'       => $validated['email'],
                 'profile_pic' => $profilePicPath,
@@ -132,7 +132,7 @@ class TeacherController extends Controller
             // Create teacher profile
             TeacherProfile::create([
                 'teacher_id'        => $user->id,
-                'school_id'         => $user->school_id,
+                'branch_id'         => $user->branch_id,
                 'employee_id'       => $validated['employee_id'],
                 'qualification'     => $validated['qualification'],
                 'specialization'    => $validated['specialization'],
@@ -169,17 +169,17 @@ class TeacherController extends Controller
     public function edit($encodedId = null)
     {
         $id = Crypt::decrypt($encodedId);
-        $teacher = User::role('teacher')->where('school_id', $this->schoolId)->with('teacherProfile')
+        $teacher = User::role('teacher')->where('branch_id', $this->branchId)->with('teacherProfile')
             ->orderBy('name')
             ->findorfail($id);
-        $classes = Classes::where('school_id', $this->schoolId)->get();
+        $classes = Classes::where('branch_id', $this->branchId)->get();
         return view('app.admin.edit_teacher', compact('teacher', 'classes'));
     }
 
     public function show($encodedId = null)
     {
         $id = Crypt::decrypt($encodedId);
-        $teacher = User::role('teacher')->where('school_id', $this->schoolId)->with(['teacherProfile', 'teacherSubjects', 'teacherClasses'])
+        $teacher = User::role('teacher')->where('branch_id', $this->branchId)->with(['teacherProfile', 'teacherSubjects', 'teacherClasses'])
             ->orderBy('name')
             ->findorfail($id);
 
@@ -226,7 +226,7 @@ class TeacherController extends Controller
         try {
             DB::beginTransaction();
 
-            $user = User::where('school_id', $this->schoolId)->findorfail($id);
+            $user = User::where('branch_id', $this->branchId)->findorfail($id);
             $teacherProfile = TeacherProfile::where('teacher_id', $id)->firstOrFail();
 
             // Handle profile picture update
@@ -311,10 +311,12 @@ class TeacherController extends Controller
     public function updateStatus(Request $request)
     {
         // dd($request->all());
-        $teacher = User::where('school_id', $this->schoolId)->findOrFail($request->id); // Assuming User is teacher
+        $teacher = User::where('branch_id', $this->branchId)->findOrFail($request->id); // Assuming User is teacher
         $teacher->status = $request->status;
         $teacher->save();
 
         return response()->json(['success' => true, 'status' => $teacher->status]);
     }
 }
+
+

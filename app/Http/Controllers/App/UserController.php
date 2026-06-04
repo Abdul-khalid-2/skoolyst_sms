@@ -3,11 +3,8 @@
 namespace App\Http\Controllers\App;
 
 use App\Http\Controllers\Controller;
-use App\Models\{
-    School,
-    // Tenant,
-    User
-};
+use App\Models\Branch;
+use App\Models\User;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules;
@@ -43,8 +40,7 @@ class UserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $school = School::first();
-        $validate['school_id'] =  $school->id;
+        $validate['branch_id'] = auth()->user()->branch_id ?? Branch::first()?->id;
 
         User::create($validate);
         return redirect()->route('user.index');
@@ -92,3 +88,4 @@ class UserController extends Controller
         //
     }
 }
+

@@ -12,7 +12,7 @@ class User extends Authenticatable
     protected $guard_name = 'web';
 
     protected $fillable = [
-        'school_id',
+        'branch_id',
         'name',
         'email',
         'profile_pic',
@@ -31,9 +31,14 @@ class User extends Authenticatable
     ];
 
     // Relationships
-    public function school()
+    public function branch()
     {
-        return $this->belongsTo(School::class);
+        return $this->belongsTo(Branch::class);
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === 'super-admin';
     }
 
     public function teacherProfile()

@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToSchoolBranch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ExamResult extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, BelongsToSchoolBranch;
 
     protected $fillable = [
-        'school_id',
+        'branch_id',
         'exam_id',
         'student_id',
         'subject_id',
@@ -21,11 +22,6 @@ class ExamResult extends Model
     ];
 
     // Relationships
-    public function school()
-    {
-        return $this->belongsTo(School::class);
-    }
-
     public function exam()
     {
         return $this->belongsTo(Exam::class);
@@ -41,3 +37,4 @@ class ExamResult extends Model
         return $this->belongsTo(Subject::class);
     }
 }
+

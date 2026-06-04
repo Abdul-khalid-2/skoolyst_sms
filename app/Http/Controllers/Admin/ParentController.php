@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Branch;
 use App\Models\ParentProfile;
-use App\Models\School;
 use App\Models\StudentParent;
 use App\Models\User;
 
@@ -17,11 +17,11 @@ use Illuminate\View\View;
 class ParentController extends Controller
 {
 
-    protected $schoolId;
+    protected $branchId;
 
     public function __construct()
     {
-        $this->schoolId = auth()->user()->school_id ?? School::first()->id ?? null;
+        $this->branchId = auth()->user()->branch_id ?? Branch::first()->id ?? null;
     }
     /**
      * Display the user's profile form.
@@ -32,13 +32,13 @@ class ParentController extends Controller
             ->whereHas('roles', function ($q) {
                 $q->where('name', 'parent');
             })
-            ->where('school_id', $this->schoolId)
+            ->where('branch_id', $this->branchId)
             ->get();
 
         $students = User::whereHas('roles', function ($q) {
             $q->where('name', 'student');
         })
-            ->where('school_id', $this->schoolId)
+            ->where('branch_id', $this->branchId)
             ->get();
 
         return view('app.admin.parents', compact('parents', 'students'));
@@ -47,7 +47,7 @@ class ParentController extends Controller
     {
         $students = User::whereHas('roles', function ($q) {
             $q->where('name', 'student');
-        })->where('school_id', $this->schoolId)
+        })->where('branch_id', $this->branchId)
             ->get();
         return view('app.admin.add_parent', compact('students'));
     }
@@ -84,7 +84,7 @@ class ParentController extends Controller
 
             // Create user account
             $user = User::create([
-                'school_id' => $this->schoolId,
+                'branch_id' => $this->branchId,
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'phone' => $validated['phone'],
@@ -114,7 +114,7 @@ class ParentController extends Controller
             // Create parent profile
             $parentProfile = ParentProfile::create([
                 'parent_id' => $user->id,
-                'school_id' => $user->school_id,
+                'branch_id' => $user->branch_id,
                 'occupation' => $validated['occupation'],
                 'employer' => $validated['employer'],
                 'income_range' => $validated['income_range'],
@@ -195,3 +195,5 @@ class ParentController extends Controller
         }
     }
 }
+
+

@@ -14,8 +14,6 @@ return new class extends Migration
 
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('school_id')->nullable()->constrained();
-            // $table->foreignId('school_id')->constrained();
             $table->string('name');
             $table->string('email')->unique();
             $table->string('profile_pic')->nullable();
@@ -26,7 +24,7 @@ return new class extends Migration
             $table->enum('gender', ['male', 'female', 'other'])->nullable();
             $table->date('dob')->nullable();
             $table->string('remember_token', 100)->nullable();
-            $table->enum('role', ['admin', 'teacher', 'parent', 'student', 'accountant', 'librarian']);
+            $table->enum('role', ['super-admin', 'admin', 'teacher', 'student', 'parent', 'accountant']);
             $table->enum('status', ['pending', 'active', 'inactive', 'rejected'])->default('pending');
             $table->timestamp('deleted_at')->nullable();
             $table->timestamps();

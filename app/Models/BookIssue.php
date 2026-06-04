@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToSchoolBranch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class BookIssue extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, BelongsToSchoolBranch;
 
     protected $fillable = [
-        'school_id',
+        'branch_id',
         'book_id',
         'user_id',
         'issue_date',
@@ -22,11 +23,6 @@ class BookIssue extends Model
     ];
 
     // Relationships
-    public function school()
-    {
-        return $this->belongsTo(School::class);
-    }
-
     public function book()
     {
         return $this->belongsTo(Book::class);
@@ -37,3 +33,4 @@ class BookIssue extends Model
         return $this->belongsTo(User::class);
     }
 }
+

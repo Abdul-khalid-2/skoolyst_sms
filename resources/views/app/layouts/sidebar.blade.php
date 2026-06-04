@@ -1,12 +1,12 @@
-@if (Auth::user()->Role('admin'))
+@if (Auth::user()->hasRole('super-admin') || Auth::user()->hasRole('admin'))
     <nav id="sidebar" class="">
         <div class="sidebar-header">
             <a href="{{ route('dashboard') }}">
-                <img class="main-logo" src="{{ isset($invormentdata->logo) ? asset('tenancy/assets/' . $invormentdata->logo) : asset('backend/img/logo/logo.png') }}" alt="" style="width: 180px; height:50px; margin-top:10px;margin-bottom:20px;"/>
+                <img class="main-logo" src="{{ $invormentdata->logo_url }}" alt="" style="width: 180px; height:50px; margin-top:10px;margin-bottom:20px;"/>
             </a>
             <strong>
                 <a href="{{ route('dashboard') }}">
-                    <img src="{{ isset($invormentdata->logo) ? asset('tenancy/assets/' . $invormentdata->logo) : asset('backend/img/logo/logo.png') }}" alt="" style="width: 60px; height:50px; margin-left:5px;margin-right:5px;"/>
+                    <img src="{{ $invormentdata->logo_url }}" alt="" style="width: 60px; height:50px; margin-left:5px;margin-right:5px;"/>
                 </a>
             </strong>
         </div>
@@ -143,7 +143,7 @@
             </nav>
         </div>
     </nav>
-@elseif (Auth::user()->Role('teacher'))
+@elseif (Auth::user()->hasRole('teacher'))
     <!-- Teacher Panel -->
     <nav id="sidebar" class="">
         <div class="sidebar-header">
@@ -225,7 +225,7 @@
             </nav>
         </div>
     </nav>
-@elseif (Auth::user()->Role('parent'))
+@elseif (Auth::user()->hasRole('parent'))
     
     <!-- Parent Panel -->
     <nav id="sidebar" class="">
@@ -297,7 +297,7 @@
             </nav>
         </div>
     </nav>
-@elseif (Auth::user()->Role('student'))
+@elseif (Auth::user()->hasRole('student'))
     <!-- Student Panel -->
     <nav id="sidebar" class="">
         <div class="sidebar-header">

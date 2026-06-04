@@ -3,11 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Branch;
 use App\Models\Classes;
-use App\Models\School;
+use App\Models\Setting;
 use App\Models\Section;
 use App\Models\StudentProfile;
-use App\Models\User;;
+use App\Models\User;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -34,7 +35,7 @@ class StudentController extends Controller
                     $q->where('section_id', $request->section_id);
                 });
             })
-            // ->where('school_id', auth()->user()->school_id)
+            // ->where('branch_id', auth()->user()->branch_id)
             ->orderBy('name')
             ->get();
 
@@ -78,7 +79,7 @@ class StudentController extends Controller
         try {
             DB::beginTransaction();
 
-            $school = School::first();
+            $branchId = auth()->user()->branch_id ?? Branch::first()?->id;
 
             $studentPhotoPath = null;
             if ($request->hasFile('student_photo')) {
@@ -88,7 +89,7 @@ class StudentController extends Controller
 
             // Create user account
             $user = User::create([
-                'school_id'     => auth()->user()->school_id ?? $school->id,
+                'branch_id'     => $branchId,
                 'name'          => $validated['name'],
                 'email'         => $validated['email'],
                 'profile_pic'   => $studentPhotoPath,
@@ -120,7 +121,7 @@ class StudentController extends Controller
             // Create student profile
             $studentProfile = StudentProfile::create([
                 'student_id'        => $user->id,
-                'school_id'         => $user->school_id,
+                'branch_id'         => $user->branch_id,
                 'admission_no'      => $validated['admission_no'],
                 'admission_date'    => $validated['admission_date'],
                 'class_id'          => $validated['class_id'],
@@ -165,3 +166,5 @@ class StudentController extends Controller
         return response()->json($sections);
     }
 }
+
+

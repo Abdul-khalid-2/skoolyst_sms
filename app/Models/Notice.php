@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToSchoolBranch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Notice extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, BelongsToSchoolBranch;
 
     protected $fillable = [
-        'school_id',
+        'branch_id',
         'title',
         'content',
         'target_roles',
@@ -25,9 +26,5 @@ class Notice extends Model
         'target_classes' => 'array'
     ];
 
-    // Relationships
-    public function school()
-    {
-        return $this->belongsTo(School::class);
-    }
 }
+

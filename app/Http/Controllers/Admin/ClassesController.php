@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Classes;
-use App\Models\School;
+use App\Models\Branch;
 use App\Models\Section;
 use App\Models\SystemSetting;
 use App\Models\User;
@@ -13,11 +13,11 @@ use Illuminate\Support\Facades\Crypt;
 
 class ClassesController extends Controller
 {
-    protected $schoolId;
+    protected $branchId;
 
     public function __construct()
     {
-        $this->schoolId = auth()->user()->school_id ?? School::first()->id ?? null;
+        $this->branchId = auth()->user()->branch_id ?? Branch::first()->id ?? null;
     }
 
     private function redirectWithMessage($route, $message, $type = 'success')
@@ -32,7 +32,7 @@ class ClassesController extends Controller
     public function index()
     {
         $classes = Classes::withTrashed()
-            ->where('school_id', $this->schoolId)
+            ->where('branch_id', $this->branchId)
             ->with(['classTeachersSubjects.teacher' => function ($query) {
                 $query->withTrashed();
             }, 'classTeachersSubjects.subject' => function ($query) {
@@ -61,14 +61,14 @@ class ClassesController extends Controller
             'teacher_id' => 'nullable|exists:users,id'
         ]);
 
-        $validated['school_id'] = $this->schoolId;
+        $validated['branch_id'] = $this->branchId;
 
         $class = Classes::create($validated);
         $systemSetting = SystemSetting::where('setting_key', 'default_class_capacity')->first();
         $capacity = $systemSetting->setting_value ?? 20;
 
         Section::create([
-            'school_id' => $this->schoolId, // Fixed typo: schoo_id -> school_id
+            'branch_id' => $this->branchId, // Fixed typo: schoo_id -> school_id
             'class_id' => $class->id,
             'name' => 'A',
             'capacity' => $capacity,
@@ -80,7 +80,7 @@ class ClassesController extends Controller
     public function edit($encodedId)
     {
         $id = Crypt::decrypt($encodedId);
-        $class = Classes::where('school_id', $this->schoolId)->findOrFail($id);
+        $class = Classes::where('branch_id', $this->branchId)->findOrFail($id);
 
         $teachers = User::role('teacher')
             ->orderBy('name')
@@ -93,7 +93,7 @@ class ClassesController extends Controller
     {
         $id = Crypt::decrypt($encodedId);
         $class = Classes::withTrashed()
-            ->where('school_id', $this->schoolId)
+            ->where('branch_id', $this->branchId)
             ->with(['sections', 'classTeachersSubjects.teacher', 'classTeachersSubjects.subject'])
             ->findOrFail($id);
 
@@ -102,7 +102,7 @@ class ClassesController extends Controller
 
     public function update(Request $request, $id)
     {
-        $class = Classes::where('school_id', $this->schoolId)->findOrFail($id);
+        $class = Classes::where('branch_id', $this->branchId)->findOrFail($id);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -118,7 +118,7 @@ class ClassesController extends Controller
     public function destroy($id)
     {
         $id = Crypt::decrypt($id);
-        $class = Classes::where('school_id', $this->schoolId)->findOrFail($id);
+        $class = Classes::where('branch_id', $this->branchId)->findOrFail($id);
 
         if ($class->sections()->count() > 1) {
             return $this->redirectWithMessage('admin.academic.classes.index', 'Cannot delete class with sections', 'error');
@@ -133,7 +133,7 @@ class ClassesController extends Controller
     public function restore($id)
     {
         $class = Classes::withTrashed()
-            ->where('school_id', $this->schoolId)
+            ->where('branch_id', $this->branchId)
             ->findOrFail(decrypt($id));
 
         $class->restore();
@@ -142,3 +142,5 @@ class ClassesController extends Controller
         return $this->redirectWithMessage('admin.academic.classes.index', 'Class restored successfully');
     }
 }
+
+

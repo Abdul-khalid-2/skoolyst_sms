@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToSchoolBranch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class FeeStructure extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, BelongsToSchoolBranch;
 
     protected $fillable = [
-        'school_id',
+        'branch_id',
         'category_id',
         'class_id',
         'name',
@@ -20,11 +21,6 @@ class FeeStructure extends Model
     ];
 
     // Relationships
-    public function school()
-    {
-        return $this->belongsTo(School::class);
-    }
-
     public function category()
     {
         return $this->belongsTo(FeeCategory::class);
@@ -40,3 +36,4 @@ class FeeStructure extends Model
         return $this->hasMany(Fee::class);
     }
 }
+

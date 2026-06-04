@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToSchoolBranch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Holiday extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, BelongsToSchoolBranch;
 
     protected $fillable = [
-        'school_id',
+        'branch_id',
         'title',
         'description',
         'start_date',
@@ -19,9 +20,5 @@ class Holiday extends Model
         'recurring_pattern'
     ];
 
-    // Relationships
-    public function school()
-    {
-        return $this->belongsTo(School::class);
-    }
 }
+

@@ -3,26 +3,33 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Branch;
 use App\Models\Classes;
 use App\Models\Program;
-use App\Models\School;
+use App\Models\Setting;
 use App\Models\Subject;
 use App\Models\SystemSetting;
 use App\Models\Testimonial;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class SchoolProfileController extends Controller
 {
-    /**
-     * Display a listing of the classes.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    private function settings()
+    {
+        return Setting::get();
+    }
+
+    private function branchId(): ?int
+    {
+        return Auth::user()?->branch_id ?? Branch::query()->value('id');
+    }
+
     public function index()
     {
-        $school = School::first();
+        $school = $this->settings();
         $stats = [
             'students' => User::role('student')->count(),
             'teachers' => User::role('teacher')->count(),
@@ -37,92 +44,83 @@ class SchoolProfileController extends Controller
             ->orderBy('name')
             ->get();
 
-
         return view('app.admin.schoo_profile.school_profile', compact('school', 'stats', 'classes', 'subjects'));
     }
 
-    // SchoolController.php
-
-    public function edit(School $school)
+    public function edit()
     {
-        $school = School::first();
+        $school = $this->settings();
+
         return view('app.admin.schoo_profile.edit_profile', compact('school'));
     }
 
-    public function update(Request $request, School $school)
+    public function update(Request $request)
     {
-        $school = School::first();
+        $setting = $this->settings();
+
         $validated = $request->validate([
-            'name'          => 'required|string|max:255',
-            'session_year'  => 'required|string|max:20',
-            'address'       => 'required|string',
-            'phone'         => 'required|string|max:20',
-            'email'         => 'required|email|unique:schools,email,' . $school->id,
-            'logo'          => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'website'       => 'nullable|url',
-            'type'          => 'nullable|string',
-            'affiliation'   => 'nullable|string',
-            'principal'     => 'nullable|string',
-            'about'         => 'nullable|string',
-            'established_year'       => 'nullable|integer|min:1900|max:' . date('Y'),
-            'working_hours'          => 'nullable|string',
-            'social_links'           => 'nullable|array',
-            'social_links.facebook'  => 'nullable|url',
-            'social_links.twitter'   => 'nullable|url',
-            'social_links.instagram' => 'nullable|url',
-            'social_links.youtube'   => 'nullable|url',
+            'name' => 'required|string|max:255',
+            'session_year' => 'required|string|max:20',
+            'address' => 'required|string',
+            'phone' => 'required|string|max:20',
+            'email' => 'required|email',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'type' => 'nullable|string',
+            'affiliation' => 'nullable|string',
+            'principal' => 'nullable|string',
+            'about' => 'nullable|string',
+            'established_year' => 'nullable|integer|min:1900|max:'.date('Y'),
+            'social_links' => 'nullable|array',
         ]);
 
-        // Handle logo upload
+        $payload = [
+            'school_name' => $validated['name'],
+            'session_year' => $validated['session_year'],
+            'school_address' => $validated['address'],
+            'school_phone' => $validated['phone'],
+            'school_email' => $validated['email'],
+            'school_type' => $validated['type'] ?? null,
+            'affiliation_no' => $validated['affiliation'] ?? null,
+            'principal_name' => $validated['principal'] ?? null,
+            'about' => $validated['about'] ?? null,
+            'established_year' => $validated['established_year'] ?? null,
+            'social_links' => isset($validated['social_links'])
+                ? array_filter($validated['social_links'])
+                : $setting->social_links,
+        ];
+
         if ($request->hasFile('logo')) {
-            // Delete old logo if it exists
-            if ($school->logo && Storage::disk('website')->exists($school->logo)) {
-                Storage::disk('website')->delete($school->logo);
+            if ($setting->school_logo && Storage::disk('website')->exists($setting->school_logo)) {
+                Storage::disk('website')->delete($setting->school_logo);
             }
-
-            // Store new logo
-            $logoPath = $request->file('logo')
-                ->store("school/profile", 'website');
-
-            $validated['logo'] = $logoPath;
+            $payload['school_logo'] = $request->file('logo')->store('school/profile', 'website');
         }
 
-        // Process social links - filter out empty values and convert to JSON
-        if (isset($validated['social_links'])) {
-            $validated['social_links'] = json_encode(
-                array_filter($validated['social_links'], function ($value) {
-                    return !empty($value);
-                })
-            );
-        } else {
-            $validated['social_links'] = null;
-        }
+        $setting->update($payload);
 
-        // Update the school record
-        $school->update($validated);
-
-        return redirect()->route('schools.show')
-            ->with('success', 'School profile updated successfully');
+        return redirect()->route('schools.show')->with('success', 'School profile updated successfully');
     }
 
-    public function showSettings(School $school)
+    public function showSettings()
     {
-        $school = School::first();
-        $settings = SystemSetting::where('school_id', $school->id)
+        $school = $this->settings();
+        $branchId = $this->branchId();
+
+        $settings = SystemSetting::where('branch_id', $branchId)
             ->pluck('setting_value', 'setting_key')
             ->toArray();
 
         return view('app.admin.schoo_profile.settings', compact('school', 'settings'));
     }
 
-    public function updateSettings(Request $request, School $school)
+    public function updateSettings(Request $request)
     {
-        $school = School::first();
+        $branchId = $this->branchId();
         $settings = $request->except(['_token', '_method']);
 
         foreach ($settings as $key => $value) {
             SystemSetting::updateOrCreate(
-                ['school_id' => $school->id, 'setting_key' => $key],
+                ['branch_id' => $branchId, 'setting_key' => $key],
                 ['setting_value' => $value]
             );
         }
@@ -130,27 +128,24 @@ class SchoolProfileController extends Controller
         return back()->with('success', 'Settings updated successfully');
     }
 
-    // app/Http/Controllers/SchoolController.php
-
-    public function updateAcademicSettings(Request $request, School $school)
+    public function updateAcademicSettings(Request $request)
     {
-        $school = School::first();
+        $branchId = $this->branchId();
         $validated = $request->validate([
-            'working_hours_start'    => 'required|date_format:H:i',
-            'working_hours_end'      => 'required|date_format:H:i|after:working_hours_start',
-            'working_days_start'     => 'required|in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
-            'working_days_end'       => 'required|in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
-            'grading_system'         => 'required|in:percentage,letter,gpa',
+            'working_hours_start' => 'required|date_format:H:i',
+            'working_hours_end' => 'required|date_format:H:i|after:working_hours_start',
+            'working_days_start' => 'required|in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
+            'working_days_end' => 'required|in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
+            'grading_system' => 'required|in:percentage,letter,gpa',
             'default_class_capacity' => 'required|integer|min:10|max:60',
-            'auto_promotion'         => 'nullable',
+            'auto_promotion' => 'nullable',
         ]);
 
-        // Convert checkbox value to boolean
         $validated['auto_promotion'] = $request->has('auto_promotion');
 
         foreach ($validated as $key => $value) {
             SystemSetting::updateOrCreate(
-                ['school_id' => $school->id, 'setting_key' => $key],
+                ['branch_id' => $branchId, 'setting_key' => $key],
                 ['setting_value' => $value]
             );
         }
@@ -158,19 +153,19 @@ class SchoolProfileController extends Controller
         return back()->with('success', 'Academic settings updated successfully');
     }
 
-    public function updateAttendanceSettings(Request $request, School $school)
+    public function updateAttendanceSettings(Request $request)
     {
-        $school = School::first();
+        $branchId = $this->branchId();
         $validated = $request->validate([
-            'attendance_method'             => 'required|in:daily,session',
-            'late_threshold'                => 'required|integer|min:1|max:60',
-            'send_absence_notifications'    => 'nullable',
-            'absence_notification_method'   => 'required|in:email,sms,both',
+            'attendance_method' => 'required|in:daily,session',
+            'late_threshold' => 'required|integer|min:1|max:60',
+            'send_absence_notifications' => 'nullable',
+            'absence_notification_method' => 'required|in:email,sms,both',
         ]);
 
         foreach ($validated as $key => $value) {
             SystemSetting::updateOrCreate(
-                ['school_id' => $school->id, 'setting_key' => $key],
+                ['branch_id' => $branchId, 'setting_key' => $key],
                 ['setting_value' => $value]
             );
         }
@@ -180,25 +175,20 @@ class SchoolProfileController extends Controller
 
     public function cms()
     {
-        $school = School::with(['programs', 'testimonials'])->first();
+        $school = $this->settings();
 
-        // If no school exists, create a default one
-        if (!$school) {
-            $school = School::create([
-                'name' => 'Your School Name',
-                'primary_color' => '#2563eb',
-                'secondary_color' => '#1e40af',
-                'email' => 'example@email.com'
-            ]);
-        }
-        return view('app.cms.edit', compact('school'));
+        return view('app.cms.edit', [
+            'school' => $school,
+            'programs' => Program::all(),
+            'testimonials' => Testimonial::all(),
+        ]);
     }
 
     public function cmsUpdate(Request $request)
     {
-        $school = School::firstOrFail();
+        $setting = $this->settings();
+        $branchId = $this->branchId();
 
-        // Validate the request
         $request->validate([
             'name' => 'required|string|max:255',
             'motto' => 'nullable|string|max:255',
@@ -214,151 +204,76 @@ class SchoolProfileController extends Controller
             'phone' => 'nullable|string|max:50',
             'email' => 'nullable|email|max:255',
             'short_description' => 'nullable|string',
-            'programs' => 'nullable|array',
-            'programs.*.name' => 'required_with:programs|string|max:255',
-            'programs.*.description' => 'required_with:programs|string',
-            'testimonials' => 'nullable|array',
-            'testimonials.*.author' => 'required_with:testimonials|string|max:255',
-            'testimonials.*.role' => 'required_with:testimonials|string|max:255',
-            'testimonials.*.content' => 'required_with:testimonials|string',
-            'testimonials.*.rating' => 'required_with:testimonials|integer|between:1,5',
-            'testimonials.*.avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-
-        // Handle logo upload
-        $schoolProfile = $school->logo; // Keep existing if no changes
+        $payload = [
+            'school_name' => $request->input('name'),
+            'motto' => $request->input('motto'),
+            'primary_color' => $request->input('primary_color'),
+            'secondary_color' => $request->input('secondary_color'),
+            'established_year' => $request->input('established_year'),
+            'student_count_display' => $request->input('student_count'),
+            'teacher_count_display' => $request->input('teacher_count'),
+            'facility_count_display' => $request->input('facility_count'),
+            'school_address' => $request->input('address'),
+            'school_phone' => $request->input('phone'),
+            'school_email' => $request->input('email'),
+            'short_description' => $request->input('short_description'),
+        ];
 
         if ($request->hasFile('logo')) {
-            // Delete old logo if exists
-            if ($school->logo) {
-                Storage::disk('website')->delete($school->logo);
+            if ($setting->school_logo) {
+                Storage::disk('website')->delete($setting->school_logo);
             }
-            
-            // Store new logo
-            $schoolProfile = $request->file('logo')
-                ->store("school/logo", 'website');
-        } elseif ($request->boolean('remove_logo')) {
-            // Remove existing logo
-            if ($school->logo) {
-                Storage::disk('website')->delete($school->logo);
-                $schoolProfile = null;
-            }
+            $payload['school_logo'] = $request->file('logo')->store('school/logo', 'website');
         }
 
-        // Update the school model
-        $school->logo = $schoolProfile;
-
-
-        // Handle hero image upload
         if ($request->hasFile('hero_image')) {
-            // Delete old hero image if exists
-            if ($school->hero_image) {
-                Storage::disk('website')->delete($school->hero_image);
+            if ($setting->hero_image) {
+                Storage::disk('website')->delete($setting->hero_image);
             }
-            $path = $request->file('hero_image')->store("school/hero", 'website');
-            $school->hero_image = str_replace('public/', '', $path);
-        } elseif ($request->has('remove_hero_image')) {
-            if ($school->hero_image) {
-                Storage::disk('website')->delete($school->hero_image);
-                $school->hero_image = null;
-            }
+            $payload['hero_image'] = $request->file('hero_image')->store('school/hero', 'website');
         }
 
-        // Update school information
-        $school->update($request->only([
-            'name',
-            'motto',
-            'primary_color',
-            'secondary_color',
-            'established_year',
-            'student_count',
-            'teacher_count',
-            'facility_count',
-            'address',
-            'phone',
-            'email',
-            'short_description'
-        ]));
+        $setting->update($payload);
 
-        // Handle programs
-        $existingProgramIds = [];
         if ($request->has('programs')) {
-            foreach ($request->programs as $programData) {
-                if (isset($programData['id'])) {
-                    // Update existing program
-                    $program = Program::find($programData['id']);
-                    if ($program) {
-                        $program->update([
-                            'name' => $programData['name'],
-                            'description' => $programData['description']
-                        ]);
-                        $existingProgramIds[] = $program->id;
-                    }
-                } else {
-                    // Create new program
-                    $program = $school->programs()->create([
+            foreach ($request->input('programs', []) as $programData) {
+                if (! empty($programData['id'])) {
+                    Program::where('id', $programData['id'])->update([
                         'name' => $programData['name'],
-                        'description' => $programData['description']
+                        'description' => $programData['description'],
                     ]);
-                    $existingProgramIds[] = $program->id;
+                } else {
+                    Program::create([
+                        'branch_id' => $branchId,
+                        'name' => $programData['name'],
+                        'description' => $programData['description'],
+                    ]);
                 }
             }
         }
 
-        // Delete programs not in the request
-        $school->programs()->whereNotIn('id', $existingProgramIds)->delete();
-
-        // Handle testimonials
-        $existingTestimonialIds = [];
         if ($request->has('testimonials')) {
-            foreach ($request->testimonials as $testimonialData) {
-                $avatarPath = null;
-
-                // Handle avatar upload
-                if (isset($testimonialData['avatar']) && $testimonialData['avatar'] instanceof \Illuminate\Http\UploadedFile) {
-                    $path = $testimonialData['avatar']->store('public/testimonials');
-                    $avatarPath = str_replace('public/', '', $path);
-                }
-
-                if (isset($testimonialData['id'])) {
-                    // Update existing testimonial
-                    $testimonial = Testimonial::find($testimonialData['id']);
-                    if ($testimonial) {
-                        $updateData = [
-                            'author' => $testimonialData['author'],
-                            'role' => $testimonialData['role'],
-                            'content' => $testimonialData['content'],
-                            'rating' => $testimonialData['rating']
-                        ];
-
-                        if ($avatarPath) {
-                            // Delete old avatar if exists
-                            if ($testimonial->avatar) {
-                                Storage::disk('website')->delete($testimonial->avatar);
-                            }
-                            $updateData['avatar'] = $avatarPath;
-                        }
-
-                        $testimonial->update($updateData);
-                        $existingTestimonialIds[] = $testimonial->id;
-                    }
-                } else {
-                    // Create new testimonial
-                    $testimonial = $school->testimonials()->create([
+            foreach ($request->input('testimonials', []) as $testimonialData) {
+                if (! empty($testimonialData['id'])) {
+                    Testimonial::where('id', $testimonialData['id'])->update([
                         'author' => $testimonialData['author'],
                         'role' => $testimonialData['role'],
                         'content' => $testimonialData['content'],
                         'rating' => $testimonialData['rating'],
-                        'avatar' => $avatarPath
                     ]);
-                    $existingTestimonialIds[] = $testimonial->id;
+                } else {
+                    Testimonial::create([
+                        'branch_id' => $branchId,
+                        'author' => $testimonialData['author'],
+                        'role' => $testimonialData['role'],
+                        'content' => $testimonialData['content'],
+                        'rating' => $testimonialData['rating'],
+                    ]);
                 }
             }
         }
-
-        // Delete testimonials not in the request
-        $school->testimonials()->whereNotIn('id', $existingTestimonialIds)->delete();
 
         return redirect()->route('schools.cms')->with('success', 'Landing page updated successfully!');
     }
