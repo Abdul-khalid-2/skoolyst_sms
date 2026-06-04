@@ -1,7 +1,4 @@
 <x-tenant-app-layout>
-    @push('css')
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.css">
-    @endpush
     
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">

@@ -148,7 +148,6 @@
 
     </div>
 
-    @stack('js')
     <script src="{{ asset('backend/js/vendor/jquery-1.12.4.min.js') }}"></script>
     <script src="{{ asset('backend/js/bootstrap.min.js') }}"></script>
     <script src="{{ asset('backend/js/wow.min.js') }}"></script>
@@ -193,6 +192,8 @@
             })
         @endif
     </script>
+    {{-- PAGE-SPECIFIC JS — child views push here; jQuery and all globals are already loaded above --}}
+    @stack('js')
 </body>
 
 </html>
