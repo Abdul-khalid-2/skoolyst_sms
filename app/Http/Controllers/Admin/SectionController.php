@@ -81,7 +81,7 @@ class SectionController extends Controller
         $section = Section::withTrashed()
             ->with([
                 'class' => fn($q) => $q->withTrashed(),
-                'students.studentProfile',
+                'students.student',
             ])
             ->where('branch_id', $this->branchId)
             ->findOrFail(decrypt($id));

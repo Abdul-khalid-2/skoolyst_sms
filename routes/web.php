@@ -74,9 +74,10 @@ Route::middleware(['auth', 'verified', 'scope.branch', 'role:super-admin|admin']
     Route::get('/students', [StudentController::class, 'index'])->name('dashboard.students');
     Route::get('/add_student', [StudentController::class, 'create'])->name('dashboard.add.student');
     Route::post('/add_student', [StudentController::class, 'store'])->name('admin.store.student');
-    Route::get('/edit_student', [StudentController::class, 'edit'])->name('admin.edit.student');
-    Route::post('/edit_student', [StudentController::class, 'update'])->name('admin.update.student');
-    Route::delete('/destroy_student', [StudentController::class, 'destroy'])->name('admin.destroy.student');
+    Route::get('/show_student/{id}', [StudentController::class, 'show'])->name('admin.show.student');
+    Route::get('/edit_student/{id}', [StudentController::class, 'edit'])->name('admin.edit.student');
+    Route::put('/edit_student/{id}', [StudentController::class, 'update'])->name('admin.update.student');
+    Route::delete('/destroy_student/{id}', [StudentController::class, 'destroy'])->name('admin.destroy.student');
     Route::get('/get-sections/{classId}', [StudentController::class, 'getSections'])->name('students.sections');
 
     Route::get('/teachers', [TeacherController::class, 'index'])->name('dashboard.teachers');

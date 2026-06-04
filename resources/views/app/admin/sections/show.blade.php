@@ -134,28 +134,30 @@
                                             <td>{{ $i + 1 }}</td>
                                             <td>
                                                 <i class="fa fa-user text-muted" style="margin-right:4px;"></i>
-                                                {{ $student->name }}
+                                                {{ $student->student->name ?? '—' }}
                                             </td>
                                             <td>
-                                                {{ $student->studentProfile->admission_no ?? '—' }}
+                                                {{ $student->admission_no ?? '—' }}
                                             </td>
                                             <td>
-                                                @if($student->gender === 'male')
+                                                @php $gender = $student->student->gender ?? null; @endphp
+                                                @if($gender === 'male')
                                                     <span class="label label-primary">Male</span>
-                                                @elseif($student->gender === 'female')
+                                                @elseif($gender === 'female')
                                                     <span class="label label-danger">Female</span>
                                                 @else
                                                     <span class="text-muted">—</span>
                                                 @endif
                                             </td>
                                             <td>
-                                                {{ $student->studentProfile->blood_group ?? '—' }}
+                                                {{ $student->blood_group ?? '—' }}
                                             </td>
                                             <td>
-                                                @if($student->status === 'active')
+                                                @php $status = $student->student->status ?? null; @endphp
+                                                @if($status === 'active')
                                                     <span class="label label-success">Active</span>
                                                 @else
-                                                    <span class="label label-default">{{ ucfirst($student->status) }}</span>
+                                                    <span class="label label-default">{{ ucfirst($status ?? 'unknown') }}</span>
                                                 @endif
                                             </td>
                                         </tr>

@@ -160,6 +160,115 @@ class StudentController extends Controller
         */
     }
 
+    public function show($id)
+    {
+        $student = User::with([
+            'studentProfile.class',
+            'studentProfile.section',
+        ])->findOrFail($id);
+
+        return view('app.admin.show_student', compact('student'));
+    }
+
+    public function edit($id)
+    {
+        $student = User::with(['studentProfile.class', 'studentProfile.section'])->findOrFail($id);
+        $classes = Classes::with('sections')->get();
+        return view('app.admin.edit_student', compact('student', 'classes'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $student = User::findOrFail($id);
+
+        $validated = $request->validate([
+            'name'              => 'required|string|max:255',
+            'email'             => 'required|email|unique:users,email,' . $id,
+            'phone'             => 'required|string|max:20',
+            'address'           => 'required|string',
+            'gender'            => 'required|in:male,female,other',
+            'dob'               => 'required|date',
+            'admission_no'      => 'required|string|unique:student_profiles,admission_no,' . optional($student->studentProfile)->id,
+            'admission_date'    => 'required|date',
+            'class_id'          => 'required|exists:classes,id',
+            'section_id'        => 'required|exists:sections,id',
+            'previous_school'   => 'nullable|string',
+            'blood_group'       => 'nullable|string',
+            'medical_history'   => 'nullable|string',
+            'transport_details' => 'nullable|string',
+            'hobbies'           => 'nullable|string',
+            'awards'            => 'nullable|string',
+            'id_card_issued'    => 'nullable|boolean',
+            'id_card_number'    => 'nullable|string',
+            'student_photo'     => 'nullable|image|max:2048',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            if ($request->hasFile('student_photo')) {
+                $validated['profile_pic'] = $request->file('student_photo')
+                    ->store('tenants/students/profile', 'website');
+            }
+
+            $student->update([
+                'name'        => $validated['name'],
+                'email'       => $validated['email'],
+                'phone'       => $validated['phone'],
+                'address'     => $validated['address'],
+                'gender'      => $validated['gender'],
+                'dob'         => $validated['dob'],
+                'profile_pic' => $validated['profile_pic'] ?? $student->profile_pic,
+            ]);
+
+            $student->studentProfile()->updateOrCreate(
+                ['student_id' => $student->id],
+                [
+                    'admission_no'      => $validated['admission_no'],
+                    'admission_date'    => $validated['admission_date'],
+                    'class_id'          => $validated['class_id'],
+                    'section_id'        => $validated['section_id'],
+                    'previous_school'   => $validated['previous_school'],
+                    'medical_history'   => $validated['medical_history'],
+                    'transport_details' => $validated['transport_details'],
+                    'hobbies'           => $validated['hobbies'],
+                    'awards'            => $validated['awards'],
+                    'blood_group'       => $validated['blood_group'],
+                    'id_card_issued'    => $request->boolean('id_card_issued'),
+                    'id_card_number'    => $validated['id_card_number'],
+                ]
+            );
+
+            DB::commit();
+
+            return redirect()->route('dashboard.students')
+                ->with('message', 'Student updated successfully')
+                ->with('alert-type', 'success');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withInput()
+                ->with('message', 'Error updating student: ' . $e->getMessage())
+                ->with('alert-type', 'error');
+        }
+    }
+
+    public function destroy($id)
+    {
+        try {
+            $student = User::findOrFail($id);
+            $student->studentProfile()->delete();
+            $student->delete();
+
+            return redirect()->route('dashboard.students')
+                ->with('message', 'Student deleted successfully')
+                ->with('alert-type', 'success');
+        } catch (\Exception $e) {
+            return redirect()->route('dashboard.students')
+                ->with('message', 'Error deleting student: ' . $e->getMessage())
+                ->with('alert-type', 'error');
+        }
+    }
+
     public function getSections($classId)
     {
         $sections = Section::where('class_id', $classId)->pluck('name', 'id');
