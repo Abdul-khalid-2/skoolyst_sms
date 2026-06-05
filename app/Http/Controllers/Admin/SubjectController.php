@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
 use App\Models\Classes;
+use App\Models\Section;
 use App\Models\Subject;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -46,11 +47,10 @@ class SubjectController extends Controller
     public function create()
     {
 
-        $classes = Classes::where('branch_id', $this->branchId)
-            ->orderBy('numeric_value')
-            ->get();
+        $classes  = Classes::where('branch_id', $this->branchId)->orderBy('numeric_value')->get();
+        $sections = Section::orderBy('name')->get();
 
-        return view('app.admin.subjects.create', compact('classes'));
+        return view('app.admin.subjects.create', compact('classes', 'sections'));
     }
 
     /**
@@ -62,9 +62,10 @@ class SubjectController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'code' => 'required|string|max:10',
-            'class_id' => 'nullable|exists:classes,id'
+            'name'       => 'required|string|max:255',
+            'code'       => 'required|string|max:10',
+            'class_id'   => 'nullable|exists:classes,id',
+            'section_id' => 'nullable|exists:sections,id',
         ]);
 
         $validated['branch_id'] = auth()->user()->branch_id ?? Branch::first()->id;
@@ -91,14 +92,13 @@ class SubjectController extends Controller
     public function edit($id)
     {
 
-        $subject = Subject::where('branch_id', $this->branchId)
-            ->findOrFail($id);
+        $subject  = Subject::where('branch_id', $this->branchId)->findOrFail($id);
+        $classes  = Classes::where('branch_id', $this->branchId)->orderBy('numeric_value')->get();
+        $sections = $subject->class_id
+            ? Section::where('class_id', $subject->class_id)->orderBy('name')->get()
+            : collect();
 
-        $classes = Classes::where('branch_id', $this->branchId)
-            ->orderBy('numeric_value')
-            ->get();
-
-        return view('app.admin.classes.edit', compact('subject', 'classes'));
+        return view('app.admin.subjects.edit', compact('subject', 'classes', 'sections'));
     }
 
     /**
@@ -115,10 +115,16 @@ class SubjectController extends Controller
             ->findOrFail($id);
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'code' => 'required|string|max:10',
-            'class_id' => 'nullable|exists:classes,id'
+            'name'       => 'required|string|max:255',
+            'code'       => 'required|string|max:10',
+            'class_id'   => 'nullable|exists:classes,id',
+            'section_id' => 'nullable|exists:sections,id',
         ]);
+
+        // Clear section if class was cleared
+        if (empty($validated['class_id'])) {
+            $validated['section_id'] = null;
+        }
 
         $subject->update($validated);
 

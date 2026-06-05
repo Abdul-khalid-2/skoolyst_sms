@@ -11,14 +11,8 @@ class ExamResult extends Model
     use SoftDeletes, BelongsToSchoolBranch;
 
     protected $fillable = [
-        'branch_id',
-        'exam_id',
-        'student_id',
-        'subject_id',
-        'marks_obtained',
-        'grade',
-        'remarks',
-        'published_at'
+        'branch_id', 'exam_id', 'student_id', 'subject_id',
+        'marks_obtained', 'grade', 'remarks', 'published_at',
     ];
 
     // Relationships

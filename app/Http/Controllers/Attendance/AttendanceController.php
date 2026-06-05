@@ -371,20 +371,40 @@ class AttendanceController extends Controller
     }
 
     /**
-     * Get subjects for a class (AJAX)
+     * Get subjects for a class (AJAX).
+     * Returns class-specific subjects first; if none exist, returns
+     * all school-wide subjects (class_id IS NULL) for the branch.
+     * Uses branchId() so super-admin (branch_id = null) resolves correctly.
      */
     public function getSubjects(Request $request)
     {
-        $classId = $request->input('class_id');
+        $classId   = $request->input('class_id');
+        $sectionId = $request->input('section_id');
+        $branchId  = $this->branchId();
 
-        $subjects = Subject::where('class_id', $classId)
-            ->where('branch_id', auth()->user()->branch_id)
-            ->orderBy('name')
-            ->get();
+        $subjects = Subject::where(function ($q) use ($classId, $sectionId) {
+                // School-wide (no class assigned)
+                $q->whereNull('class_id');
 
-        return response()->json([
-            'subjects' => $subjects
-        ]);
+                // Class-specific with no section restriction
+                if ($classId) {
+                    $q->orWhere(function ($inner) use ($classId) {
+                        $inner->where('class_id', $classId)->whereNull('section_id');
+                    });
+
+                    // Section-specific (class + section match)
+                    if ($sectionId) {
+                        $q->orWhere(function ($inner) use ($classId, $sectionId) {
+                            $inner->where('class_id', $classId)->where('section_id', $sectionId);
+                        });
+                    }
+                }
+            })
+            ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
+            ->orderByRaw("CASE WHEN class_id IS NULL THEN 1 ELSE 0 END, name")
+            ->get(['id', 'name', 'code', 'class_id', 'section_id']);
+
+        return response()->json(['subjects' => $subjects]);
     }
 
     /**

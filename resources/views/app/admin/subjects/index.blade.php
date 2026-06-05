@@ -71,15 +71,8 @@
                                            
                                             <td>
                                                 <div style="display: flex; align-items: center; gap: 4px;">
-                                                    <a href="{{ route('admin.academic.subjects.edit', $subject->id) }}" 
-                                                       class="btn btn-xs btn-success" 
-                                                       style="margin-right: 2px;color: white"
-                                                       title="Edit">
-                                                        <i class="fa fa-eye"></i>
-                                                    </a>
-                                                    <a href="{{ route('admin.academic.subjects.edit', $subject->id) }}" 
-                                                       class="btn btn-xs btn-primary" 
-                                                       style="margin-right: 2px;color: white"
+                                                    <a href="{{ route('admin.academic.subjects.edit', $subject->id) }}"
+                                                       class="btn btn-xs btn-primary"
                                                        title="Edit">
                                                         <i class="fa fa-edit"></i>
                                                     </a>

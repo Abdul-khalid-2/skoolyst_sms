@@ -14,6 +14,9 @@ use App\Http\Controllers\Attendance\AttendanceController as SessionAttendanceCon
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SidebarSettingController;
+use App\Http\Controllers\Exams\ExamController;
+use App\Http\Controllers\Exams\ExamScheduleController;
+use App\Http\Controllers\Exams\ExamResultController;
 use App\Http\Controllers\Fees\FeesController;
 use App\Http\Controllers\Fees\FeeCategoryController;
 use App\Http\Controllers\Fees\FeeStructureController;
@@ -168,7 +171,28 @@ Route::middleware(['auth', 'verified', 'scope.branch', 'role:super-admin|admin']
         Route::get('payments/{payment}',        [FeePaymentController::class,   'show'])->name('payments.show');
         Route::delete('payments/{payment}',     [FeePaymentController::class,   'destroy'])->name('payments.destroy');
     });
-    Route::get('/exams', fn () => response()->json(['message' => 'Exams module']))->name('exams.index');
+    // ── Exams ────────────────────────────────────────────────────
+    Route::prefix('exams')->name('exams.')->group(function () {
+        Route::get('/',                                          [ExamController::class,         'index'])->name('index');
+        Route::get('/create',                                    [ExamController::class,         'create'])->name('create');
+        Route::post('/',                                         [ExamController::class,         'store'])->name('store');
+        Route::get('/{exam}',                                    [ExamController::class,         'show'])->name('show');
+        Route::get('/{exam}/edit',                               [ExamController::class,         'edit'])->name('edit');
+        Route::put('/{exam}',                                    [ExamController::class,         'update'])->name('update');
+        Route::delete('/{exam}',                                 [ExamController::class,         'destroy'])->name('destroy');
+
+        // Schedule
+        Route::get('/{exam}/schedule/create',                    [ExamScheduleController::class, 'create'])->name('schedule.create');
+        Route::post('/{exam}/schedule',                          [ExamScheduleController::class, 'store'])->name('schedule.store');
+        Route::get('/{exam}/schedule/{schedule}/edit',           [ExamScheduleController::class, 'edit'])->name('schedule.edit');
+        Route::put('/{exam}/schedule/{schedule}',                [ExamScheduleController::class, 'update'])->name('schedule.update');
+        Route::delete('/{exam}/schedule/{schedule}',             [ExamScheduleController::class, 'destroy'])->name('schedule.destroy');
+
+        // Results
+        Route::get('/{exam}/results',                            [ExamResultController::class,   'index'])->name('results.index');
+        Route::get('/{exam}/results/enter',                      [ExamResultController::class,   'enter'])->name('results.enter');
+        Route::post('/{exam}/results',                           [ExamResultController::class,   'store'])->name('results.store');
+    });
     Route::get('/library', fn () => response()->json(['message' => 'Library module']))->name('library.index');
     Route::get('/inventory', fn () => response()->json(['message' => 'Inventory module']))->name('inventory.index');
     Route::get('/notices', fn () => response()->json(['message' => 'Notices module']))->name('notices.index');

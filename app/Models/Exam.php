@@ -11,13 +11,11 @@ class Exam extends Model
     use SoftDeletes, BelongsToSchoolBranch;
 
     protected $fillable = [
-        'branch_id',
-        'name',
-        'description',
-        'start_date',
-        'end_date',
-        'is_published'
+        'branch_id', 'name', 'description',
+        'start_date', 'end_date', 'is_published',
     ];
+
+    protected $casts = ['is_published' => 'boolean'];
 
     // Relationships
     public function schedules()

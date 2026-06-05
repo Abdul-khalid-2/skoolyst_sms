@@ -11,31 +11,12 @@ class ExamSchedule extends Model
     use SoftDeletes, BelongsToSchoolBranch;
 
     protected $fillable = [
-        'branch_id',
-        'exam_id',
-        'subject_id',
-        'class_id',
-        'exam_date',
-        'start_time',
-        'end_time',
-        'room_number',
-        'max_marks',
-        'passing_marks'
+        'branch_id', 'exam_id', 'subject_id', 'class_id',
+        'exam_date', 'start_time', 'end_time', 'room_number',
+        'max_marks', 'passing_marks',
     ];
 
-    // Relationships
-    public function exam()
-    {
-        return $this->belongsTo(Exam::class);
-    }
-
-    public function subject()
-    {
-        return $this->belongsTo(Subject::class);
-    }
-
-    public function class()
-    {
-        return $this->belongsTo(Classes::class);
-    }
+    public function exam()    { return $this->belongsTo(Exam::class); }
+    public function subject() { return $this->belongsTo(Subject::class); }
+    public function schoolClass() { return $this->belongsTo(Classes::class, 'class_id'); }
 }

@@ -75,8 +75,8 @@
                             <span class="mini-click-non">Exams</span>
                         </a>
                         <ul class="submenu-angle" aria-expanded="false">
-                            <li><a href="javascript:void(0)">Schedule</a></li>
-                            <li><a href="javascript:void(0)">Results</a></li>
+                            <li><a href="{{ route('exams.index') }}">All Exams</a></li>
+                            <li><a href="{{ route('exams.create') }}">Create Exam</a></li>
                         </ul>
                     </li>
                     <li>

@@ -11,10 +11,7 @@ class Subject extends Model
     use SoftDeletes, BelongsToSchoolBranch;
 
     protected $fillable = [
-        'branch_id',
-        'name',
-        'code',
-        'class_id'
+        'branch_id', 'name', 'code', 'class_id', 'section_id',
     ];
 
     // Relationships

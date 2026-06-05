@@ -138,6 +138,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             TestDataSeeder::class,
             FeesSeeder::class,
+            ExamsSeeder::class,
         ]);
     }
 }
