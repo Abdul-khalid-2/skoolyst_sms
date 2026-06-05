@@ -85,8 +85,9 @@
                             <span class="mini-click-non">Library</span>
                         </a>
                         <ul class="submenu-angle" aria-expanded="false">
-                            <li><a href="javascript:void(0)">Books</a></li>
-                            <li><a href="javascript:void(0)">Issues</a></li>
+                            <li><a href="{{ route('library.index') }}">Dashboard</a></li>
+                            <li><a href="{{ route('library.books.index') }}">Books</a></li>
+                            <li><a href="{{ route('library.issues.index') }}">Issues</a></li>
                         </ul>
                     </li>
                     <li>

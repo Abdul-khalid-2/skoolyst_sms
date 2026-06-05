@@ -1,0 +1,138 @@
+<x-tenant-app-layout>
+    <x-slot name="header"></x-slot>
+
+    <div class="container-fluid">
+        <div class="row">
+
+            <x-page-header title="Add New Book" :back-route="route('library.books.index')" />
+
+            <div class="col-lg-9 col-md-11 col-sm-12 col-xs-12">
+                <div class="sparkline12-list">
+                    <div class="sparkline12-graph">
+                        <div class="basic-login-form-ad">
+                            <form action="{{ route('library.books.store') }}" method="POST">
+                                @csrf
+
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <h4 style="border-bottom:1px solid #eee; padding-bottom:8px; margin-bottom:15px;">
+                                            <i class="fa fa-book"></i> Book Information
+                                        </h4>
+                                    </div>
+
+                                    <div class="col-lg-8">
+                                        <div class="form-group">
+                                            <label>Title <span class="text-danger">*</span></label>
+                                            <input type="text" name="title" class="form-control"
+                                                placeholder="Book title" value="{{ old('title') }}" required>
+                                            @error('title')<small class="text-danger">{{ $message }}</small>@enderror
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <div class="form-group">
+                                            <label>ISBN</label>
+                                            <input type="text" name="isbn" class="form-control"
+                                                placeholder="978-XXXXXXXXXX" value="{{ old('isbn') }}">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <div class="form-group">
+                                            <label>Author</label>
+                                            <input type="text" name="author" class="form-control"
+                                                placeholder="Author name" value="{{ old('author') }}">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <div class="form-group">
+                                            <label>Publisher</label>
+                                            <input type="text" name="publisher" class="form-control"
+                                                placeholder="Publisher name" value="{{ old('publisher') }}">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <div class="form-group">
+                                            <label>Edition</label>
+                                            <input type="text" name="edition" class="form-control"
+                                                placeholder="e.g. 3rd" value="{{ old('edition') }}">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <div class="form-group">
+                                            <label>Category</label>
+                                            <select name="category" class="form-control">
+                                                <option value="">-- Select Category --</option>
+                                                @foreach(['Science','Mathematics','English','Urdu','Social Studies','Islamic Studies','Computer','History','Geography','Arts','Sports','Reference','Fiction','Non-Fiction','Other'] as $cat)
+                                                    <option value="{{ $cat }}" {{ old('category') === $cat ? 'selected' : '' }}>{{ $cat }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <div class="form-group">
+                                            <label>Shelf / Location</label>
+                                            <input type="text" name="shelf_number" class="form-control"
+                                                placeholder="e.g. A-12" value="{{ old('shelf_number') }}">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <div class="form-group">
+                                            <label>Price (PKR)</label>
+                                            <input type="number" name="price" class="form-control"
+                                                placeholder="0.00" step="0.01" min="0" value="{{ old('price') }}">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-12" style="margin-top:5px;">
+                                        <h4 style="border-bottom:1px solid #eee; padding-bottom:8px; margin-bottom:15px;">
+                                            <i class="fa fa-cubes"></i> Stock
+                                        </h4>
+                                    </div>
+
+                                    <div class="col-lg-4">
+                                        <div class="form-group">
+                                            <label>Total Quantity <span class="text-danger">*</span></label>
+                                            <input type="number" name="quantity" class="form-control"
+                                                placeholder="1" min="1" value="{{ old('quantity', 1) }}" required id="qty_total">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <div class="form-group">
+                                            <label>Available Copies <span class="text-danger">*</span></label>
+                                            <input type="number" name="available" class="form-control"
+                                                placeholder="1" min="0" value="{{ old('available', 1) }}" required id="qty_avail">
+                                            <small class="text-muted">Must be ≤ Total Quantity</small>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-12" style="margin-top:10px;">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fa fa-save"></i> Save Book
+                                        </button>
+                                        <a href="{{ route('library.books.index') }}" class="btn btn-default" style="margin-left:8px;">
+                                            Cancel
+                                        </a>
+                                    </div>
+                                </div>
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    @push('js')
+        <script>
+        $(document).ready(function () {
+            $('#qty_total').on('input', function () {
+                var max = parseInt($(this).val()) || 0;
+                var avail = parseInt($('#qty_avail').val()) || 0;
+                if (avail > max) $('#qty_avail').val(max);
+                $('#qty_avail').attr('max', max);
+            });
+        });
+        </script>
+    @endpush
+</x-tenant-app-layout>

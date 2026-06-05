@@ -14,6 +14,9 @@ use App\Http\Controllers\Attendance\AttendanceController as SessionAttendanceCon
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SidebarSettingController;
+use App\Http\Controllers\Library\LibraryController;
+use App\Http\Controllers\Library\BookController;
+use App\Http\Controllers\Library\BookIssueController;
 use App\Http\Controllers\Exams\ExamController;
 use App\Http\Controllers\Exams\ExamScheduleController;
 use App\Http\Controllers\Exams\ExamResultController;
@@ -193,7 +196,26 @@ Route::middleware(['auth', 'verified', 'scope.branch', 'role:super-admin|admin']
         Route::get('/{exam}/results/enter',                      [ExamResultController::class,   'enter'])->name('results.enter');
         Route::post('/{exam}/results',                           [ExamResultController::class,   'store'])->name('results.store');
     });
-    Route::get('/library', fn () => response()->json(['message' => 'Library module']))->name('library.index');
+    // ── Library ──────────────────────────────────────────────────
+    Route::prefix('library')->name('library.')->group(function () {
+        Route::get('/',                                  [LibraryController::class,   'index'])->name('index');
+
+        // Books
+        Route::get('/books',                             [BookController::class,      'index'])->name('books.index');
+        Route::get('/books/create',                      [BookController::class,      'create'])->name('books.create');
+        Route::post('/books',                            [BookController::class,      'store'])->name('books.store');
+        Route::get('/books/{book}',                      [BookController::class,      'show'])->name('books.show');
+        Route::get('/books/{book}/edit',                 [BookController::class,      'edit'])->name('books.edit');
+        Route::put('/books/{book}',                      [BookController::class,      'update'])->name('books.update');
+        Route::delete('/books/{book}',                   [BookController::class,      'destroy'])->name('books.destroy');
+
+        // Issues
+        Route::get('/issues',                            [BookIssueController::class, 'index'])->name('issues.index');
+        Route::get('/issues/create',                     [BookIssueController::class, 'create'])->name('issues.create');
+        Route::post('/issues',                           [BookIssueController::class, 'store'])->name('issues.store');
+        Route::get('/issues/{issue}',                    [BookIssueController::class, 'show'])->name('issues.show');
+        Route::put('/issues/{issue}/return',             [BookIssueController::class, 'returnBook'])->name('issues.return');
+    });
     Route::get('/inventory', fn () => response()->json(['message' => 'Inventory module']))->name('inventory.index');
     Route::get('/notices', fn () => response()->json(['message' => 'Notices module']))->name('notices.index');
     Route::get('/holidays', fn () => response()->json(['message' => 'Holidays module']))->name('holidays.index');

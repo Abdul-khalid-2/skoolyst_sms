@@ -139,6 +139,7 @@ class DatabaseSeeder extends Seeder
             TestDataSeeder::class,
             FeesSeeder::class,
             ExamsSeeder::class,
+            LibrarySeeder::class,
         ]);
     }
 }
