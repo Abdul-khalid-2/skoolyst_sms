@@ -179,6 +179,7 @@
                                                 <th>Absent</th>
                                                 <th>Late</th>
                                                 <th>Percentage</th>
+                                                <th>Status</th>
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
@@ -193,8 +194,21 @@
                                                     <td>{{ $record['late'] }}</td>
                                                     <td class="{{ $record['percentage'] < 75 ? 'text-danger' : ($record['percentage'] < 85 ? 'text-warning' : 'text-success') }}">{{ $record['percentage'] }}%</td>
                                                     <td>
-                                                        <button class="btn btn-primary btn-xs">View</button>
-                                                        <button class="btn btn-warning btn-xs">Edit</button>
+                                                        @if(($record['status'] ?? 'draft') === 'submitted')
+                                                            <span class="label label-success">Submitted</span>
+                                                        @else
+                                                            <span class="label label-warning">Draft</span>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        <a href="{{ route('admin.attendance.show', $record['id']) }}"
+                                                           class="btn btn-primary btn-xs" title="View">
+                                                            <i class="fa fa-eye"></i> View
+                                                        </a>
+                                                        <a href="{{ route('admin.attendance.edit', $record['id']) }}"
+                                                           class="btn btn-warning btn-xs" title="Edit">
+                                                            <i class="fa fa-edit"></i> Edit
+                                                        </a>
                                                     </td>
                                                 </tr>
                                             @endforeach

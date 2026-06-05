@@ -144,6 +144,9 @@ Route::middleware(['auth', 'verified', 'scope.branch', 'role:super-admin|admin']
         Route::get('/get-subjects', [SessionAttendanceController::class, 'getSubjects'])->name('attendance.get-subjects');
         Route::get('/get-students', [SessionAttendanceController::class, 'getStudents'])->name('attendance.get-students');
         Route::post('/save', [SessionAttendanceController::class, 'store'])->name('attendance.store');
+        Route::get('/{session}', [SessionAttendanceController::class, 'show'])->name('admin.attendance.show')->whereNumber('session');
+        Route::get('/{session}/edit', [SessionAttendanceController::class, 'edit'])->name('admin.attendance.edit')->whereNumber('session');
+        Route::put('/{session}', [SessionAttendanceController::class, 'update'])->name('admin.attendance.update')->whereNumber('session');
     });
     Route::get('/check-classes', [SessionAttendanceController::class, 'checkClasses'])->name('check-classes');
     Route::get('/attendance/trends', [SessionAttendanceController::class, 'getAttendanceTrends']);

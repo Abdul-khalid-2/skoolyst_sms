@@ -142,7 +142,7 @@ class AttendanceController extends Controller
 
         // Recent attendance records
         $recentRecords = AttendanceSession::where('branch_id', $schoolId)
-            ->with(['timeTable.class', 'timeTable.section', 'attendances'])
+            ->with(['timeTable.class', 'timeTable.section', 'schoolClass', 'section', 'attendances'])
             ->orderBy('date', 'desc')
             ->limit(5)
             ->get()
@@ -154,14 +154,15 @@ class AttendanceController extends Controller
                 $percentage = $total > 0 ? round(($present / $total) * 100, 1) : 0;
 
                 return [
+                    'id' => $session->id,
                     'date' => $session->date,
-                    'class' => $session->timeTable->class->name ?? 'N/A',
-                    'section' => $session->timeTable->section->name ?? 'N/A',
+                    'class' => $session->timeTable->class->name ?? $session->schoolClass?->name ?? 'N/A',
+                    'section' => $session->timeTable->section->name ?? $session->section?->name ?? 'N/A',
+                    'status' => $session->status ?? 'draft',
                     'present' => $present,
                     'absent' => $absent,
                     'late' => $late,
                     'percentage' => $percentage,
-
                 ];
             });
 
@@ -548,11 +549,176 @@ class AttendanceController extends Controller
     }
 
 
-    public function edit($id) {}
+    public function show($session)
+    {
+        $attendanceSession = $this->resolveSessionForBranch($session);
+        $attendanceSession->load([
+            'attendances.user',
+            'recordedBy',
+            'schoolClass',
+            'section',
+            'timeTable.class',
+            'timeTable.section',
+        ]);
 
-    public function update(Request $request, $id) {}
+        $classId = $attendanceSession->class_id ?? $attendanceSession->timeTable?->class_id;
+        $sectionId = $attendanceSession->section_id ?? $attendanceSession->timeTable?->section_id;
+
+        $students = collect();
+        if ($classId && $sectionId) {
+            $existingAttendance = $attendanceSession->attendances
+                ->keyBy('user_id');
+
+            $students = StudentProfile::with(['student'])
+                ->where('class_id', $classId)
+                ->where('section_id', $sectionId)
+                ->orderBy('admission_no')
+                ->get()
+                ->map(function (StudentProfile $profile) use ($existingAttendance) {
+                    $attendance = $existingAttendance->get($profile->student_id);
+                    $profilePic = $profile->student?->profile_pic;
+                    $profile->photo_url = $profilePic
+                        ? asset('assets/'.$profilePic)
+                        : asset('backend/img/profile/1.jpg');
+                    $profile->attendance_status = $attendance?->status;
+                    $profile->attendance_remarks = $attendance?->remarks;
+
+                    return $profile;
+                });
+        }
+
+        $stats = $this->calculateSessionStats($attendanceSession);
+
+        return view('app.attendance.show', [
+            'session' => $attendanceSession,
+            'students' => $students,
+            'stats' => $stats,
+        ]);
+    }
+
+    public function edit($session)
+    {
+        $attendanceSession = $this->resolveSessionForBranch($session);
+        $attendanceSession->load(['schoolClass', 'section', 'timeTable.class', 'timeTable.section']);
+
+        $classId = $attendanceSession->class_id ?? $attendanceSession->timeTable?->class_id;
+        $sectionId = $attendanceSession->section_id ?? $attendanceSession->timeTable?->section_id;
+
+        if (! $classId || ! $sectionId) {
+            abort(404, 'Session class/section not found.');
+        }
+
+        $existingAttendance = $attendanceSession->attendances()
+            ->select('user_id', 'status', 'remarks')
+            ->get()
+            ->keyBy('user_id');
+
+        $students = StudentProfile::with(['student'])
+            ->where('class_id', $classId)
+            ->where('section_id', $sectionId)
+            ->orderBy('admission_no')
+            ->get()
+            ->map(function (StudentProfile $profile) {
+                $profilePic = $profile->student?->profile_pic;
+                $profile->photo_url = $profilePic
+                    ? asset('assets/'.$profilePic)
+                    : asset('backend/img/profile/1.jpg');
+
+                return $profile;
+            });
+
+        return view('app.attendance.edit', [
+            'session' => $attendanceSession,
+            'students' => $students,
+            'existingAttendance' => $existingAttendance,
+        ]);
+    }
+
+    public function update(Request $request, $session)
+    {
+        $request->validate([
+            'status' => 'required|in:draft,submitted',
+            'attendance' => 'required|array',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            $attendanceSession = $this->resolveSessionForBranch($session);
+            $status = $request->input('status');
+            $sessionStatus = $status === 'submitted' ? 'submitted' : 'draft';
+
+            $attendanceSession->update([
+                'recorded_by' => auth()->id(),
+                'status' => $sessionStatus,
+            ]);
+
+            $this->syncSessionAttendances($attendanceSession, $request->input('attendance'));
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Attendance updated successfully!',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update attendance: '.$e->getMessage(),
+            ], 500);
+        }
+    }
 
     public function destroy($id) {}
+
+    private function resolveSessionForBranch(int $id): AttendanceSession
+    {
+        $branchId = $this->branchId();
+
+        if (! $branchId) {
+            abort(422, 'Branch is not configured.');
+        }
+
+        return AttendanceSession::where('branch_id', $branchId)
+            ->where('id', $id)
+            ->firstOrFail();
+    }
+
+    private function syncSessionAttendances(AttendanceSession $session, array $attendanceData): void
+    {
+        $branchId = $this->branchId();
+
+        foreach ($attendanceData as $studentAttendance) {
+            if (empty($studentAttendance['status'])) {
+                continue;
+            }
+
+            Attendance::updateOrCreate(
+                [
+                    'session_id' => $session->id,
+                    'user_id' => $studentAttendance['student_id'],
+                ],
+                [
+                    'branch_id' => $branchId,
+                    'status' => $studentAttendance['status'],
+                    'remarks' => $studentAttendance['remarks'] ?? null,
+                ]
+            );
+        }
+    }
+
+    private function calculateSessionStats(AttendanceSession $session): array
+    {
+        $total = $session->attendances->count();
+        $present = $session->attendances->where('status', 'present')->count();
+        $absent = $session->attendances->where('status', 'absent')->count();
+        $late = $session->attendances->where('status', 'late')->count();
+        $percentage = $total > 0 ? round(($present / $total) * 100, 1) : 0;
+
+        return compact('total', 'present', 'absent', 'late', 'percentage');
+    }
 }
 
 
