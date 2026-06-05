@@ -139,6 +139,7 @@ Route::middleware(['auth', 'verified', 'scope.branch', 'role:super-admin|admin']
 
     Route::prefix('attendance')->group(function () {
         Route::get('/', [SessionAttendanceController::class, 'index'])->name('admin.attendance.index');
+        Route::get('/history', [SessionAttendanceController::class, 'history'])->name('admin.attendance.history');
         Route::get('/take', [SessionAttendanceController::class, 'create'])->name('admin.attendance.create');
         Route::get('/get-sections', [SessionAttendanceController::class, 'getSections'])->name('attendance.get-sections');
         Route::get('/get-subjects', [SessionAttendanceController::class, 'getSubjects'])->name('attendance.get-subjects');

@@ -276,6 +276,75 @@ class AttendanceController extends Controller
     }
 
 
+    public function history(Request $request)
+    {
+        $branchId = $this->branchId();
+
+        $query = AttendanceSession::where('branch_id', $branchId)
+            ->with(['schoolClass', 'section', 'timeTable.class', 'timeTable.section', 'recordedBy', 'attendances']);
+
+        // Filters
+        if ($request->filled('from_date')) {
+            $query->whereDate('date', '>=', $request->from_date);
+        }
+        if ($request->filled('to_date')) {
+            $query->whereDate('date', '<=', $request->to_date);
+        }
+        if ($request->filled('class_id')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('class_id', $request->class_id)
+                  ->orWhereHas('timeTable', fn ($t) => $t->where('class_id', $request->class_id));
+            });
+        }
+        if ($request->filled('section_id')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('section_id', $request->section_id)
+                  ->orWhereHas('timeTable', fn ($t) => $t->where('section_id', $request->section_id));
+            });
+        }
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $sessions = $query->orderBy('date', 'desc')->paginate(15)->withQueryString();
+
+        // Summary stats (unfiltered totals for the branch)
+        $total      = AttendanceSession::where('branch_id', $branchId)->count();
+        $submitted  = AttendanceSession::where('branch_id', $branchId)->where('status', 'submitted')->count();
+        $draft      = $total - $submitted;
+
+        $avgPct = 0;
+        $thirtyDaysAgo = now()->subDays(30)->format('Y-m-d');
+        $recentSessions = AttendanceSession::where('branch_id', $branchId)
+            ->whereDate('date', '>=', $thirtyDaysAgo)
+            ->with('attendances')
+            ->get();
+
+        if ($recentSessions->isNotEmpty()) {
+            $allAttendances = $recentSessions->flatMap->attendances;
+            $totalRec  = $allAttendances->count();
+            $presentRec = $allAttendances->where('status', 'present')->count();
+            $avgPct = $totalRec > 0 ? round(($presentRec / $totalRec) * 100, 1) : 0;
+        }
+
+        $maxAbsentDay = AttendanceSession::where('branch_id', $branchId)
+            ->withCount(['attendances as absent_count' => fn ($q) => $q->where('status', 'absent')])
+            ->orderByDesc('absent_count')
+            ->value('absent_count') ?? 0;
+
+        $classes = Classes::orderBy('numeric_value')->get(['id', 'name']);
+
+        // Only load sections for the selected class (for pre-populating on filtered reload)
+        $sections = $request->filled('class_id')
+            ? Section::where('class_id', $request->class_id)->orderBy('name')->get(['id', 'name'])
+            : collect();
+
+        return view('app.attendance.history', compact(
+            'sessions', 'total', 'submitted', 'draft',
+            'avgPct', 'maxAbsentDay', 'classes', 'sections'
+        ));
+    }
+
     public function create()
     {
         // if subject wise attendance the update data for system_setting 

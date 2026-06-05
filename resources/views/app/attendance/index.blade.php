@@ -128,7 +128,7 @@
                             <a href="#" class="btn btn-success btn-block mg-b-10">
                                 <i class="fa fa-file-text-o fa-lg"></i> Generate Monthly Report
                             </a>
-                            <a href="#" class="btn btn-info btn-block mg-b-10">
+                            <a href="{{ route('admin.attendance.history') }}" class="btn btn-info btn-block mg-b-10">
                                 <i class="fa fa-search fa-lg"></i> View Attendance History
                             </a>
                             <a href="#" class="btn btn-warning btn-block">
