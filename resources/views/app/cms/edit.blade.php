@@ -75,25 +75,12 @@
         <div class="container-fluid">
             <div class="row">
 
-                {{-- Page Header --}}
-                <div class="col-lg-12">
-                    <div class="breadcome-list">
-                        <div class="row">
-                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                <div class="breadcome-heading" style="margin-top:10px;">
-                                    <h3><i class="fa fa-paint-brush"></i> Landing Page CMS</h3>
-                                </div>
-                            </div>
-                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                <div class="action-buttons">
-                                    <a href="{{ route('schools.show') }}" class="btn btn-default btn-sm"><i class="fa fa-building"></i> Profile</a>
-                                    <a href="{{ route('schools.edit') }}" class="btn btn-default btn-sm"><i class="fa fa-edit"></i> Edit Profile</a>
-                                    <a href="{{ route('schools.settings') }}" class="btn btn-default btn-sm"><i class="fa fa-cog"></i> Settings</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <x-page-header title="Landing Page CMS">
+                    <a href="{{ route('schools.show') }}" style="color: #333;"><i class="fa fa-building"></i> Profile</a>
+                    <a href="{{ route('schools.cms') }}" style="color: #333;"><i class="fa fa-paint-brush"></i> CMS</a>
+                    <a href="{{ route('schools.edit') }}" style="color: #333;"><i class="fa fa-edit"></i> Edit Profile</a>
+                    <a href="{{ route('schools.settings') }}" style="color: #333;"><i class="fa fa-cog"></i> Settings</a>
+                </x-page-header>
 
                 <div class="col-lg-12">
                     <form method="POST" action="{{ route('schools.cms.update') }}" enctype="multipart/form-data">

@@ -117,49 +117,12 @@
 
     <div class="container-fluid">
         <div class="row">
-            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                <div class="breadcome-list">
-                    <div class="row">
-                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                            <div class="breadcome-heading" style="margin-top: 10px">
-                                <h3>School Profile</h3>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                            <div class="action-buttons">
-                                <a href="{{ route('schools.show') }}" class="btn btn-primary btn-sm" style="color: white">
-                                    <i class="fa fa-building"></i>  Profile
-                                </a>
-                                <a href="{{ route('schools.cms') }}" class="btn btn-primary btn-sm" style="color: white">
-                                    CMS
-                                </a>
-                                <a href="{{ route('schools.edit') }}" class="btn btn-primary btn-sm" style="color: white">
-                                    <i class="fa fa-graduation-cap"></i> Profile Edit
-                                </a>
-                                <a href="{{ route('schools.settings') }}" class="btn btn-primary btn-sm" style="color: white">
-                                    <i class="fa fa-cog"></i> Setting
-                                </a>
-                            </div>
-                        </div>
-                        <div class="dropdown-container">
-                            <button class="dropdown-toggle-custom">
-                                <i class="fa fa-ellipsis-v"></i>
-                            </button>
-                            <div class="dropdown-menu-custom">
-                                <a href="{{ route('schools.cms') }}" class="btn btn-primary btn-sm" style="color: white">
-                                    <i class="fa fa-graduation-cap"></i> CMS
-                                </a>
-                                <a href="{{ route('schools.edit') }}" class="btn btn-primary btn-sm" style="color: white">
-                                    <i class="fa fa-graduation-cap"></i> Profile Edit
-                                </a>
-                                <a href="{{ route('schools.settings') }}" class="btn btn-primary btn-sm" style="color: white">
-                                    <i class="fa fa-cog"></i> Setting
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <x-page-header title="School Profile">
+                <a href="{{ route('schools.show') }}" style="color: #333;"><i class="fa fa-building"></i> Profile</a>
+                <a href="{{ route('schools.cms') }}" style="color: #333;"><i class="fa fa-paint-brush"></i> CMS</a>
+                <a href="{{ route('schools.edit') }}" style="color: #333;"><i class="fa fa-edit"></i> Edit Profile</a>
+                <a href="{{ route('schools.settings') }}" style="color: #333;"><i class="fa fa-cog"></i> Settings</a>
+            </x-page-header>
             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                 <div class="sparkline12-list">
   
@@ -173,8 +136,7 @@
                                     <li><a href="#contact" data-toggle="tab">Contact Details</a></li>
                                     <li><a href="#classes-sections" data-toggle="tab"><i class="fa fa-graduation-cap"></i> Classes &amp; Sections</a></li>
                                     <li><a href="#subjects-offered" data-toggle="tab"><i class="fa fa-book"></i> Subjects</a></li>
-                                    <li><a href="#teachers-subjects" data-toggle="tab"><i class="fa fa-user"></i> Teachers &amp; Subjects</a></li>
-                                    <li><a href="#teachers-classes" data-toggle="tab"><i class="fa fa-users"></i> Teachers &amp; Classes</a></li>
+                                    <li><a href="#teachers-overview" data-toggle="tab"><i class="fa fa-users"></i> Teachers</a></li>
                                 </ul>
                                 
                                 <div class="tab-content">
@@ -314,6 +276,14 @@
                                                 @endif
                                             </table>
                                         </div>
+                                        <div style="margin-top:12px; text-align:right;">
+                                            <a href="{{ route('admin.academic.classes.index') }}" class="btn btn-sm btn-primary">
+                                                <i class="fa fa-graduation-cap"></i> Manage Classes
+                                            </a>
+                                            <a href="{{ route('admin.academic.sections.index') }}" class="btn btn-sm btn-default" style="margin-left:6px;">
+                                                <i class="fa fa-sitemap"></i> Manage Sections
+                                            </a>
+                                        </div>
                                     </div>
 
                                     <div class="tab-pane" id="subjects-offered">
@@ -341,79 +311,67 @@
                                                 </tbody>
                                             </table>
                                         </div>
+                                        <div style="margin-top:12px; text-align:right;">
+                                            <a href="{{ route('admin.academic.subjects.index') }}" class="btn btn-sm btn-primary">
+                                                <i class="fa fa-book"></i> Manage Subjects
+                                            </a>
+                                        </div>
                                     </div>
 
-                                    {{-- Teachers & Subjects --}}
-                                    <div class="tab-pane" id="teachers-subjects">
+                                    {{-- Teachers: Subjects & Classes (merged) --}}
+                                    <div class="tab-pane" id="teachers-overview">
                                         <div class="table-responsive" style="margin-top: 15px;">
                                             <table class="table table-striped table-bordered">
                                                 <thead style="background:#f5f5f5;">
                                                     <tr>
-                                                        <th>#</th>
-                                                        <th>Teacher</th>
+                                                        <th style="width:5%;">#</th>
+                                                        <th style="width:22%;">Teacher</th>
+                                                        <th style="width:18%;">Class Teacher Of</th>
                                                         <th>Subjects Assigned</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     @forelse($teachers as $i => $teacher)
                                                         <tr>
-                                                            <td>{{ $i + 1 }}</td>
-                                                            <td><strong>{{ $teacher->name }}</strong></td>
-                                                            <td>
+                                                            <td style="vertical-align:middle;">{{ $i + 1 }}</td>
+                                                            <td style="vertical-align:middle;"><strong>{{ $teacher->name }}</strong></td>
+                                                            <td style="vertical-align:middle;">
+                                                                @if($teacher->teacherProfile && $teacher->teacherProfile->classTeacherOf)
+                                                                    <span class="label label-success" style="font-size:12px; padding:4px 8px;">
+                                                                        <i class="fa fa-graduation-cap"></i>
+                                                                        {{ $teacher->teacherProfile->classTeacherOf->name }}
+                                                                    </span>
+                                                                @else
+                                                                    <span class="text-muted" style="font-size:12px;">—</span>
+                                                                @endif
+                                                            </td>
+                                                            <td style="vertical-align:middle;">
                                                                 @if($teacher->teacherSubjects->isNotEmpty())
                                                                     @foreach($teacher->teacherSubjects as $subject)
-                                                                        <span class="label label-primary" style="margin-right:4px;">
+                                                                        <span class="label label-primary" style="margin-right:4px; font-size:11px;">
                                                                             {{ $subject->name }}
                                                                         </span>
                                                                     @endforeach
                                                                 @else
-                                                                    <span class="text-muted">No subjects assigned</span>
+                                                                    <span class="text-muted" style="font-size:12px;">No subjects assigned</span>
                                                                 @endif
                                                             </td>
                                                         </tr>
                                                     @empty
                                                         <tr>
-                                                            <td colspan="3" class="text-muted text-center">No teachers found</td>
+                                                            <td colspan="4" class="text-muted text-center">No teachers found</td>
                                                         </tr>
                                                     @endforelse
                                                 </tbody>
                                             </table>
                                         </div>
-                                    </div>
-
-                                    {{-- Teachers & Classes --}}
-                                    <div class="tab-pane" id="teachers-classes">
-                                        <div class="table-responsive" style="margin-top: 15px;">
-                                            <table class="table table-striped table-bordered">
-                                                <thead style="background:#f5f5f5;">
-                                                    <tr>
-                                                        <th>#</th>
-                                                        <th>Teacher</th>
-                                                        <th>Class Teacher Of</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @forelse($teachers as $i => $teacher)
-                                                        <tr>
-                                                            <td>{{ $i + 1 }}</td>
-                                                            <td><strong>{{ $teacher->name }}</strong></td>
-                                                            <td>
-                                                                @if($teacher->teacherProfile && $teacher->teacherProfile->classTeacherOf)
-                                                                    <span class="label label-success">
-                                                                        {{ $teacher->teacherProfile->classTeacherOf->name }}
-                                                                    </span>
-                                                                @else
-                                                                    <span class="text-muted">Not a class teacher</span>
-                                                                @endif
-                                                            </td>
-                                                        </tr>
-                                                    @empty
-                                                        <tr>
-                                                            <td colspan="3" class="text-muted text-center">No teachers found</td>
-                                                        </tr>
-                                                    @endforelse
-                                                </tbody>
-                                            </table>
+                                        <div style="margin-top:12px; text-align:right;">
+                                            <a href="{{ route('dashboard.teachers') }}" class="btn btn-sm btn-primary">
+                                                <i class="fa fa-users"></i> Manage Teachers
+                                            </a>
+                                            <a href="{{ route('admin.academic.subjects.assign') }}" class="btn btn-sm btn-default" style="margin-left:6px;">
+                                                <i class="fa fa-link"></i> Assign Subjects &amp; Classes
+                                            </a>
                                         </div>
                                     </div>
 

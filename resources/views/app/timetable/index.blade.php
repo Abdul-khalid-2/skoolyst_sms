@@ -29,26 +29,11 @@
     <div class="data-table-area mg-b-15">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                    <div class="breadcome-list">
-                        <div class="row">
-                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                <div class="breadcome-heading" style="margin-top: 10px">
-                                    <h3>All Classes Timetable</h3>
-                                </div>
-                            </div>
-                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                <ul class="breadcome-menu">
-                                    <li>
-                                        <a href="{{ route('admin.timetable.create') }}" class="btn btn-primary btn-sm" style="color: white">
-                                            <i class="fa fa-plus"></i> Add Timetable
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <x-page-header
+                    title="All Classes Timetable"
+                    :add-route="route('admin.timetable.create')"
+                    add-label="Add Timetable"
+                />
 
 
                 @foreach($timetables as $timetable)

@@ -73,34 +73,11 @@
             <div class="row">
                
 
-                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                    <div class="breadcome-list">
-                        <div class="row">
-                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                <div class="breadcome-heading" style="margin-top: 10px">
-                                    <h3>All Classes</h3>
-                                </div>
-                            </div>
-                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                <div class="action-buttons">
-                                    <a href="{{ route('admin.academic.classes.create') }}" class="btn btn-primary btn-sm" style="color: white">
-                                            <i class="fa fa-plus"></i> Add Class
-                                        </a>
-                                </div>
-                                <div class="dropdown-container">
-                                    <button class="dropdown-toggle-custom">
-                                        <i class="fa fa-ellipsis-v"></i>
-                                    </button>
-                                    <div class="dropdown-menu-custom">
-                                        <a href="{{ route('admin.academic.classes.create') }}" class="btn btn-primary btn-sm" style="color: white">
-                                            <i class="fa fa-plus"></i> Add Class
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <x-page-header
+                    title="All Classes"
+                    :add-route="route('admin.academic.classes.create')"
+                    add-label="Add Class"
+                />
                 
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                     <div class="sparkline13-list">
@@ -213,28 +190,6 @@
     </div>
 
     @push('js')
-    <!-- jquery ============================================ -->
-        <script src="{{ asset('backend/js/vendor/jquery-1.12.4.min.js') }}"></script>
-        <!-- bootstrap JS ============================================ -->
-        <script src="{{ asset('backend/js/bootstrap.min.js') }}"></script>
-        <!-- wow JS ============================================ -->
-        <script src="{{ asset('backend/js/wow.min.js') }}"></script>
-        <!-- price-slider JS ============================================ -->
-        <script src="{{ asset('backend/js/jquery-price-slider.js') }}"></script>
-        <!-- meanmenu JS ============================================ -->
-        <script src="{{ asset('backend/js/jquery.meanmenu.js') }}"></script>
-        <!-- owl.carousel JS ============================================ -->
-        <script src="{{ asset('backend/js/owl.carousel.min.js') }}"></script>
-        <!-- sticky JS ============================================ -->
-        <script src="{{ asset('backend/js/jquery.sticky.js') }}"></script>
-        <!-- scrollUp JS ============================================ -->
-        <script src="{{ asset('backend/js/jquery.scrollUp.min.js') }}"></script>
-        <!-- mCustomScrollbar JS ============================================ -->
-        <script src="{{ asset('backend/js/scrollbar/jquery.mCustomScrollbar.concat.min.js') }}"></script>
-        <script src="{{ asset('backend/js/scrollbar/mCustomScrollbar-active.js') }}"></script>
-        <!-- metisMenu JS ============================================ -->
-        <script src="{{ asset('backend/js/metisMenu/metisMenu.min.js') }}"></script>
-        <script src="{{ asset('backend/js/metisMenu/metisMenu-active.js') }}"></script>
         <!-- data table JS ============================================ -->
         <script src="{{ asset('backend/js/data-table/bootstrap-table.js') }}"></script>
         <script src="{{ asset('backend/js/data-table/tableExport.js') }}"></script>
@@ -257,10 +212,5 @@
         <script src="{{ asset('backend/js/peity/peity-active.js') }}"></script>
         <!-- tab JS ============================================ -->
         <script src="{{ asset('backend/js/tab.js') }}"></script>
-        <!-- plugins JS ============================================ -->
-        <script src="{{ asset('backend/js/plugins.js') }}"></script>
-        <!-- main JS ============================================ -->
-        <script src="{{ asset('backend/js/main.js') }}"></script>
-    
     @endpush
 </x-tenant-app-layout>

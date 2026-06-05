@@ -39,15 +39,8 @@
         }
     </style>
     <style>
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-        }
-
         .dropdown-container {
             position: relative;
-            display: none;
         }
 
         .dropdown-toggle-custom {
@@ -86,31 +79,71 @@
             border-bottom: none;
         }
 
-        .dropdown-container:hover .dropdown-menu-custom {
+        .dropdown-menu-custom.open {
             display: block;
         }
 
-        /* Responsive */
-        @media (max-width: 767.98px) {
-            .action-buttons {
-                display: none;
+        /* ── Mobile layout fixes ─────────────────────────────── */
+        @media (max-width: 767px) {
+            /* Prevent horizontal scroll */
+            html, body {
+                overflow-x: hidden;
+                width: 100%;
             }
 
-            .dropdown-container {
+            /* Hide desktop sidebar — mobile-menu-area in navigation handles nav */
+            .left-sidebar-pro {
+                display: none !important;
+            }
+
+            /* Content fills full width with no left margin */
+            .all-content-wrapper {
+                margin-left: 0 !important;
+                width: 100% !important;
+            }
+
+            /* Make blue header cover full width */
+            .header-top-area {
+                left: 0 !important;
+                width: 100% !important;
+            }
+
+            /* Header top row: stack vertically */
+            .header-top-area .row > [class*="col-"] {
+                width: 100%;
+            }
+
+            /* Prevent tables from blowing out the viewport */
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            /* Cards and sparkline boxes: full width */
+            .analytics-sparkle-line,
+            .sparkline13-list,
+            .sparkline12-list,
+            .white-box {
+                margin-bottom: 15px;
+            }
+
+            /* Nav tabs: allow horizontal scroll on very small screens */
+            .nav-tabs {
+                white-space: nowrap;
+                overflow-x: auto;
+                overflow-y: hidden;
+                -webkit-overflow-scrolling: touch;
+                display: flex;
+                flex-wrap: nowrap;
+            }
+            .nav-tabs > li {
+                float: none;
                 display: inline-block;
             }
-            
-            .col-lg-6.col-md-6.col-sm-6.col-xs-12:last-child {
-                display: flex;
-                justify-content: flex-start;
-                margin-top: 10px;
-            }
-        }
-        
-        @media (min-width: 768px) {
-            .col-lg-6.col-md-6.col-sm-6.col-xs-12:last-child {
-                display: flex;
-                justify-content: flex-end;
+
+            /* Logo area */
+            .logo-pro {
+                padding: 10px 0;
             }
         }
     </style>
@@ -191,6 +224,19 @@
                 title: '{{ Session::get("message") }}'
             })
         @endif
+    </script>
+    <script>
+        $(document).ready(function () {
+            $(document).on('click', '.dropdown-toggle-custom', function (e) {
+                e.stopPropagation();
+                var $menu = $(this).next('.dropdown-menu-custom');
+                $('.dropdown-menu-custom').not($menu).removeClass('open');
+                $menu.toggleClass('open');
+            });
+            $(document).on('click', function () {
+                $('.dropdown-menu-custom').removeClass('open');
+            });
+        });
     </script>
     {{-- PAGE-SPECIFIC JS — child views push here; jQuery and all globals are already loaded above --}}
     @stack('js')

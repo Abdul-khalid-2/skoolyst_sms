@@ -53,33 +53,12 @@
 
     <div class="container-fluid">
         <div class="row">
-            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                <div class="breadcome-list">
-                    <div class="row">
-                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                            <div class="breadcome-heading" style="margin-top: 10px">
-                                <h3>School Setting</h3>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                            <div class="action-buttons">
-                                <a href="{{ route('schools.show') }}" class="btn btn-primary btn-sm" style="color: white">
-                                    <i class="fa fa-building"></i>  Profile
-                                </a>
-                                <a href="{{ route('schools.cms') }}" class="btn btn-primary btn-sm" style="color: white">
-                                    CMS
-                                </a>
-                                <a href="{{ route('schools.edit') }}" class="btn btn-primary btn-sm" style="color: white">
-                                    <i class="fa fa-graduation-cap"></i> Profile Edit
-                                </a>
-                                <a href="{{ route('schools.settings') }}" class="btn btn-primary btn-sm" style="color: white">
-                                    <i class="fa fa-cog"></i> Setting
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <x-page-header title="School Settings">
+                <a href="{{ route('schools.show') }}" style="color: #333;"><i class="fa fa-building"></i> Profile</a>
+                <a href="{{ route('schools.cms') }}" style="color: #333;"><i class="fa fa-paint-brush"></i> CMS</a>
+                <a href="{{ route('schools.edit') }}" style="color: #333;"><i class="fa fa-edit"></i> Edit Profile</a>
+                <a href="{{ route('schools.settings') }}" style="color: #333;"><i class="fa fa-cog"></i> Settings</a>
+            </x-page-header>
             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                 <div class="sparkline12-list">
                     <div class="sparkline12-hd">
