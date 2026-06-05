@@ -225,9 +225,9 @@
                     </div>
                     <div class="md:w-1/2">
                         @if($school->hero_image)
-                            <img src="{{ asset($school->hero_image) }}" alt="{{ $school->name }}" class="rounded-xl shadow-2xl border-8 border-white">
+                            <img src="{{ asset('assets/' . $school->hero_image) }}" alt="{{ $school->name }}" class="rounded-xl shadow-2xl border-8 border-white">
                         @else
-                            <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="School Building" class="rounded-xl shadow-2xl border-8 border-white">
+                            <img src="https://images.unsplash.com/photo-1588072432836-e10032774350?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="School Building" class="rounded-xl shadow-2xl border-8 border-white">
                         @endif
                     </div>
                 </div>

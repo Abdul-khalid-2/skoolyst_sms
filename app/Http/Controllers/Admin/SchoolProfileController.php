@@ -190,7 +190,12 @@ class SchoolProfileController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('app.admin.schoo_profile.school_profile', compact('school', 'stats', 'classes', 'subjects'));
+        $teachers = User::role('teacher')
+            ->with(['teacherProfile.classTeacherOf', 'teacherSubjects'])
+            ->orderBy('name')
+            ->get();
+
+        return view('app.admin.schoo_profile.school_profile', compact('school', 'stats', 'classes', 'subjects', 'teachers'));
     }
 
     public function edit()

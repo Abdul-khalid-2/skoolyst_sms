@@ -165,7 +165,7 @@
   
                             
                     <div class="row">
-                        <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                        <!-- <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                             <div class="text-center">
                                 <div class="logo-container mx-auto">
                                     @if(isset($school->logo))
@@ -177,177 +177,218 @@
                                 <h3 class="mt-3">{{ $school->name??"" }}</h3>
                                 <p class="text-muted">{{ $school->session_year??"" }} Session</p>
                             </div>
-                            
-                            <div class="mt-4">
-                                <h4>Quick Stats</h4>
-                                <div class="stat-card" style="background-color: #4e73df;">
-                                    <i class="fa fa-users"></i>
-                                    <h3>{{ $stats['students']??"" }}</h3>
-                                    <p>Total Students</p>
-                                </div>
-                                <div class="stat-card" style="background-color: #1cc88a;">
-                                    <i class="fa fa-chalkboard-teacher"></i>
-                                    <h3>{{ $stats['teachers']??"" }}</h3>
-                                    <p>Teaching Staff</p>
-                                </div>
-                                <div class="stat-card" style="background-color: #36b9cc;">
-                                    <i class="fa fa-door-open"></i>
-                                    <h3>{{ $stats['classes']??"" }}</h3>
-                                    <p>Classes</p>
-                                </div>
-                            </div>
-                        </div>
+                        </div> -->
                         
-                        <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
+                        <div class="col-12">
                             <div class="profile-tabs">
                                 <ul class="nav nav-tabs">
                                     <li class="active"><a href="#basic" data-toggle="tab">Basic Information</a></li>
                                     <li><a href="#contact" data-toggle="tab">Contact Details</a></li>
-                                    <li><a href="#academic-structure" data-toggle="tab">Academic Structure</a></li>
+                                    <li><a href="#classes-sections" data-toggle="tab"><i class="fa fa-graduation-cap"></i> Classes &amp; Sections</a></li>
+                                    <li><a href="#subjects-offered" data-toggle="tab"><i class="fa fa-book"></i> Subjects Offered</a></li>
+                                    <li><a href="#teachers-subjects" data-toggle="tab"><i class="fa fa-user"></i> Teachers &amp; Subjects</a></li>
+                                    <li><a href="#teachers-classes" data-toggle="tab"><i class="fa fa-users"></i> Teachers &amp; Classes</a></li>
                                 </ul>
                                 
                                 <div class="tab-content">
                                     <div class="tab-pane active" id="basic">
-                                        <table class="profile-info table">
-                                            <tr>
-                                                <td>School Name</td>
-                                                <td>{{ $school->name??"" }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Academic Session</td>
-                                                <td>{{ $school->session_year??"" }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Established</td>
-                                                <td>{{ $school->established_year ?? 'Not specified' }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td>School Type</td>
-                                                <td>{{ $school->type ?? 'Not specified' }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Affiliation</td>
-                                                <td>{{ $school->affiliation ?? 'Not specified' }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Principal</td>
-                                                <td>{{ $school->principal ?? 'Not specified' }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td>About School</td>
-                                                <td>{{ $school->about ?? 'Not specified' }}</td>
-                                            </tr>
-                                        </table>
+                                        <div class="table-responsive" style="margin-top: 15px;">
+                                            <table class="table table-striped table-bordered">
+                                                
+                                                <tbody>
+                                                    <tr>                                                        
+                                                        <td colspan="2" >
+                                                            @if(isset($school->logo) && $school->logo)
+                                                                <img src="{{ asset('assets/' . $school->logo) }}" alt="School Logo"
+                                                                     style="width:80px; height:80px; object-fit:cover; border:2px solid #ddd;">
+                                                            @else
+                                                                <img src="{{ asset('backend/img/profile/1.jpg') }}" alt="School Logo"
+                                                                     style="width:80px; height:80px; object-fit:cover; border:2px solid #ddd;">
+                                                            @endif
+                                                        </td>
+                                                        <!-- <td><strong></strong></td> -->
+                                                    </tr>
+                                                    <tr><td><strong>School Name</strong></td><td>{{ $school->name ?? '—' }}</td></tr>
+                                                    <tr><td><strong>Academic Session</strong></td><td>{{ $school->session_year ?? '—' }}</td></tr>
+                                                    <tr><td><strong>Established</strong></td><td>{{ $school->established_year ?? 'Not specified' }}</td></tr>
+                                                    <tr><td><strong>School Type</strong></td><td>{{ $school->type ?? 'Not specified' }}</td></tr>
+                                                    <tr><td><strong>Affiliation</strong></td><td>{{ $school->affiliation ?? 'Not specified' }}</td></tr>
+                                                    <tr><td><strong>Principal</strong></td><td>{{ $school->principal ?? 'Not specified' }}</td></tr>
+                                                    <tr><td><strong>About School</strong></td><td>{{ $school->about ?? 'Not specified' }}</td></tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                     
                                     <div class="tab-pane" id="contact">
-                                        <table class="profile-info table">
-                                            <tr>
-                                                <td>Address</td>
-                                                <td>{{ $school->address ?? ""}}</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Phone Number</td>
-                                                <td>{{ $school->phone??"" }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Email Address</td>
-                                                <td>{{ $school->email??"" }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Website</td>
-                                                <td>{{ $school->website ?? 'Not specified' }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Social Media</td>
-                                                <td>
-                                                    @if(isset($school->social_links))
-                                                        @foreach($school->social_links ?? [] as $platform => $link)
-                                                            @if($link)
-                                                                <a href="{{ $link }}" target="_blank" class="btn btn-default btn-xs">
-                                                                    <i class="fa fa-{{ $platform }}"></i> {{ ucfirst($platform) }}
-                                                                </a>
+                                        <div class="table-responsive" style="margin-top: 15px;">
+                                            <table class="table table-striped table-bordered">
+                                                <thead style="background:#f5f5f5;">
+                                                    <tr>
+                                                        <th style="width:35%;">Field</th>
+                                                        <th>Value</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr><td><strong>Address</strong></td><td>{{ $school->address ?? '—' }}</td></tr>
+                                                    <tr><td><strong>Phone Number</strong></td><td>{{ $school->phone ?? '—' }}</td></tr>
+                                                    <tr><td><strong>Email Address</strong></td><td>{{ $school->email ?? '—' }}</td></tr>
+                                                    <tr><td><strong>Website</strong></td><td>{{ $school->website ?? 'Not specified' }}</td></tr>
+                                                    <tr>
+                                                        <td><strong>Social Media</strong></td>
+                                                        <td>
+                                                            @if(isset($school->social_links) && count($school->social_links ?? []))
+                                                                @foreach($school->social_links as $platform => $link)
+                                                                    @if($link)
+                                                                        <a href="{{ $link }}" target="_blank" class="btn btn-default btn-xs">
+                                                                            <i class="fa fa-{{ $platform }}"></i> {{ ucfirst($platform) }}
+                                                                        </a>
+                                                                    @endif
+                                                                @endforeach
+                                                            @else
+                                                                Not specified
                                                             @endif
-                                                        @endforeach
-                                                    @else
-                                                        Not specified
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>School Hours</td>
-                                                <td>{{ $school->working_hours ?? 'Not specified' }}</td>
-                                            </tr>
-                                        </table>
-                                    </div>
-                                    
-                                    <div class="tab-pane" id="academic-structure">
-                                        <div class="row">
-                                            <div class="col-md-6" style="margin-top: 20px">
-                                                <h4>Classes & Sections</h4>
-                                                <div class="table-responsive">
-                                                    <table class="table table-striped">
-                                                        <thead>
-                                                            <tr>
-                                                                <th>Class</th>
-                                                                <th>Sections</th>
-                                                                {{-- <th>Class Teacher</th> --}}
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            @forelse($classes as $class)
-                                                            <tr>
-                                                                <td>{{ $class->name??"" }}</td>
-                                                                <td>
-                                                                    @forelse($class->sections as $section)
-                                                                        <span class="badge badge-primary">{{ $section->name??"" }}</span>
-                                                                    @empty
-                                                                        <span class="text-muted">No sections</span>
-                                                                    @endforelse
-                                                                </td>
-                                                            </tr>
-                                                            @empty
-                                                            <tr>
-                                                                <td colspan="2" class="text-muted text-center">No classes found</td>
-                                                            </tr>
-                                                            @endforelse
-                                                            
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="col-md-6">
-                                                <h4>Subjects Offered</h4>
-                                                <div class="table-responsive">
-                                                    <table class="table table-striped">
-                                                        <thead>
-                                                            <tr>
-                                                                <th>Subject</th>
-                                                                <th>Code</th>
-                                                                {{-- <th>Classes</th> --}}
-                                                                {{-- <th>Teacher</th> --}}
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            @forelse($subjects as $subject)
-                                                            <tr>
-                                                                <td>{{ $subject->name??"" }}</td>
-                                                                <td>{{ $subject->code ?? '-' }}</td>
-                                                            </tr>
-                                                            @empty
-                                                            <tr>
-                                                                <td colspan="2" class="text-muted text-center">No subjects found</td>
-                                                            </tr>
-                                                            @endforelse
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                            
+                                                        </td>
+                                                    </tr>
+                                                    <tr><td><strong>School Hours</strong></td><td>{{ $school->working_hours ?? 'Not specified' }}</td></tr>
+                                                </tbody>
+                                            </table>
                                         </div>
                                     </div>
-                                </div>
+                                    
+                                    <div class="tab-pane" id="classes-sections">
+                                        <div class="table-responsive" style="margin-top: 15px;">
+                                            <table class="table table-striped table-bordered">
+                                                <thead style="background:#f5f5f5;">
+                                                    <tr>
+                                                        <th>Class</th>
+                                                        <th>Sections</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @forelse($classes as $class)
+                                                        <tr>
+                                                            <td><strong>{{ $class->name ?? '' }}</strong></td>
+                                                            <td>
+                                                                @forelse($class->sections as $section)
+                                                                    <span class="label label-primary" style="margin-right:4px;">{{ $section->name ?? '' }}</span>
+                                                                @empty
+                                                                    <span class="text-muted">No sections</span>
+                                                                @endforelse
+                                                            </td>
+                                                        </tr>
+                                                    @empty
+                                                        <tr>
+                                                            <td colspan="2" class="text-muted text-center">No classes found</td>
+                                                        </tr>
+                                                    @endforelse
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    <div class="tab-pane" id="subjects-offered">
+                                        <div class="table-responsive" style="margin-top: 15px;">
+                                            <table class="table table-striped table-bordered">
+                                                <thead style="background:#f5f5f5;">
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>Subject</th>
+                                                        <th>Code</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @forelse($subjects as $i => $subject)
+                                                        <tr>
+                                                            <td>{{ $i + 1 }}</td>
+                                                            <td>{{ $subject->name ?? '' }}</td>
+                                                            <td><span class="label label-default">{{ $subject->code ?? '—' }}</span></td>
+                                                        </tr>
+                                                    @empty
+                                                        <tr>
+                                                            <td colspan="3" class="text-muted text-center">No subjects found</td>
+                                                        </tr>
+                                                    @endforelse
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    {{-- Teachers & Subjects --}}
+                                    <div class="tab-pane" id="teachers-subjects">
+                                        <div class="table-responsive" style="margin-top: 15px;">
+                                            <table class="table table-striped table-bordered">
+                                                <thead style="background:#f5f5f5;">
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>Teacher</th>
+                                                        <th>Subjects Assigned</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @forelse($teachers as $i => $teacher)
+                                                        <tr>
+                                                            <td>{{ $i + 1 }}</td>
+                                                            <td><strong>{{ $teacher->name }}</strong></td>
+                                                            <td>
+                                                                @if($teacher->teacherSubjects->isNotEmpty())
+                                                                    @foreach($teacher->teacherSubjects as $subject)
+                                                                        <span class="label label-primary" style="margin-right:4px;">
+                                                                            {{ $subject->name }}
+                                                                        </span>
+                                                                    @endforeach
+                                                                @else
+                                                                    <span class="text-muted">No subjects assigned</span>
+                                                                @endif
+                                                            </td>
+                                                        </tr>
+                                                    @empty
+                                                        <tr>
+                                                            <td colspan="3" class="text-muted text-center">No teachers found</td>
+                                                        </tr>
+                                                    @endforelse
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    {{-- Teachers & Classes --}}
+                                    <div class="tab-pane" id="teachers-classes">
+                                        <div class="table-responsive" style="margin-top: 15px;">
+                                            <table class="table table-striped table-bordered">
+                                                <thead style="background:#f5f5f5;">
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>Teacher</th>
+                                                        <th>Class Teacher Of</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @forelse($teachers as $i => $teacher)
+                                                        <tr>
+                                                            <td>{{ $i + 1 }}</td>
+                                                            <td><strong>{{ $teacher->name }}</strong></td>
+                                                            <td>
+                                                                @if($teacher->teacherProfile && $teacher->teacherProfile->classTeacherOf)
+                                                                    <span class="label label-success">
+                                                                        {{ $teacher->teacherProfile->classTeacherOf->name }}
+                                                                    </span>
+                                                                @else
+                                                                    <span class="text-muted">Not a class teacher</span>
+                                                                @endif
+                                                            </td>
+                                                        </tr>
+                                                    @empty
+                                                        <tr>
+                                                            <td colspan="3" class="text-muted text-center">No teachers found</td>
+                                                        </tr>
+                                                    @endforelse
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                </div>{{-- /tab-content --}}
                             </div>
                         </div>
                     </div>
