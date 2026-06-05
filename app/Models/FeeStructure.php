@@ -23,17 +23,17 @@ class FeeStructure extends Model
     // Relationships
     public function category()
     {
-        return $this->belongsTo(FeeCategory::class);
+        return $this->belongsTo(FeeCategory::class, 'category_id');
     }
 
-    public function class()
+    public function schoolClass()
     {
-        return $this->belongsTo(Classes::class);
+        return $this->belongsTo(Classes::class, 'class_id');
     }
 
     public function fees()
     {
-        return $this->hasMany(Fee::class);
+        return $this->hasMany(Fee::class, 'structure_id');
     }
 }
 

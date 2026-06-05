@@ -19,7 +19,7 @@ class FeeCategory extends Model
     // Relationships
     public function structures()
     {
-        return $this->hasMany(FeeStructure::class);
+        return $this->hasMany(FeeStructure::class, 'category_id');
     }
 }
 

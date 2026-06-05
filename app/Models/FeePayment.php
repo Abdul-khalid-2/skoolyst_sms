@@ -10,8 +10,7 @@ class FeePayment extends Model
     use BelongsToSchoolBranch;
 
     protected $fillable = [
-        'branch_id',
-        'fee_id',
+        'branch_id', 'fee_id',
         'amount',
         'payment_date',
         'payment_method',

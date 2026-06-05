@@ -14,6 +14,10 @@ use App\Http\Controllers\Attendance\AttendanceController as SessionAttendanceCon
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SidebarSettingController;
+use App\Http\Controllers\Fees\FeesController;
+use App\Http\Controllers\Fees\FeeCategoryController;
+use App\Http\Controllers\Fees\FeeStructureController;
+use App\Http\Controllers\Fees\FeePaymentController;
 use App\Http\Controllers\Timetable\TimetableController;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Route;
@@ -152,7 +156,18 @@ Route::middleware(['auth', 'verified', 'scope.branch', 'role:super-admin|admin']
     Route::get('/check-classes', [SessionAttendanceController::class, 'checkClasses'])->name('check-classes');
     Route::get('/attendance/trends', [SessionAttendanceController::class, 'getAttendanceTrends']);
 
-    Route::get('/fees', fn () => response()->json(['message' => 'Fees module']))->name('fees.index');
+    // ── Fees Management ─────────────────────────────────────────
+    Route::prefix('fees')->name('fees.')->group(function () {
+        Route::get('/',                         [FeesController::class,         'index'])->name('index');
+        Route::resource('categories',           FeeCategoryController::class)->except(['show']);
+        Route::resource('structures',           FeeStructureController::class)->except(['show']);
+        Route::get('payments',                  [FeePaymentController::class,   'index'])->name('payments.index');
+        Route::get('payments/students',         [FeePaymentController::class,   'getStudentsByClass'])->name('payments.students');
+        Route::get('payments/create',           [FeePaymentController::class,   'create'])->name('payments.create');
+        Route::post('payments',                 [FeePaymentController::class,   'store'])->name('payments.store');
+        Route::get('payments/{payment}',        [FeePaymentController::class,   'show'])->name('payments.show');
+        Route::delete('payments/{payment}',     [FeePaymentController::class,   'destroy'])->name('payments.destroy');
+    });
     Route::get('/exams', fn () => response()->json(['message' => 'Exams module']))->name('exams.index');
     Route::get('/library', fn () => response()->json(['message' => 'Library module']))->name('library.index');
     Route::get('/inventory', fn () => response()->json(['message' => 'Inventory module']))->name('inventory.index');

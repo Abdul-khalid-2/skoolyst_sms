@@ -135,6 +135,9 @@ class DatabaseSeeder extends Seeder
             $branchAdmin->assignRole('admin');
         }
 
-        $this->call(TestDataSeeder::class);
+        $this->call([
+            TestDataSeeder::class,
+            FeesSeeder::class,
+        ]);
     }
 }

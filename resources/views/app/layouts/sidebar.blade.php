@@ -63,9 +63,10 @@
                             <span class="mini-click-non">Fees Management</span>
                         </a>
                         <ul class="submenu-angle" aria-expanded="false">
-                            <li><a href="javascript:void(0)">Categories</a></li>
-                            <li><a href="javascript:void(0)">Structures</a></li>
-                            <li><a href="javascript:void(0)">Payments</a></li>
+                            <li><a href="{{ route('fees.index') }}">Dashboard</a></li>
+                            <li><a href="{{ route('fees.categories.index') }}">Categories</a></li>
+                            <li><a href="{{ route('fees.structures.index') }}">Structures</a></li>
+                            <li><a href="{{ route('fees.payments.index') }}">Payments</a></li>
                         </ul>
                     </li>
                     <li>
