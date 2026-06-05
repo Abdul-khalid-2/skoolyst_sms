@@ -165,19 +165,6 @@
   
                             
                     <div class="row">
-                        <!-- <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                            <div class="text-center">
-                                <div class="logo-container mx-auto">
-                                    @if(isset($school->logo))
-                                        <img src="{{ asset('assets/'.$school->logo) }}" alt="School Logo" class="img-fluid">
-                                    @else
-                                        <img src="{{ asset('backend/img/school-default.png') }}" alt="School Logo" class="img-fluid">
-                                    @endif
-                                </div>
-                                <h3 class="mt-3">{{ $school->name??"" }}</h3>
-                                <p class="text-muted">{{ $school->session_year??"" }} Session</p>
-                            </div>
-                        </div> -->
                         
                         <div class="col-12">
                             <div class="profile-tabs">
@@ -185,7 +172,7 @@
                                     <li class="active"><a href="#basic" data-toggle="tab">Basic Information</a></li>
                                     <li><a href="#contact" data-toggle="tab">Contact Details</a></li>
                                     <li><a href="#classes-sections" data-toggle="tab"><i class="fa fa-graduation-cap"></i> Classes &amp; Sections</a></li>
-                                    <li><a href="#subjects-offered" data-toggle="tab"><i class="fa fa-book"></i> Subjects Offered</a></li>
+                                    <li><a href="#subjects-offered" data-toggle="tab"><i class="fa fa-book"></i> Subjects</a></li>
                                     <li><a href="#teachers-subjects" data-toggle="tab"><i class="fa fa-user"></i> Teachers &amp; Subjects</a></li>
                                     <li><a href="#teachers-classes" data-toggle="tab"><i class="fa fa-users"></i> Teachers &amp; Classes</a></li>
                                 </ul>
@@ -258,31 +245,73 @@
                                     
                                     <div class="tab-pane" id="classes-sections">
                                         <div class="table-responsive" style="margin-top: 15px;">
-                                            <table class="table table-striped table-bordered">
+                                            <table class="table table-bordered" style="margin-bottom:0;">
                                                 <thead style="background:#f5f5f5;">
                                                     <tr>
-                                                        <th>Class</th>
-                                                        <th>Sections</th>
+                                                        <th style="width:18%;">Class</th>
+                                                        <th>Sections &amp; Students</th>
+                                                        <th style="width:13%; text-align:center;">Total Students</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     @forelse($classes as $class)
+                                                        @php
+                                                            $totalStudents = $class->sections->sum(fn($s) => $s->students->count());
+                                                        @endphp
                                                         <tr>
-                                                            <td><strong>{{ $class->name ?? '' }}</strong></td>
-                                                            <td>
+                                                            <td style="vertical-align:middle;">
+                                                                <strong>{{ $class->name ?? '' }}</strong>
+                                                            </td>
+                                                            <td style="vertical-align:middle;">
                                                                 @forelse($class->sections as $section)
-                                                                    <span class="label label-primary" style="margin-right:4px;">{{ $section->name ?? '' }}</span>
+                                                                    @php $count = $section->students->count(); @endphp
+                                                                    <span style="display:inline-flex; align-items:center; gap:5px;
+                                                                                 background:#eaf2fb; border:1px solid #aed6f1;
+                                                                                 border-radius:4px; padding:3px 8px; margin:2px 4px 2px 0;">
+                                                                        <span class="label label-primary" style="font-size:11px; padding:2px 6px;">
+                                                                            {{ $section->name }}
+                                                                        </span>
+                                                                        <span style="font-size:12px; color:#555;">
+                                                                            <i class="fa fa-users" style="color:#aaa; font-size:10px;"></i>
+                                                                            {{ $count }}
+                                                                        </span>
+                                                                    </span>
                                                                 @empty
                                                                     <span class="text-muted">No sections</span>
                                                                 @endforelse
                                                             </td>
+                                                            <td style="text-align:center; vertical-align:middle;">
+                                                                <span class="badge"
+                                                                      style="background:{{ $totalStudents > 0 ? '#27ae60' : '#aaa' }};
+                                                                             font-size:13px; padding:4px 10px;">
+                                                                    {{ $totalStudents }}
+                                                                </span>
+                                                            </td>
                                                         </tr>
                                                     @empty
                                                         <tr>
-                                                            <td colspan="2" class="text-muted text-center">No classes found</td>
+                                                            <td colspan="3" class="text-muted text-center">No classes found</td>
                                                         </tr>
                                                     @endforelse
                                                 </tbody>
+                                                @if($classes->isNotEmpty())
+                                                <tfoot style="background:#f5f5f5; font-weight:600;">
+                                                    <tr>
+                                                        <td>Grand Total</td>
+                                                        <td>
+                                                            @php $totalSections = $classes->sum(fn($c) => $c->sections->count()); @endphp
+                                                            {{ $totalSections }} {{ Str::plural('section', $totalSections) }}
+                                                            across {{ $classes->count() }} {{ Str::plural('class', $classes->count()) }}
+                                                        </td>
+                                                        <td style="text-align:center;">
+                                                            @php $grandTotal = $classes->sum(fn($c) => $c->sections->sum(fn($s) => $s->students->count())); @endphp
+                                                            <span class="badge" style="background:#2980b9; font-size:13px; padding:4px 10px;">
+                                                                {{ $grandTotal }}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                </tfoot>
+                                                @endif
                                             </table>
                                         </div>
                                     </div>

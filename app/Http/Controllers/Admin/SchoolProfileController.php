@@ -182,7 +182,7 @@ class SchoolProfileController extends Controller
             'classes' => Classes::count(),
         ];
 
-        $classes = Classes::with(['sections', 'classTeachersSubjects.subject'])
+        $classes = Classes::with(['sections.students', 'classTeachersSubjects.subject'])
             ->orderBy('numeric_value')
             ->get();
 
@@ -560,95 +560,178 @@ class SchoolProfileController extends Controller
 
     public function cmsUpdate(Request $request)
     {
-        $setting = $this->settings();
+        $setting  = $this->settings();
         $branchId = $this->branchId();
 
         $request->validate([
-            'name' => 'required|string|max:255',
-            'motto' => 'nullable|string|max:255',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'hero_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'primary_color' => 'required|string',
-            'secondary_color' => 'required|string',
-            'established_year' => 'nullable|string|max:50',
-            'student_count' => 'nullable|string|max:50',
-            'teacher_count' => 'nullable|string|max:50',
-            'facility_count' => 'nullable|string|max:50',
-            'address' => 'nullable|string',
-            'phone' => 'nullable|string|max:50',
-            'email' => 'nullable|email|max:255',
-            'short_description' => 'nullable|string',
+            'name'              => 'required|string|max:255',
+            'motto'             => 'nullable|string|max:255',
+            'logo'              => 'nullable|image|max:2048',
+            'favicon'           => 'nullable|image|max:512',
+            'hero_image'        => 'nullable|image|max:4096',
+            'principal_photo'   => 'nullable|image|max:2048',
+            'primary_color'     => 'nullable|string|max:20',
+            'secondary_color'   => 'nullable|string|max:20',
+            'email'             => 'nullable|email|max:255',
+            'social_links'      => 'nullable|array',
+            'social_links.*'    => 'nullable|string|max:255',
+            'features'          => 'nullable|array',
         ]);
 
+        // ── Settings payload ─────────────────────────────────────────
         $payload = [
-            'school_name' => $request->input('name'),
-            'motto' => $request->input('motto'),
-            'primary_color' => $request->input('primary_color'),
-            'secondary_color' => $request->input('secondary_color'),
-            'established_year' => $request->input('established_year'),
-            'student_count_display' => $request->input('student_count'),
-            'teacher_count_display' => $request->input('teacher_count'),
+            // Branding
+            'school_name'      => $request->input('name'),
+            'motto'            => $request->input('motto'),
+            'primary_color'    => $request->input('primary_color', $setting->primary_color),
+            'secondary_color'  => $request->input('secondary_color', $setting->secondary_color),
+
+            // Hero
+            'hero_title'       => $request->input('hero_title'),
+            'hero_subtitle'    => $request->input('hero_subtitle'),
+            'hero_description' => $request->input('hero_description'),
+            'hero_cta_text'    => $request->input('hero_cta_text'),
+            'hero_cta_link'    => $request->input('hero_cta_link'),
+
+            // About
+            'about'            => $request->input('about'),
+            'mission'          => $request->input('mission'),
+            'vision'           => $request->input('vision'),
+            'principal_name'   => $request->input('principal_name', $setting->principal_name),
+            'principal_message'=> $request->input('principal_message'),
+
+            // Statistics
+            'established_year'       => $request->input('established_year'),
+            'student_count_display'  => $request->input('student_count'),
+            'teacher_count_display'  => $request->input('teacher_count'),
             'facility_count_display' => $request->input('facility_count'),
-            'school_address' => $request->input('address'),
-            'school_phone' => $request->input('phone'),
-            'school_email' => $request->input('email'),
-            'short_description' => $request->input('short_description'),
+            'awards_count'           => $request->input('awards_count'),
+            'courses_count'          => $request->input('courses_count'),
+            'pass_rate'              => $request->input('pass_rate'),
+
+            // Contact
+            'school_address'   => $request->input('address'),
+            'school_phone'     => $request->input('phone'),
+            'school_email'     => $request->input('email'),
+            'website'          => $request->input('website'),
+            'map_url'          => $request->input('map_url'),
+            'short_description'=> $request->input('short_description'),
+
+            // Social links
+            'social_links' => array_filter($request->input('social_links', [])),
+
+            // Features (Why Choose Us)
+            'features' => $request->input('features', []),
+
+            // Section visibility (checkbox = present means true, absent means false)
+            'show_hero'         => $request->boolean('show_hero'),
+            'show_about'        => $request->boolean('show_about'),
+            'show_stats'        => $request->boolean('show_stats'),
+            'show_programs'     => $request->boolean('show_programs'),
+            'show_features'     => $request->boolean('show_features'),
+            'show_testimonials' => $request->boolean('show_testimonials'),
+            'show_gallery'      => $request->boolean('show_gallery'),
+            'show_contact'      => $request->boolean('show_contact'),
+            'show_social'       => $request->boolean('show_social'),
+            'show_news'         => $request->boolean('show_news'),
         ];
 
-        if ($request->hasFile('logo')) {
-            if ($setting->school_logo) {
-                Storage::disk('website')->delete($setting->school_logo);
-            }
+        // ── File uploads ─────────────────────────────────────────────
+        if ($request->boolean('remove_logo')) {
+            if ($setting->school_logo) Storage::disk('website')->delete($setting->school_logo);
+            $payload['school_logo'] = null;
+        } elseif ($request->hasFile('logo')) {
+            if ($setting->school_logo) Storage::disk('website')->delete($setting->school_logo);
             $payload['school_logo'] = $request->file('logo')->store('school/logo', 'website');
         }
 
-        if ($request->hasFile('hero_image')) {
-            if ($setting->hero_image) {
-                Storage::disk('website')->delete($setting->hero_image);
-            }
+        if ($request->boolean('remove_hero_image')) {
+            if ($setting->hero_image) Storage::disk('website')->delete($setting->hero_image);
+            $payload['hero_image'] = null;
+        } elseif ($request->hasFile('hero_image')) {
+            if ($setting->hero_image) Storage::disk('website')->delete($setting->hero_image);
             $payload['hero_image'] = $request->file('hero_image')->store('school/hero', 'website');
+        }
+
+        if ($request->hasFile('favicon')) {
+            if ($setting->school_favicon) Storage::disk('website')->delete($setting->school_favicon);
+            $payload['school_favicon'] = $request->file('favicon')->store('school/favicon', 'website');
+        }
+
+        if ($request->hasFile('principal_photo')) {
+            if ($setting->principal_photo) Storage::disk('website')->delete($setting->principal_photo);
+            $payload['principal_photo'] = $request->file('principal_photo')->store('school/principal', 'website');
         }
 
         $setting->update($payload);
 
+        // ── Programs ─────────────────────────────────────────────────
+        $submittedProgramIds = [];
+        foreach ($request->input('programs', []) as $programData) {
+            if (! empty($programData['id'])) {
+                Program::where('id', $programData['id'])->update([
+                    'name'        => $programData['name'],
+                    'description' => $programData['description'],
+                    'icon'        => $programData['icon'] ?? null,
+                ]);
+                $submittedProgramIds[] = $programData['id'];
+            } else {
+                $p = Program::create([
+                    'branch_id'   => $branchId,
+                    'name'        => $programData['name'],
+                    'description' => $programData['description'],
+                    'icon'        => $programData['icon'] ?? null,
+                ]);
+                $submittedProgramIds[] = $p->id;
+            }
+        }
+        // Delete removed programs
         if ($request->has('programs')) {
-            foreach ($request->input('programs', []) as $programData) {
-                if (! empty($programData['id'])) {
-                    Program::where('id', $programData['id'])->update([
-                        'name' => $programData['name'],
-                        'description' => $programData['description'],
-                    ]);
-                } else {
-                    Program::create([
-                        'branch_id' => $branchId,
-                        'name' => $programData['name'],
-                        'description' => $programData['description'],
-                    ]);
-                }
-            }
+            Program::whereNotIn('id', $submittedProgramIds)
+                ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
+                ->delete();
         }
 
+        // ── Testimonials ─────────────────────────────────────────────
+        $submittedTestimonialIds = [];
+        foreach ($request->input('testimonials', []) as $index => $td) {
+            $avatarPath = null;
+            if ($request->hasFile("testimonials.{$index}.avatar")) {
+                $avatarPath = $request->file("testimonials.{$index}.avatar")
+                    ->store('school/testimonials', 'website');
+            }
+
+            if (! empty($td['id'])) {
+                $updateData = [
+                    'author'  => $td['author'],
+                    'role'    => $td['role'],
+                    'content' => $td['content'],
+                    'rating'  => $td['rating'],
+                ];
+                if ($avatarPath) $updateData['avatar'] = $avatarPath;
+                Testimonial::where('id', $td['id'])->update($updateData);
+                $submittedTestimonialIds[] = $td['id'];
+            } else {
+                $t = Testimonial::create([
+                    'branch_id' => $branchId,
+                    'author'    => $td['author'],
+                    'role'      => $td['role'],
+                    'content'   => $td['content'],
+                    'rating'    => $td['rating'],
+                    'avatar'    => $avatarPath,
+                ]);
+                $submittedTestimonialIds[] = $t->id;
+            }
+        }
+        // Delete removed testimonials
         if ($request->has('testimonials')) {
-            foreach ($request->input('testimonials', []) as $testimonialData) {
-                if (! empty($testimonialData['id'])) {
-                    Testimonial::where('id', $testimonialData['id'])->update([
-                        'author' => $testimonialData['author'],
-                        'role' => $testimonialData['role'],
-                        'content' => $testimonialData['content'],
-                        'rating' => $testimonialData['rating'],
-                    ]);
-                } else {
-                    Testimonial::create([
-                        'branch_id' => $branchId,
-                        'author' => $testimonialData['author'],
-                        'role' => $testimonialData['role'],
-                        'content' => $testimonialData['content'],
-                        'rating' => $testimonialData['rating'],
-                    ]);
-                }
-            }
+            Testimonial::whereNotIn('id', $submittedTestimonialIds)
+                ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
+                ->delete();
         }
 
-        return redirect()->route('schools.cms')->with('success', 'Landing page updated successfully!');
+        return redirect()->route('schools.cms')
+            ->with('message', 'Landing page updated successfully!')
+            ->with('alert-type', 'success');
     }
 }
