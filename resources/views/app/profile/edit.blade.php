@@ -177,10 +177,16 @@
                                                                 <label class="login2">Select Role*</label>
                                                             </div>
                                                             <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-                                                                <select name="roles[]" data-placeholder="Choose a Country..." class="chosen-select" multiple="" tabindex="-1">
-                                                                    <option value="">Select Role</option>
-                                                                    <option value="admin" {{ old('role', $user->role) == 'admin' ? 'selected' : '' }}>Admin</option>
-                                                                    <option value="teacher" {{ old('role', $user->role) == 'teacher' ? 'selected' : '' }}>Teacher</option>
+                                                                @php
+                                                                    $userRoles = old('roles', $user->getRoleNames()->toArray());
+                                                                @endphp
+                                                                <select name="roles[]" data-placeholder="Select role..." class="chosen-select" multiple tabindex="-1">
+                                                                    @foreach($roles as $role)
+                                                                        <option value="{{ $role->name }}"
+                                                                            {{ in_array($role->name, (array) $userRoles) ? 'selected' : '' }}>
+                                                                            {{ ucfirst($role->name) }}
+                                                                        </option>
+                                                                    @endforeach
                                                                 </select>
                                                             </div>
                                                         </div>

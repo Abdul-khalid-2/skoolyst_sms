@@ -144,7 +144,7 @@
                                                     <div class="col-lg-4"><label class="login2">Student Photo</label></div>
                                                     <div class="col-lg-8">
                                                         @if($student->profile_pic)
-                                                            <img src="{{ asset('tenancy/assets/' . $student->profile_pic) }}"
+                                                            <img src="{{ asset('assets/' . $student->profile_pic) }}"
                                                                  class="rounded-circle" width="50" height="50" style="margin-bottom:8px;">
                                                         @endif
                                                         <input type="file" name="student_photo" class="form-control" accept="image/*">

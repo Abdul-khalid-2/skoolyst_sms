@@ -169,7 +169,7 @@
                             <div class="text-center">
                                 <div class="logo-container mx-auto">
                                     @if(isset($school->logo))
-                                        <img src="{{ asset('tenancy/assets/'.$school->logo) }}" alt="School Logo" class="img-fluid">
+                                        <img src="{{ asset('assets/'.$school->logo) }}" alt="School Logo" class="img-fluid">
                                     @else
                                         <img src="{{ asset('backend/img/school-default.png') }}" alt="School Logo" class="img-fluid">
                                     @endif

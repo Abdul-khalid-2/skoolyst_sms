@@ -135,6 +135,7 @@
                                                             </button> --}}
 
                                                             <button class="btn btn-primary btn-sm update-btn" 
+                                                                data-entry-id="{{ $days[$day]['id'] }}"
                                                                 data-class="{{ $timetable['class_name'] }}"
                                                                 data-class_id="{{ $timetable['class_id'] }}"
                                                                 data-period="{{ $periodName }}"
@@ -144,8 +145,8 @@
                                                                 data-teacher_id="{{ $days[$day]['teacher_id'] ?? '' }}"
                                                                 data-subject="{{ $days[$day]['subject'] ?? '' }}"
                                                                 data-subject_id="{{ $days[$day]['subject_id'] ?? '' }}"
-                                                                data-start="{{ $days[$day]['start'] ?? '' }}"
-                                                                data-end="{{ $days[$day]['end'] ?? '' }}"
+                                                                data-start="{{ $days[$day]['start_raw'] ?? '' }}"
+                                                                data-end="{{ $days[$day]['end_raw'] ?? '' }}"
                                                                 data-room="{{ $days[$day]['room'] ?? '' }}"
                                                                 data-event="{{ $days[$day]['event'] ?? '' }}">
                                                             <i class="fa fa-pencil"></i> Update
@@ -251,12 +252,13 @@
                     
                     <div class="form-group">
                         <label>Start Time</label>
-                        <input type="time" class="form-control" name="start" id="addStart">
+                        <input type="time" class="form-control schedule-start" name="start" id="addStart" required>
                     </div>
                     
                     <div class="form-group">
                         <label>End Time</label>
-                        <input type="time" class="form-control" name="end" id="addEnd">
+                        <input type="time" class="form-control schedule-end" name="end" id="addEnd" required>
+                        <small class="text-muted schedule-time-hint">End time must be at least 1 minute after start time.</small>
                     </div>
                     
                     <div class="form-group class-fields">
@@ -285,6 +287,8 @@
             </div>
             <div class="modal-body">
                 <form id="updateForm">
+                    @csrf
+                    <input type="hidden" name="entry_id" id="updateEntryId">
                     <input type="hidden" name="class" id="updateClass">
                     <input type="hidden" name="period" id="updatePeriod">
                     <input type="hidden" name="day" id="updateDay">
@@ -331,12 +335,13 @@
                     
                     <div class="form-group">
                         <label>Start Time</label>
-                        <input type="time" class="form-control" name="start" id="updateStart">
+                        <input type="time" class="form-control schedule-start" name="start" id="updateStart" required>
                     </div>
                     
                     <div class="form-group">
                         <label>End Time</label>
-                        <input type="time" class="form-control" name="end" id="updateEnd">
+                        <input type="time" class="form-control schedule-end" name="end" id="updateEnd" required>
+                        <small class="text-muted schedule-time-hint">End time must be at least 1 minute after start time.</small>
                     </div>
                     
                     <div class="form-group">
@@ -435,7 +440,76 @@
         <script src="{{ asset('backend/js/tab.js') }}"></script>
         
         <script>
+            function addMinutesToTime(timeValue, minutesToAdd) {
+                if (!timeValue) {
+                    return '';
+                }
+
+                var parts = timeValue.split(':');
+                var totalMinutes = (parseInt(parts[0], 10) * 60) + parseInt(parts[1], 10) + minutesToAdd;
+                var hours = Math.floor(totalMinutes / 60) % 24;
+                var minutes = totalMinutes % 60;
+
+                return String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0');
+            }
+
+            function validateScheduleTimes(form) {
+                var start = form.find('.schedule-start').val();
+                var end = form.find('.schedule-end').val();
+
+                if (!start || !end) {
+                    alert('Please enter both start and end time.');
+                    return false;
+                }
+
+                var startParts = start.split(':');
+                var endParts = end.split(':');
+                var startMinutes = (parseInt(startParts[0], 10) * 60) + parseInt(startParts[1], 10);
+                var endMinutes = (parseInt(endParts[0], 10) * 60) + parseInt(endParts[1], 10);
+
+                if (endMinutes <= startMinutes) {
+                    alert('End time must be at least 1 minute after start time.');
+                    form.find('.schedule-end').focus();
+                    return false;
+                }
+
+                return true;
+            }
+
+            function bindScheduleTimeValidation(formSelector) {
+                var form = $(formSelector);
+
+                form.on('change', '.schedule-start', function() {
+                    var start = $(this).val();
+                    var endField = form.find('.schedule-end');
+
+                    if (!start) {
+                        return;
+                    }
+
+                    var minimumEnd = addMinutesToTime(start, 1);
+                    endField.attr('min', minimumEnd);
+
+                    if (endField.val() && endField.val() <= start) {
+                        endField.val(minimumEnd);
+                    }
+                });
+            }
+
+            function showScheduleError(xhr) {
+                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    var messages = Object.values(xhr.responseJSON.errors).flat();
+                    alert(messages.join('\n'));
+                    return;
+                }
+
+                alert('Error saving schedule. Please try again.');
+            }
+
             $(document).ready(function() {
+                bindScheduleTimeValidation('#addForm');
+                bindScheduleTimeValidation('#updateForm');
+
                 // Handle type change in add and update forms
                 $('select[name="type"]').change(function() {
                     if ($(this).val() === 'event') {
@@ -528,52 +602,42 @@
             
                 // Save Add button click handler
                 $('#saveAdd').click(function() {
-                    // Here you would typically make an AJAX call to save the data
+                    if (!validateScheduleTimes($('#addForm'))) {
+                        return;
+                    }
+
                     var formData = $('#addForm').serialize();
-                    
-                    console.log(formData);
-                    
+
                     $.ajax({
                         url: "{{ route('admin.timetable.store.schedule') }}",
                         method: 'POST',
                         data: formData,
-                        success: function(response) {
+                        success: function() {
                             $('#addModal').modal('hide');
-                            location.reload(); 
+                            location.reload();
                         },
-                        error: function(xhr) {
-                            alert('Error: ' + xhr.responseText);
-                        }
+                        error: showScheduleError
                     });
-                    
-                    $('#addModal').modal('hide');
-                    alert('Time table schedule added successfully');
                 });
             
                 // Save Update button click handler
                 $('#saveUpdate').click(function() {
-                    // Here you would typically make an AJAX call to update the data
+                    if (!validateScheduleTimes($('#updateForm'))) {
+                        return;
+                    }
+
                     var formData = $('#updateForm').serialize();
-                    
-                    // Example AJAX call (you'll need to implement the server-side part)
-                    /*
+
                     $.ajax({
-                        url: '/timetable/update',
+                        url: "{{ route('admin.timetable.update.schedule') }}",
                         method: 'POST',
                         data: formData,
-                        success: function(response) {
+                        success: function() {
                             $('#updateModal').modal('hide');
-                            location.reload(); // Refresh the page to see changes
+                            location.reload();
                         },
-                        error: function(xhr) {
-                            alert('Error: ' + xhr.responseText);
-                        }
+                        error: showScheduleError
                     });
-                    */
-                    
-                    // For demo purposes, just close the modal
-                    $('#updateModal').modal('hide');
-                    alert('Update functionality would save here. Form data: ' + formData);
                 });
 
 
@@ -693,32 +757,27 @@
 
                     // Update button click handler
                     $('.update-btn').click(function() {
+                        $('#updateEntryId').val($(this).data('entry-id'));
                         $('#updateClass').val($(this).data('class'));
                         $('#updateClassId').val($(this).data('class_id'));
                         $('#updatePeriod').val($(this).data('period'));
                         $('#updateDay').val($(this).data('day'));
                         $('#updateSectionId').val($(this).data('section_id'));
-                        
+                        $('#updateStart').val($(this).data('start'));
+                        $('#updateEnd').val($(this).data('end'));
+                        $('#updateRoom').val($(this).data('room'));
+                        $('#updateStart').trigger('change');
+
                         if ($(this).data('event')) {
                             $('#updateType').val('event').trigger('change');
                             $('#updateEvent').val($(this).data('event'));
                         } else {
                             $('#updateType').val('class').trigger('change');
-                            
-                            // Set subject and store the current teacher ID
                             $('#updateSubject').val($(this).data('subject_id'));
                             $('#updateTeacher').data('current-teacher-id', $(this).data('teacher_id'));
-                           
-                            
-                            // Trigger teacher fetch based on selected subject
                             fetchUpdateTeachers(document.getElementById('updateSubject'));
-                            
-                            // Set other values
-                            $('#updateStart').val($(this).data('start'));
-                            $('#updateEnd').val($(this).data('end'));
-                            $('#updateRoom').val($(this).data('room'));
                         }
-                        
+
                         $('#updateModal').modal('show');
                     });
     

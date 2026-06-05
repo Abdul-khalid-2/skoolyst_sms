@@ -107,7 +107,7 @@
                                                         <input type="file" name="logo" class="form-control">
                                                         @if($school->logo)
                                                             <div class="mt-2">
-                                                                <img src="{{ asset('tenancy/assets/' . $school->logo) }}" alt="Current Logo" style="max-height: 100px;">
+                                                                <img src="{{ asset('assets/' . $school->logo) }}" alt="Current Logo" style="max-height: 100px;">
                                                                 <label class="mt-2">
                                                                     <input type="checkbox" name="remove_logo"> Remove current logo
                                                                 </label>

@@ -27,7 +27,7 @@
                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                     <div class="profile-info-inner">
                         <div class="profile-img">
-                            <img src="{{ asset('tenancy/assets/'. $teacher->profile_pic) ?? asset('backend/img/product/profile-bg.jpg') }}" alt="Profile Picture">
+                            <img src="{{ asset('assets/'. $teacher->profile_pic) ?? asset('backend/img/product/profile-bg.jpg') }}" alt="Profile Picture">
                         </div>
                         <div class="profile-details-hr">
                             <div class="row">
@@ -89,7 +89,7 @@
                             </div>
                         </div>
                         <div class="profile-img">
-                            <img src="{{ asset('tenancy/assets/'. $teacher->teacherProfile->signature) ?? asset('backend/img/product/profile-bg.jpg') }}" alt="Profile Picture">
+                            <img src="{{ asset('assets/'. $teacher->teacherProfile->signature) ?? asset('backend/img/product/profile-bg.jpg') }}" alt="Profile Picture">
                         </div>
                     </div>
                 </div>

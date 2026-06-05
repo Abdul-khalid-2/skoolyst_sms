@@ -99,7 +99,7 @@
                                                         </div>
                                                         <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
                                                             @if($teacher->profile_pic)
-                                                                <img src="{{ asset('tenancy/assets/'. $teacher->profile_pic) }}" style="max-height: 100px; margin-bottom: 10px;">
+                                                                <img src="{{ asset('assets/'. $teacher->profile_pic) }}" style="max-height: 100px; margin-bottom: 10px;">
                                                             @endif
                                                         </div>
                                                     </div>
@@ -509,7 +509,7 @@
                                                         </div>
                                                         <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
                                                             @if($teacher->teacherProfile->signature)
-                                                                <img src="{{ asset('tenancy/assets/'. $teacher->teacherProfile->signature) }}" style="max-height: 100px; margin-bottom: 10px;">
+                                                                <img src="{{ asset('assets/'. $teacher->teacherProfile->signature) }}" style="max-height: 100px; margin-bottom: 10px;">
                                                             @endif
                                                         </div>
                                                     </div>

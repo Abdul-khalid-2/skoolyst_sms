@@ -134,6 +134,7 @@ Route::middleware(['auth', 'verified', 'scope.branch', 'role:super-admin|admin']
     });
     Route::get('create_schedule', [TimetableController::class, 'create_schedule'])->name('admin.timetable.create.schedule');
     Route::post('store_schedule', [TimetableController::class, 'store_schedule'])->name('admin.timetable.store.schedule');
+    Route::post('update_schedule', [TimetableController::class, 'update_schedule'])->name('admin.timetable.update.schedule');
     Route::get('/admin/get-teachers-by-subject', [TimetableController::class, 'getTeachersBySubject'])->name('admin.getTeachersBySubject');
 
     Route::prefix('attendance')->group(function () {
@@ -144,7 +145,7 @@ Route::middleware(['auth', 'verified', 'scope.branch', 'role:super-admin|admin']
         Route::get('/get-students', [SessionAttendanceController::class, 'getStudents'])->name('attendance.get-students');
         Route::post('/save', [SessionAttendanceController::class, 'store'])->name('attendance.store');
     });
-    Route::get('/check-classes', [SessionAttendanceController::class, 'checkClasses']);
+    Route::get('/check-classes', [SessionAttendanceController::class, 'checkClasses'])->name('check-classes');
     Route::get('/attendance/trends', [SessionAttendanceController::class, 'getAttendanceTrends']);
 
     Route::get('/fees', fn () => response()->json(['message' => 'Fees module']))->name('fees.index');

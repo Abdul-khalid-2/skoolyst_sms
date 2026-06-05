@@ -30,7 +30,7 @@
 
                     <div class="text-center" style="margin-bottom: 15px;">
                         @if($student->profile_pic)
-                            <img src="{{ asset('tenancy/assets/' . $student->profile_pic) }}"
+                            <img src="{{ asset('assets/' . $student->profile_pic) }}"
                                  class="rounded-circle" width="80" height="80" alt="{{ $student->name }}">
                         @else
                             <img src="{{ asset('backend/img/profile/1.jpg') }}"

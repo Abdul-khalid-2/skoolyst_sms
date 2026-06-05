@@ -44,6 +44,33 @@
             border-top: 1px solid #eee;
             box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
         }
+
+        /* Attendance status button active states (Bootstrap 3 compatible) */
+        .attendance-btn-present { color: #3c763d; border-color: #3c763d; background-color: #fff; }
+        .attendance-btn-absent  { color: #a94442; border-color: #a94442; background-color: #fff; }
+        .attendance-btn-late    { color: #8a6d3b; border-color: #8a6d3b; background-color: #fff; }
+
+        .attendance-btn-present.active,
+        .attendance-btn-present:active {
+            background-color: #3c763d !important;
+            color: #fff !important;
+            border-color: #3c763d !important;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,.15);
+        }
+        .attendance-btn-absent.active,
+        .attendance-btn-absent:active {
+            background-color: #a94442 !important;
+            color: #fff !important;
+            border-color: #a94442 !important;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,.15);
+        }
+        .attendance-btn-late.active,
+        .attendance-btn-late:active {
+            background-color: #f0ad4e !important;
+            color: #333 !important;
+            border-color: #eea236 !important;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,.15);
+        }
     </style>
 
     @endpush
@@ -61,8 +88,8 @@
                         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                             <ul class="breadcome-menu">
                                 <li>
-                                    <a href="{{ route('dashboard.add.teacher') }}" class="btn btn-primary btn-sm" style="color: white">
-                                        <i class="fa fa-user-plus"></i> Add Teacher
+                                    <a href="{{ route('admin.attendance.index') }}" class="btn btn-primary btn-sm" style="color: white">
+                                        <i class="fa fa-arrow-left"></i> Back
                                     </a>
                                 </li>
                             </ul>
@@ -77,7 +104,6 @@
                             <form id="attendanceForm" method="POST">
                                 @csrf
                                 <div class="form-section">
-                                    <h3>Attendance Selection</h3>
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="form-group">
@@ -104,8 +130,10 @@
                                             <div class="form-group">
                                                 <label>Date *</label>
                                                 <input type="date" class="form-control" id="attendance_date" name="date" 
-                                                    value="" max="{{ date('Y-m-d') }}" required>
-                                                <div id="class_check_result" class="mt-2"></div>
+                                                    value="{{ date('Y-m-d') }}" max="{{ date('Y-m-d') }}" required>
+                                                <div id="class_check_result" class="mt-2 text-muted">
+                                                    Select class, section, and date to continue.
+                                                </div>
                                             </div>
                                         </div>                                       
                                     </div>
@@ -221,6 +249,8 @@
         </div>
     </div>
     @push('js')
+        <script src="{{ asset('backend/js/vendor/jquery-1.12.4.min.js') }}"></script>
+        <script src="{{ asset('backend/js/bootstrap.min.js') }}"></script>
         <script src="{{ asset('backend/js/data-table/bootstrap-table.js') }}"></script>
         <script src="{{ asset('backend/js/data-table/tableExport.js') }}"></script>
         <script src="{{ asset('backend/js/data-table/data-table-active.js') }}"></script>
@@ -262,6 +292,24 @@
                     setTimeout(() => {
                         $('.alert-notification').alert('close');
                     }, 5000);
+                }
+
+                const DEFAULT_PHOTO = '{{ asset('backend/img/profile/1.jpg') }}';
+
+                function studentPhotoUrl(profilePic, photoUrl) {
+                    if (photoUrl) {
+                        return photoUrl;
+                    }
+
+                    if (!profilePic) {
+                        return DEFAULT_PHOTO;
+                    }
+
+                    if (/^https?:\/\//i.test(profilePic)) {
+                        return profilePic;
+                    }
+
+                    return '{{ asset('assets') }}/' + profilePic.replace(/^\/+/, '');
                 }
 
                 $(document).ready(function() {
@@ -310,40 +358,62 @@
                         updateCounters(presentCount, absentCount, lateCount, totalCount);
                     }
 
-                    // Enable section dropdown when class is selected
-                    // $('#class_id').change(function() {
-                    //     const classId = $(this).val();
-                    //     $('#section_id').empty().append('<option value="">Select Section</option>');
-                        
-                    //     if (classId) {
-                    //         $('#section_id').prop('disabled', false);
-                            
-                    //         // Load sections for selected class
-                    //         $.ajax({
-                    //             url: '/attendance/get-sections',
-                    //             type: 'GET',
-                    //             data: { class_id: classId },
-                    //             success: function(response) {
-                    //                 if (response.sections.length > 0) {
-                    //                     $.each(response.sections, function(index, section) {
-                    //                         $('#section_id').append(`<option value="${section.id}">${section.name}</option>`);
-                    //                     });
-                    //                     // $('#loadStudentsBtn').prop('disabled', false);
-                    //                 } else {
-                    //                     $('#section_id').prop('disabled', true);
-                    //                     $('#loadStudentsBtn').prop('disabled', true);
-                    //                     showAlert('warning', 'No sections found for this class');
-                    //                 }
-                    //             }
-                    //         });
-                            
-                    //     } else {
-                    //         $('#section_id').prop('disabled', true);
-                    //         $('#loadStudentsBtn').prop('disabled', true);
-                    //     }
-                    // });
+                    function refreshAttendanceAvailability() {
+                        const classId = $('#class_id').val();
+                        const sectionId = $('#section_id').val();
+                        const selectedDate = $('#attendance_date').val();
+                        const $result = $('#class_check_result');
 
-                    $('#class_id').change(function() {
+                        $('#loadStudentsBtn').prop('disabled', true);
+                        $result.removeClass('text-muted');
+
+                        if (!classId) {
+                            $result.html('<span class="text-muted">Select a class to load sections.</span>');
+                            return;
+                        }
+
+                        if (!sectionId) {
+                            $result.html('<span class="text-muted">Select a section for the chosen class.</span>');
+                            return;
+                        }
+
+                        if (!selectedDate) {
+                            $result.html('<span class="text-muted">Select an attendance date.</span>');
+                            return;
+                        }
+
+                        $result.html('<span class="text-muted"><i class="fa fa-spinner fa-spin"></i> Checking schedule...</span>');
+
+                        $.ajax({
+                            url: '{{ route('check-classes') }}',
+                            type: 'GET',
+                            data: {
+                                class_id: classId,
+                                section_id: sectionId,
+                                date: selectedDate
+                            },
+                            success: function(response) {
+                                if (response.has_classes) {
+                                    $('#loadStudentsBtn').prop('disabled', false);
+
+                                    if (response.has_timetable && response.has_students) {
+                                        $result.html('<div class="alert alert-success mb-0">Students and timetable found for this date. You can load students.</div>');
+                                    } else if (response.has_students) {
+                                        $result.html('<div class="alert alert-info mb-0">Students found for this class/section. You can take attendance.</div>');
+                                    } else {
+                                        $result.html('<div class="alert alert-success mb-0">Timetable found for this date. You can load students.</div>');
+                                    }
+                                } else {
+                                    $result.html('<div class="alert alert-warning mb-0">No students or timetable found for this class, section, and date.</div>');
+                                }
+                            },
+                            error: function() {
+                                $result.html('<div class="alert alert-danger mb-0">Could not verify class schedule. Please try again.</div>');
+                            }
+                        });
+                    }
+
+                    $('#class_id').on('change select2:select', function() {
                         const classId = $(this).val();
                         const $sectionSelect = $('#section_id');
                         
@@ -365,7 +435,7 @@
                             
                             // Load sections for selected class
                             $.ajax({
-                                url: '/attendance/get-sections',
+                                url: '{{ route('attendance.get-sections') }}',
                                 type: 'GET',
                                 data: { class_id: classId },
                                 success: function(response) {
@@ -378,8 +448,10 @@
                                             $sectionSelect.append(`<option value="${section.id}">${section.name}</option>`);
                                         });
                                         $sectionSelect.prop('disabled', false)
-                                                    .trigger('change'); // Update Select2 UI
+                                                    .trigger('change');
+                                        refreshAttendanceAvailability();
                                     } else {
+                                        refreshAttendanceAvailability();
                                         showAlert('warning', 'No sections found for this class');
                                     }
                                 },
@@ -391,6 +463,16 @@
                                 }
                             });
                         }
+                    });
+
+                    $('#section_id').on('change select2:select', function() {
+                        $('#attendanceSection').hide();
+                        refreshAttendanceAvailability();
+                    });
+
+                    $('#attendance_date').on('change', function() {
+                        $('#attendanceSection').hide();
+                        refreshAttendanceAvailability();
                     });
                     
                     // Load students when button is clicked
@@ -407,7 +489,7 @@
                         $(this).html('<i class="fa fa-spinner fa-spin"></i> Loading...').prop('disabled', true);
                         
                         $.ajax({
-                            url: '/attendance/get-students',
+                            url: '{{ route('attendance.get-students') }}',
                             type: 'GET',
                             data: { 
                                 class_id: classId,
@@ -426,7 +508,8 @@
                                     $('#classSectionTitle').text(`${response.class.name} - ${response.section.name} (${date})`);
                                     
                                     $.each(response.students, function(index, student) {
-                                        const existingAttendance = response.existingAttendance.find(a => a.user_id == student.student_id);
+                                        const attendanceByUser = response.existingAttendance || {};
+                                        const existingAttendance = attendanceByUser[student.student_id] || attendanceByUser[String(student.student_id)];
                                         const status = existingAttendance ? existingAttendance.status : '';
                                         const remarks = existingAttendance ? existingAttendance.remarks : '';
                                         
@@ -438,23 +521,24 @@
                                             <tr class="status-${status || 'undefined'}" data-student-id="${student.student_id}">
                                                 <td>${index + 1}</td>
                                                 <td>
-                                                    <img src="${student.student_photo || '/backend/img/student-default.png'}" 
-                                                        alt="${student.student.name}" class="student-photo">
+                                                    <img src="${studentPhotoUrl(student.student?.profile_pic, student.photo_url)}"
+                                                        alt="${student.student ? student.student.name : ''}" class="student-photo"
+                                                        onerror="this.src='${DEFAULT_PHOTO}'">
                                                 </td>
                                                 <td>${student.student.name}</td>
                                                 <td>${student.admission_no}</td>
                                                 <td>
-                                                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                                                        <label class="btn btn-sm btn-outline-success attendance-status-btn ${status === 'present' ? 'active' : ''}">
-                                                            <input type="radio" name="attendance_${student.student_id}" 
+                                                    <div class="btn-group" data-toggle="buttons">
+                                                        <label class="btn btn-sm attendance-btn-present ${status === 'present' ? 'active' : ''}">
+                                                            <input type="radio" name="attendance_${student.student_id}"
                                                                 value="present" ${status === 'present' ? 'checked' : ''}> Present
                                                         </label>
-                                                        <label class="btn btn-sm btn-outline-danger attendance-status-btn ${status === 'absent' ? 'active' : ''}">
-                                                            <input type="radio" name="attendance_${student.student_id}" 
+                                                        <label class="btn btn-sm attendance-btn-absent ${status === 'absent' ? 'active' : ''}">
+                                                            <input type="radio" name="attendance_${student.student_id}"
                                                                 value="absent" ${status === 'absent' ? 'checked' : ''}> Absent
                                                         </label>
-                                                        <label class="btn btn-sm btn-outline-warning attendance-status-btn ${status === 'late' ? 'active' : ''}">
-                                                            <input type="radio" name="attendance_${student.student_id}" 
+                                                        <label class="btn btn-sm attendance-btn-late ${status === 'late' ? 'active' : ''}">
+                                                            <input type="radio" name="attendance_${student.student_id}"
                                                                 value="late" ${status === 'late' ? 'checked' : ''}> Late
                                                         </label>
                                                     </div>
@@ -593,7 +677,7 @@
                         btn.html('<i class="fa fa-spinner fa-spin"></i> Saving...').prop('disabled', true);
                         
                         $.ajax({
-                            url: '/attendance/save',
+                            url: '{{ route('attendance.store') }}',
                             type: 'POST',
                             data: {
                                 _token: '{{ csrf_token() }}',
@@ -610,7 +694,7 @@
                                 showAlert('success', response.message);
                                 
                                 if (status === 'submitted') {
-                                    window.location.href = '/attendance';
+                                    window.location.href = '{{ route('admin.attendance.index') }}';
                                 }
                             },
                             error: function(xhr) {
@@ -619,48 +703,6 @@
                             }
                         });
                     }
-                });
-                // check is there any class on this day
-                $(document).ready(function() {
-                    $('#attendance_date').change(function() {
-
-                        var classId = $('#class_id').val();
-                        var sectionId = $('#section_id').val();
-                        var selectedDate = $(this).val();
-                        
-                        // Clear previous result
-                        $('#class_check_result').html('');
-                        $('#loadStudentsBtn').prop('disabled', true);
-
-                        
-                        // Make Ajax request
-                        $.ajax({
-                            url: '/check-classes', // Replace with your actual endpoint
-                            type: 'GET',
-                            data: {
-                                class_id     : classId,
-                                section_id   : sectionId,
-                                date        : selectedDate
-                            },
-                            dataType: 'json',
-                            success: function(response) {
-                                if(response.has_classes) {
-                                    $('#loadStudentsBtn').prop('disabled', false);
-
-                                    $('#class_check_result').html('<div class="alert alert-success">Classes are scheduled for this date.</div>');
-                                } else {
-                                    $('#loadStudentsBtn').prop('disabled', true);
-
-                                    $('#class_check_result').html('<div class="alert alert-warning">No classes found for this date or class.</div>');
-                                }
-                            },
-                            error: function(xhr) {
-                                $('#loadStudentsBtn').prop('disabled', true);
-
-                                $('#class_check_result').html('<div class="alert alert-danger">Error checking classes.</div>');
-                            }
-                        });
-                    });
                 });
             </script>
         @endpush

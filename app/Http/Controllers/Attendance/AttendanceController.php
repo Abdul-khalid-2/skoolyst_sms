@@ -19,6 +19,16 @@ use Illuminate\Support\Facades\DB;
 
 class AttendanceController extends Controller
 {
+    private function branchId(): ?int
+    {
+        return Auth::user()?->branch_id ?? Branch::query()->value('id');
+    }
+
+    private function dayOfWeekFromDate(string $date): string
+    {
+        return date('l', strtotime($date));
+    }
+
     public function index()
     {
         $today = now()->format('Y-m-d');
@@ -277,15 +287,16 @@ class AttendanceController extends Controller
      */
     public function getSections(Request $request)
     {
-        $classId = $request->input('class_id');
+        $request->validate([
+            'class_id' => 'required|exists:classes,id',
+        ]);
 
-        $sections = Section::where('class_id', $classId)
-            ->where('branch_id', auth()->user()->branch_id)
+        $sections = Section::where('class_id', $request->input('class_id'))
             ->orderBy('name')
-            ->get();
+            ->get(['id', 'name']);
 
         return response()->json([
-            'sections' => $sections
+            'sections' => $sections,
         ]);
     }
 
@@ -326,13 +337,19 @@ class AttendanceController extends Controller
         $class = Classes::findOrFail($classId);
         $section = Section::findOrFail($sectionId);
 
-        // Get students in this class/section
         $students = StudentProfile::with(['student'])
             ->where('class_id', $classId)
             ->where('section_id', $sectionId)
-            // ->where('branch_id', auth()->user()->branch_id)
             ->orderBy('admission_no')
-            ->get();
+            ->get()
+            ->map(function (StudentProfile $profile) {
+                $profilePic = $profile->student?->profile_pic;
+                $profile->photo_url = $profilePic
+                    ? asset('assets/'.$profilePic)
+                    : asset('backend/img/profile/1.jpg');
+
+                return $profile;
+            });
 
         // Get existing attendance for this date if any
         $existingAttendance = [];
@@ -340,12 +357,13 @@ class AttendanceController extends Controller
         // Find timetable entry if this is subject-wise attendance
         $timetableId = null;
         if ($subjectId) {
-            $dayOfWeek = strtolower(date('l', strtotime($date)));
+            $branchId = $this->branchId();
+            $dayOfWeek = $this->dayOfWeekFromDate($date);
             $timetable = TimeTable::where('class_id', $classId)
                 ->where('section_id', $sectionId)
                 ->where('subject_id', $subjectId)
                 ->where('day_of_week', $dayOfWeek)
-                ->where('branch_id', auth()->user()->branch_id)
+                ->when($branchId, fn ($query) => $query->where('branch_id', $branchId))
                 ->first();
 
             $timetableId = $timetable ? $timetable->id : null;
@@ -389,27 +407,30 @@ class AttendanceController extends Controller
 
         try {
 
-            $branchId = auth()->user()->branch_id ?? Branch::query()->value('id');
+            $branchId = $this->branchId();
+
+            if (! $branchId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Branch is not configured. Please contact the administrator.',
+                ], 422);
+            }
+
             $classId = $request->input('class_id');
             $sectionId = $request->input('section_id');
             $date = $request->input('date');
             $subjectId = $request->input('subject_id');
-            // $sessionType = $request->input('session_type');
             $status = $request->input('status');
             $attendanceData = $request->input('attendance');
 
-            // Find timetable entry if this is subject-wise attendance
-            $timetableId = null;
-
-            $dayOfWeek = strtolower(date('l', strtotime($date)));
+            $dayOfWeek = $this->dayOfWeekFromDate($date);
             $timetable = TimeTable::where('class_id', $classId)
                 ->where('section_id', $sectionId)
-                // ->where('subject_id', $subjectId)
                 ->where('day_of_week', $dayOfWeek)
-                ->where('branch_id', $branchId)
+                ->when($branchId, fn ($query) => $query->where('branch_id', $branchId))
                 ->first();
 
-            $timetableId = $timetable ? $timetable->id : null;
+            $timetableId = $timetable?->id;
             // Create or update attendance session
             $session = AttendanceSession::updateOrCreate(
                 [
@@ -433,11 +454,12 @@ class AttendanceController extends Controller
                 Attendance::updateOrCreate(
                     [
                         'session_id' => $session->id,
-                        'user_id' => $studentAttendance['student_id']
+                        'user_id' => $studentAttendance['student_id'],
                     ],
                     [
+                        'branch_id' => $branchId,
                         'status' => $studentAttendance['status'],
-                        'remarks' => $studentAttendance['remarks'] ?? null
+                        'remarks' => $studentAttendance['remarks'] ?? null,
                     ]
                 );
             }
@@ -462,33 +484,48 @@ class AttendanceController extends Controller
      */
     private function getTimetableId($classId, $sectionId, $subjectId, $date)
     {
-        $dayOfWeek = strtolower(date('l', strtotime($date)));
+        $branchId = $this->branchId();
+        $dayOfWeek = $this->dayOfWeekFromDate($date);
 
         $timetable = TimeTable::where('class_id', $classId)
             ->where('section_id', $sectionId)
             ->where('subject_id', $subjectId)
             ->where('day_of_week', $dayOfWeek)
-            // ->where('branch_id', auth()->user()->branch_id)
+            ->when($branchId, fn ($query) => $query->where('branch_id', $branchId))
             ->first();
 
-        return $timetable ? $timetable->id : null;
+        return $timetable?->id;
     }
 
     public function checkClasses(Request $request)
     {
+        $request->validate([
+            'date' => 'required|date',
+            'class_id' => 'required|exists:classes,id',
+            'section_id' => 'required|exists:sections,id',
+        ]);
+
         $date = $request->input('date');
         $classId = $request->input('class_id');
         $sectionId = $request->input('section_id');
+        $branchId = $this->branchId();
+        $dayOfWeek = $this->dayOfWeekFromDate($date);
 
-        $dayOfWeek = strtolower(date('l', strtotime($date)));
+        $hasTimetable = TimeTable::where('day_of_week', $dayOfWeek)
+            ->where('class_id', $classId)
+            ->where('section_id', $sectionId)
+            ->when($branchId, fn ($query) => $query->where('branch_id', $branchId))
+            ->exists();
 
-        // Query your timetable to check for classes on this date
-        $hasClasses = Timetable::where('day_of_week', $dayOfWeek)
-            ->where('class_id', $classId)->where('section_id', $sectionId)->exists();
+        $hasStudents = StudentProfile::where('class_id', $classId)
+            ->where('section_id', $sectionId)
+            ->exists();
 
         return response()->json([
-            'has_classes' => $hasClasses,
-            'date' => $date
+            'has_classes' => $hasTimetable || $hasStudents,
+            'has_timetable' => $hasTimetable,
+            'has_students' => $hasStudents,
+            'date' => $date,
         ]);
     }
 

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ProfileUpdateRequest;
 use App\Models\Setting;
 use App\Models\User;
+use Spatie\Permission\Models\Role;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,9 +22,10 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
-        $user = User::find(auth()->user()->id);
+        $user  = User::find(auth()->user()->id);
+        $roles = Role::orderBy('name')->get();
 
-        return view('app.profile.edit', compact('user'));
+        return view('app.profile.edit', compact('user', 'roles'));
     }
 
     /**

@@ -48,21 +48,26 @@ class TimetableController extends Controller
 
                     if ($entry->is_break) {
                         $periods[$periodName][$day] = [
+                            'id' => $entry->id,
                             'event' => $entry->break_name,
                             'start' => \Carbon\Carbon::parse($entry->start_time)->format('h:i A'),
                             'end' => \Carbon\Carbon::parse($entry->end_time)->format('h:i A'),
-                            'room' => $entry->room_number
+                            'start_raw' => \Carbon\Carbon::parse($entry->start_time)->format('H:i'),
+                            'end_raw' => \Carbon\Carbon::parse($entry->end_time)->format('H:i'),
+                            'room' => $entry->room_number,
                         ];
                     } else {
                         $periods[$periodName][$day] = [
+                            'id' => $entry->id,
                             'teacher' => $entry->teacher->name ?? 'N/A',
-                            'teacher_id' => $entry->teacher->id ?? 'N/A',
+                            'teacher_id' => $entry->teacher->id ?? null,
                             'subject' => $entry->subject->name ?? 'N/A',
-                            'subject_id' => $entry->subject->id ?? 'N/A',
+                            'subject_id' => $entry->subject->id ?? null,
                             'start' => \Carbon\Carbon::parse($entry->start_time)->format('h:i A'),
                             'end' => \Carbon\Carbon::parse($entry->end_time)->format('h:i A'),
-
-                            'room' => $entry->room_number
+                            'start_raw' => \Carbon\Carbon::parse($entry->start_time)->format('H:i'),
+                            'end_raw' => \Carbon\Carbon::parse($entry->end_time)->format('H:i'),
+                            'room' => $entry->room_number,
                         ];
                     }
                 }
@@ -216,9 +221,141 @@ class TimetableController extends Controller
     public function edit($id) {}
 
 
-    public function update(Request $request, $id) {}
+    public function update(Request $request, $id)
+    {
+        $request->merge(['entry_id' => $id]);
+
+        return $this->update_schedule($request);
+    }
 
     public function destroy($id) {}
+
+    private function validateScheduleTimes(string $start, string $end): void
+    {
+        $startMinutes = ((int) substr($start, 0, 2) * 60) + (int) substr($start, 3, 2);
+        $endMinutes = ((int) substr($end, 0, 2) * 60) + (int) substr($end, 3, 2);
+
+        if ($endMinutes <= $startMinutes) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'end' => ['End time must be at least 1 minute after start time.'],
+            ]);
+        }
+    }
+
+    private function buildSchedulePayload(Request $request, bool $isBreak): array
+    {
+        $request->merge([
+            'subject' => $request->input('subject') ?: null,
+            'teacher' => $request->input('teacher') ?: null,
+            'event' => $request->input('event') ?: null,
+            'room' => $request->input('room') ?: null,
+        ]);
+
+        $validated = $request->validate([
+            'class_id' => 'required|exists:classes,id',
+            'section_id' => 'required|exists:sections,id',
+            'day' => 'required|string|max:20',
+            'period' => 'required|string|max:50',
+            'type' => 'required|in:class,event',
+            'subject' => 'nullable|exists:subjects,id',
+            'teacher' => 'nullable|exists:users,id',
+            'event' => 'nullable|string|max:255',
+            'start' => 'required|date_format:H:i',
+            'end' => 'required|date_format:H:i',
+            'room' => 'nullable|string|max:20',
+        ]);
+
+        $this->validateScheduleTimes($validated['start'], $validated['end']);
+
+        if ($isBreak && empty($validated['event'])) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'event' => ['Event label is required for break/event schedules.'],
+            ]);
+        }
+
+        if (! $isBreak && (empty($validated['subject']) || empty($validated['teacher']))) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'subject' => ['Subject and teacher are required for class schedules.'],
+            ]);
+        }
+
+        $branchId = auth()->user()->branch_id ?? Branch::first()?->id;
+
+        return [
+            'branch_id' => $branchId,
+            'class_id' => $validated['class_id'],
+            'section_id' => $validated['section_id'],
+            'day_of_week' => $validated['day'],
+            'period_name' => $validated['period'],
+            'start_time' => $validated['start'],
+            'end_time' => $validated['end'],
+            'room_number' => $validated['room'] ?? null,
+            'is_break' => $isBreak ? 1 : 0,
+            'break_name' => $isBreak ? $validated['event'] : null,
+            'subject_id' => $isBreak ? null : $validated['subject'],
+            'teacher_id' => $isBreak ? null : $validated['teacher'],
+            'is_recurring' => true,
+        ];
+    }
+
+    public function update_schedule(Request $request)
+    {
+        $validated = $request->validate([
+            'entry_id' => 'required|exists:time_tables,id',
+        ]);
+
+        $branchId = auth()->user()->branch_id ?? Branch::first()?->id;
+        $entry = TimeTable::where('branch_id', $branchId)->findOrFail($validated['entry_id']);
+        $isBreak = $request->input('type') === 'event';
+
+        $payload = $this->buildSchedulePayload($request, $isBreak);
+        $entry->update($payload);
+
+        if (! $isBreak) {
+            $this->syncTeacherSubject(
+                (int) $payload['class_id'],
+                (int) $payload['subject_id'],
+                (int) $payload['teacher_id']
+            );
+        }
+
+        return response()->json([
+            'message' => 'Schedule updated successfully',
+            'data' => $entry->fresh(['subject', 'teacher']),
+        ]);
+    }
+
+    private function syncTeacherSubject(int $classId, ?int $subjectId, ?int $teacherId): void
+    {
+        if (! $subjectId || ! $teacherId) {
+            return;
+        }
+
+        $teacherSubject = TeacherSubject::where([
+            'subject_id' => $subjectId,
+            'teacher_id' => $teacherId,
+        ])->first();
+
+        if ($teacherSubject) {
+            if ($teacherSubject->class_id === null || $teacherSubject->class_id == $classId) {
+                $teacherSubject->update(['class_id' => $classId]);
+            } else {
+                TeacherSubject::create([
+                    'class_id' => $classId,
+                    'subject_id' => $subjectId,
+                    'teacher_id' => $teacherId,
+                ]);
+            }
+
+            return;
+        }
+
+        TeacherSubject::create([
+            'class_id' => $classId,
+            'subject_id' => $subjectId,
+            'teacher_id' => $teacherId,
+        ]);
+    }
 
 
     public function create_schedule()
@@ -233,26 +370,20 @@ class TimetableController extends Controller
 
     public function store_schedule(Request $request)
     {
-        $isBreak = isset($request->is_break) ? 1 : 0;
-        $branchId = auth()->user()->branch_id ?? Branch::first()?->id;
-        $timetable = [
-            'branch_id'     => $branchId,
-            'class_id'      =>    $request->class_id ?? "",
-            'section_id'    =>    $request->section_id ?? "",
-            'subject_id'    =>    $request->subject ?? "",
-            'teacher_id'    =>    $request->teacher ?? "",
-            'day_of_week'   =>    $request->day ?? "",
-            'period_name'   =>    $request->period ?? "",
-            'start_time'    =>    $request->start ?? "",
-            'end_time'      =>    $request->end ?? "",
-            'room_number'   =>    $request->room ?? "",
-            'is_break'      =>    $isBreak,
-            'break_name'    =>    null,
-            'is_recurring'  =>    false,
-        ];
-        $data = TimeTable::create($timetable);
+        $isBreak = $request->input('type') === 'event';
+        $payload = $this->buildSchedulePayload($request, $isBreak);
+        $data = TimeTable::create($payload);
+
+        if (! $isBreak) {
+            $this->syncTeacherSubject(
+                (int) $payload['class_id'],
+                (int) $payload['subject_id'],
+                (int) $payload['teacher_id']
+            );
+        }
+
         return response()->json([
-            'message' => 'schedul added successfull',
+            'message' => 'Schedule added successfully',
             'data' => $data,
         ]);
     }
