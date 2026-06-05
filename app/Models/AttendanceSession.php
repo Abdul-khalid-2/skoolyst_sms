@@ -11,9 +11,12 @@ class AttendanceSession extends Model
     protected $fillable = [
         'branch_id',
         'time_table_id',
+        'class_id',
+        'section_id',
         'date',
         'recorded_by',
-        'notes'
+        'notes',
+        'status',
     ];
 
     // Relationships

@@ -37,34 +37,10 @@
     <div class="advanced-form-area mg-b-15">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                    <div class="breadcome-list">
-                        <div class="row">
-                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                <div class="breadcome-heading" style="margin-top: 10px">
-                                    <h3>Update Teacher Information</h3>
-                                </div>
-                            </div>
-                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                <div class="action-buttons">
-                                    <a href="{{ route('dashboard.teachers') }}" class="btn btn-primary btn-sm" style="color: white">
-                                            <i class="fa fa-arrow-left"></i> Back
-                                        </a>
-                                </div>
-                                <div class="dropdown-container">
-                                    <button class="dropdown-toggle-custom">
-                                        <i class="fa fa-ellipsis-v"></i>
-                                    </button>
-                                    <div class="dropdown-menu-custom">
-                                        <a href="{{ route('dashboard.teachers') }}" class="btn btn-primary btn-sm" style="color: white">
-                                            <i class="fa fa-arrow-left"></i> Back
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <x-page-header
+                    title="Update Teacher Information"
+                    :back-route="route('dashboard.teachers')"
+                />
                 
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                     <div class="sparkline12-list">

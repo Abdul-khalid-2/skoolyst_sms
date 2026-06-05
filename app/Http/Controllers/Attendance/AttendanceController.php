@@ -369,9 +369,9 @@ class AttendanceController extends Controller
             $timetableId = $timetable ? $timetable->id : null;
         }
 
-        $session = AttendanceSession::where('time_table_id', $timetableId)
-            ->whereDate('date', $date)
-            ->first();
+        $session = $timetableId
+            ? AttendanceSession::where('time_table_id', $timetableId)->whereDate('date', $date)->first()
+            : AttendanceSession::whereNull('time_table_id')->where('class_id', $classId)->where('section_id', $sectionId)->whereDate('date', $date)->first();
 
         if ($session) {
             $existingAttendance = $session->attendances()
@@ -431,19 +431,37 @@ class AttendanceController extends Controller
                 ->first();
 
             $timetableId = $timetable?->id;
-            // Create or update attendance session
-            $session = AttendanceSession::updateOrCreate(
-                [
-                    'branch_id' => $branchId,
-                    'time_table_id' => $timetableId,
-                    'date' => $date,
-                ],
-                [
-                    'recorded_by'   => auth()->id(),
-                    'notes'         => "Full day",
-                    'status'        => $status === 'submitted' ? 'submitted' : 'draft'
-                ]
-            );
+            $sessionStatus = $status === 'submitted' ? 'submitted' : 'draft';
+
+            // When a timetable exists, match on it; otherwise match on class+section+date
+            if ($timetableId) {
+                $session = AttendanceSession::updateOrCreate(
+                    ['branch_id' => $branchId, 'time_table_id' => $timetableId, 'date' => $date],
+                    ['recorded_by' => auth()->id(), 'class_id' => $classId, 'section_id' => $sectionId, 'notes' => 'Full day', 'status' => $sessionStatus]
+                );
+            } else {
+                $session = AttendanceSession::where('branch_id', $branchId)
+                    ->whereNull('time_table_id')
+                    ->where('class_id', $classId)
+                    ->where('section_id', $sectionId)
+                    ->whereDate('date', $date)
+                    ->first();
+
+                if ($session) {
+                    $session->update(['recorded_by' => auth()->id(), 'notes' => 'Full day', 'status' => $sessionStatus]);
+                } else {
+                    $session = AttendanceSession::create([
+                        'branch_id'   => $branchId,
+                        'time_table_id' => null,
+                        'class_id'    => $classId,
+                        'section_id'  => $sectionId,
+                        'date'        => $date,
+                        'recorded_by' => auth()->id(),
+                        'notes'       => 'Full day',
+                        'status'      => $sessionStatus,
+                    ]);
+                }
+            }
 
             // Process each student's attendance
             foreach ($attendanceData as $studentAttendance) {
