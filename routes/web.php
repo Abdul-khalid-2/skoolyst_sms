@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\SubjectController;
 use App\Http\Controllers\Admin\TeacherController;
 use App\Http\Controllers\App\ProfileController;
 use App\Http\Controllers\App\UserController;
+use App\Http\Controllers\Student\ProfileController as StudentProfileController;
 use App\Http\Controllers\Attendance\AttendanceController as SessionAttendanceController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\SettingController;
@@ -278,6 +279,7 @@ Route::middleware(['auth', 'verified', 'scope.branch', 'role:teacher'])->group(f
 });
 
 Route::middleware(['auth', 'verified', 'scope.branch', 'role:student'])->group(function () {
+    Route::get('/student/profile', [StudentProfileController::class, 'index'])->name('student.profile');
     Route::get('/student/timetable', [TimetableController::class, 'index'])->name('student.timetable');
     Route::get('/student/attendance', fn () => response()->json(['message' => 'Student attendance']))->name('student.attendance');
     Route::get('/student/results', fn () => response()->json(['message' => 'Student results']))->name('student.results');

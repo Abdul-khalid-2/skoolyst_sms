@@ -318,13 +318,13 @@
                 <ul class="metismenu" id="menu1">
                     <li><h6 style="color: rgb(95, 95, 95);padding-left:20px" class="mini-click-non">Student Panel</h6></li>
                     <li>
-                        <a title="Dashboard" href="" aria-expanded="false">
+                        <a title="Dashboard" href="{{ route('dashboard') }}" aria-expanded="false">
                             <span class="icon-wrap sub-icon-mg"><i class="fa fa-tachometer" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> Dashboard</span>
                         </a>
                     </li>
                     <li>
-                        <a title="My Profile" href="" aria-expanded="false">
+                        <a title="My Profile" href="{{ route('student.profile') }}" aria-expanded="false">
                             <span class="icon-wrap sub-icon-mg"><i class="fa fa-id-card" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> My Profile</span>
                         </a>
