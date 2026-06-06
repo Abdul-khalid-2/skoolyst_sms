@@ -31,6 +31,8 @@ class SidebarSettingsSeeder extends Seeder
             ['holidays',          'Holidays',          'fa fa-calendar',        'holidays.index',               11, ['super-admin', 'admin']],
             ['reports',           'Reports',           'fa fa-bar-chart',       'reports.index',                12, ['super-admin', 'admin']],
             ['settings',          'Platform Settings', 'fa fa-cog',             'admin.platform.index',         13, ['super-admin']],
+            ['branches',          'Branches',          'fa fa-sitemap',         'admin.branches.index',         14, ['super-admin']],
+            ['branch_settings',   'Branch Settings',   'fa fa-building',        'branch.settings',              15, ['admin']],
 
             // ── Student panel ───────────────────────────────────────────
             ['student_profile',    'My Profile',    'fa fa-id-card',           'student.profile',    20, ['student']],

@@ -155,6 +155,22 @@
                         </a>
                     </li>
                     @endif
+                    @if(auth()->user()->hasRole('super-admin') && $canSee('branches'))
+                    <li>
+                        <a title="Branches" href="{{ route('admin.branches.index') }}" aria-expanded="false">
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-sitemap" aria-hidden="true"></i></span>
+                            <span class="mini-click-non">Branches</span>
+                        </a>
+                    </li>
+                    @endif
+                    @if(auth()->user()->hasRole('admin') && $canSee('branch_settings'))
+                    <li>
+                        <a title="Branch Settings" href="{{ route('branch.settings') }}" aria-expanded="false">
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-building" aria-hidden="true"></i></span>
+                            <span class="mini-click-non">Branch Settings</span>
+                        </a>
+                    </li>
+                    @endif
 
                     <!-- Common Features -->
                     <li><h6 style="color: rgb(95, 95, 95);padding-left:20px" class="mini-click-non">Common Features</h6></li>

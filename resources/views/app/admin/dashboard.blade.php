@@ -106,7 +106,7 @@
                             @else
                                 <div class="progress m-b-0">
                                     <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="50"
-                                        aria-valuemin="0" aria-valuemax="100" style="width:{{ ($numberOfStudent / $section) * 100 }}%"> 
+                                        aria-valuemin="0" aria-valuemax="100" style="width:{{ $section > 0 ? ($numberOfStudent / $section) * 100 : 0 }}%"> 
                                         <span
                                             class="sr-only">20% Complete
                                         </span> 
@@ -178,7 +178,7 @@
                                 </div>
                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <div class="actions graph-rp graph-rp-dl">
-                                        <p>All Earnings are in million $</p>
+                                        <p>Earnings Graph</p>
                                     </div>
                                 </div>
                             </div>

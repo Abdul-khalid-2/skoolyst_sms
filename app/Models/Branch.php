@@ -23,4 +23,9 @@ class Branch extends Model
     {
         return $this->hasMany(User::class);
     }
+
+    public function admins(): HasMany
+    {
+        return $this->hasMany(User::class)->where('role', 'admin');
+    }
 }

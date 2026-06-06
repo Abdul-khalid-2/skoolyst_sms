@@ -20,7 +20,8 @@ use App\Http\Controllers\Teacher\ProfileController as TeacherProfileController;
 use App\Http\Controllers\Teacher\StudentController as TeacherStudentController;
 use App\Http\Controllers\Teacher\AttendanceController as TeacherAttendanceController;
 use App\Http\Controllers\Attendance\AttendanceController as SessionAttendanceController;
-use App\Http\Controllers\BranchController;
+use App\Http\Controllers\Admin\BranchController as AdminBranchController;
+use App\Http\Controllers\Admin\BranchSettingsController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SidebarSettingController;
 use App\Http\Controllers\Platform\PlatformSettingController;
@@ -63,7 +64,7 @@ Route::middleware(['auth', 'verified', 'scope.branch', 'role:super-admin'])->pre
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
     Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
 
-    Route::apiResource('branches', BranchController::class);
+    Route::resource('branches', AdminBranchController::class)->except(['show']);
 
     Route::get('/sidebar-settings', [SidebarSettingController::class, 'index'])->name('sidebar.index');
     Route::put('/sidebar-settings/{sidebarSetting}', [SidebarSettingController::class, 'update'])->name('sidebar.update');
@@ -277,7 +278,8 @@ Route::middleware(['auth', 'verified', 'scope.branch', 'role:super-admin|admin']
         Route::get('/library',    [ReportController::class, 'library'])->name('library');
         Route::get('/inventory',  [ReportController::class, 'inventory'])->name('inventory');
     });
-    Route::get('/branch-settings', fn () => response()->json(['message' => 'Branch settings']))->name('branch.settings');
+    Route::get('/branch-settings', [BranchSettingsController::class, 'edit'])->name('branch.settings');
+    Route::put('/branch-settings', [BranchSettingsController::class, 'update'])->name('branch.settings.update');
     Route::get('/notifications', fn () => response()->json(['message' => 'Notifications']))->name('notifications.index');
 
     Route::resource('user', UserController::class);
