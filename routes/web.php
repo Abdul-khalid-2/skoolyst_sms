@@ -14,6 +14,7 @@ use App\Http\Controllers\Attendance\AttendanceController as SessionAttendanceCon
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SidebarSettingController;
+use App\Http\Controllers\Platform\PlatformSettingController;
 use App\Http\Controllers\Report\ReportController;
 use App\Http\Controllers\Holiday\HolidayController;
 use App\Http\Controllers\Notice\NoticeController;
@@ -58,6 +59,16 @@ Route::middleware(['auth', 'verified', 'scope.branch', 'role:super-admin'])->pre
 
     Route::get('/sidebar-settings', [SidebarSettingController::class, 'index'])->name('sidebar.index');
     Route::put('/sidebar-settings/{sidebarSetting}', [SidebarSettingController::class, 'update'])->name('sidebar.update');
+
+    // ── Platform Settings (roles, permissions, feature gates) ────────────────
+    Route::prefix('platform-settings')->name('platform.')->group(function () {
+        Route::get('/',                  [PlatformSettingController::class, 'index'])->name('index');
+        Route::get('/features',          [PlatformSettingController::class, 'features'])->name('features');
+        Route::put('/features',          [PlatformSettingController::class, 'featuresUpdate'])->name('features.update');
+        Route::get('/permissions',       [PlatformSettingController::class, 'permissions'])->name('permissions');
+        Route::put('/permissions',       [PlatformSettingController::class, 'permissionsUpdate'])->name('permissions.update');
+        Route::get('/roles',             [PlatformSettingController::class, 'roles'])->name('roles');
+    });
 });
 
 Route::middleware(['auth', 'verified', 'scope.branch', 'role:super-admin|admin'])->group(function () {

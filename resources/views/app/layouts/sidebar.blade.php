@@ -119,12 +119,14 @@
                             <span class="mini-click-non">Reports</span>
                         </a>
                     </li>
+                    @if(auth()->user()->hasRole('super-admin'))
                     <li>
-                        <a title="Settings" href="javascript:void(0)" aria-expanded="false">
+                        <a title="Platform Settings" href="{{ route('admin.platform.index') }}" aria-expanded="false">
                             <span class="icon-wrap sub-icon-mg"><i class="fa fa-cog" aria-hidden="true"></i></span>
                             <span class="mini-click-non">Settings</span>
                         </a>
                     </li>
+                    @endif
 
                     <!-- Common Features -->
                     <li><h6 style="color: rgb(95, 95, 95);padding-left:20px" class="mini-click-non">Common Features</h6></li>

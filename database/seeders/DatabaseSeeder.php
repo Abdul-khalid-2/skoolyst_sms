@@ -17,6 +17,8 @@ class DatabaseSeeder extends Seeder
             Role::firstOrCreate(['name' => $role]);
         }
 
+        $this->call(PermissionsSeeder::class);
+
         $mainBranch = Branch::firstOrCreate(
             ['email' => 'main@skoolyst.com'],
             [
