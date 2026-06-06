@@ -45,6 +45,67 @@
                 </div>
             </div>
 
+            <div class="col-lg-4 col-md-10 col-sm-12 col-xs-12">
+
+                {{-- Tips card --}}
+                <div class="sparkline12-list" style="margin-bottom: 20px;">
+                    <div class="sparkline12-graph">
+                        <div class="basic-login-form-ad">
+                            <h5 style="margin-top:0; color:#3c8dbc;">
+                                <i class="fa fa-lightbulb-o"></i> What is a fee category?
+                            </h5>
+                            <p style="color:#555; font-size:13px; line-height:1.7;">
+                                A fee category is a <strong>type of charge</strong> your school collects.
+                                Categories are the building blocks you later attach amounts to when
+                                creating <strong>fee structures</strong>.
+                            </p>
+                            <ol style="padding-left: 18px; line-height: 1.9; color: #555; font-size: 13px;">
+                                <li>Give the category a clear <strong>name</strong> (e.g. Tuition Fee).</li>
+                                <li>Add an optional <strong>description</strong> to explain what it covers.</li>
+                                <li>Click <strong>Save Category</strong>.</li>
+                                <li>Next, create a <strong>Fee Structure</strong> that assigns an amount to this category for a class.</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Example card --}}
+                <div class="sparkline12-list">
+                    <div class="sparkline12-graph">
+                        <div class="basic-login-form-ad">
+                            <h5 style="margin-top:0; color:#3c8dbc;">
+                                <i class="fa fa-list-ul"></i> Common examples
+                            </h5>
+                            <table class="table table-condensed table-bordered" style="font-size: 12px; margin-bottom: 0;">
+                                <tbody>
+                                    <tr>
+                                        <th style="width:42%; background:#f5f5f5;">Tuition Fee</th>
+                                        <td>Monthly / term teaching charges.</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="background:#f5f5f5;">Transport Fee</th>
+                                        <td>School bus / van service.</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="background:#f5f5f5;">Admission Fee</th>
+                                        <td>One-time enrolment charge.</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="background:#f5f5f5;">Exam Fee</th>
+                                        <td>Per-exam assessment charge.</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="background:#f5f5f5;">Library Fee</th>
+                                        <td>Library membership / books.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
         </div>
     </div>
 </x-tenant-app-layout>

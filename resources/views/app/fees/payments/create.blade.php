@@ -9,7 +9,7 @@
 
             <x-page-header title="Record Fee Payment" :back-route="route('fees.payments.index')" />
 
-            <div class="col-lg-10 col-md-12 col-sm-12 col-xs-12">
+            <div class="col-lg-8 col-md-12 col-sm-12 col-xs-12">
                 <div class="sparkline12-list">
                     <div class="sparkline12-graph">
                         <div class="basic-login-form-ad">
@@ -156,6 +156,108 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <div class="col-lg-4 col-md-12 col-sm-12 col-xs-12">
+
+                {{-- Steps card --}}
+                <div class="sparkline12-list" style="margin-bottom: 20px;">
+                    <div class="sparkline12-graph">
+                        <div class="basic-login-form-ad">
+                            <h5 style="margin-top:0; color:#3c8dbc;">
+                                <i class="fa fa-lightbulb-o"></i> How to record a payment
+                            </h5>
+                            <ol style="padding-left: 18px; line-height: 1.9; color: #555; font-size: 13px;">
+                                <li>Select the <strong>Class</strong> to filter students, then pick the <strong>Student</strong>.</li>
+                                <li>Choose the <strong>Fee Structure</strong> — the amount fills in automatically.</li>
+                                <li>Apply a <strong>Discount</strong> if applicable; the <em>Net Payable</em> updates instantly.</li>
+                                <li>Set the <strong>Due Date</strong> for this invoice.</li>
+                                <li>Set the <strong>Status</strong>: <em>Pending</em> for an unpaid invoice, <em>Paid</em> once settled, <em>Partial</em> if only part was paid.</li>
+                                <li>Select the <strong>Payment Method</strong> and enter a <strong>Transaction Reference</strong> (cheque no., TXN ID, etc.).</li>
+                                <li>Add optional <strong>Notes</strong>, then click <strong>Save Payment</strong>.</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Example card --}}
+                <div class="sparkline12-list" style="margin-bottom: 20px;">
+                    <div class="sparkline12-graph">
+                        <div class="basic-login-form-ad">
+                            <h5 style="margin-top:0; color:#3c8dbc;">
+                                <i class="fa fa-file-text-o"></i> Example
+                            </h5>
+                            <table class="table table-condensed table-bordered" style="font-size: 12px; margin-bottom: 0;">
+                                <tbody>
+                                    <tr>
+                                        <th style="width:45%; background:#f5f5f5;">Student</th>
+                                        <td>Ahmed Raza — Class 8</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="background:#f5f5f5;">Fee Structure</th>
+                                        <td>Monthly Tuition Fee</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="background:#f5f5f5;">Amount</th>
+                                        <td>PKR 5,000.00</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="background:#f5f5f5;">Discount</th>
+                                        <td>PKR 500.00</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="background:#f5f5f5;">Net Payable</th>
+                                        <td><strong>PKR 4,500.00</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <th style="background:#f5f5f5;">Status</th>
+                                        <td><span class="label label-success">Paid</span></td>
+                                    </tr>
+                                    <tr>
+                                        <th style="background:#f5f5f5;">Method</th>
+                                        <td>Bank Transfer</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="background:#f5f5f5;">Reference</th>
+                                        <td>TXN-20260601-001</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Status guide --}}
+                <div class="sparkline12-list">
+                    <div class="sparkline12-graph">
+                        <div class="basic-login-form-ad">
+                            <h5 style="margin-top:0; color:#3c8dbc;">
+                                <i class="fa fa-info-circle"></i> Status guide
+                            </h5>
+                            <table class="table table-condensed" style="font-size: 12px; margin-bottom: 0;">
+                                <tbody>
+                                    <tr>
+                                        <td><span class="label label-warning">Pending</span></td>
+                                        <td style="color:#555;">Invoice created, payment not yet received.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="label label-success">Paid</span></td>
+                                        <td style="color:#555;">Full amount has been collected.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="label label-info">Partial</span></td>
+                                        <td style="color:#555;">Only part of the fee has been paid.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="label label-danger">Cancelled</span></td>
+                                        <td style="color:#555;">Invoice voided — excluded from reports.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
         </div>

@@ -91,6 +91,103 @@
                 </div>
             </div>
 
+            <div class="col-lg-4 col-md-10 col-sm-12 col-xs-12">
+
+                {{-- Tips card --}}
+                <div class="sparkline12-list" style="margin-bottom: 20px;">
+                    <div class="sparkline12-graph">
+                        <div class="basic-login-form-ad">
+                            <h5 style="margin-top:0; color:#3c8dbc;">
+                                <i class="fa fa-lightbulb-o"></i> What is a fee structure?
+                            </h5>
+                            <p style="color:#555; font-size:13px; line-height:1.7;">
+                                A fee structure attaches an <strong>amount</strong> to a fee category for a
+                                particular class. It's the template used when recording student payments.
+                            </p>
+                            <ol style="padding-left: 18px; line-height: 1.9; color: #555; font-size: 13px;">
+                                <li>Give it a clear <strong>name</strong> (e.g. Monthly Tuition - Class 5).</li>
+                                <li>Pick the <strong>Fee Category</strong> it belongs to.</li>
+                                <li>Choose a <strong>Class</strong>, or leave as <em>All Classes</em> to apply school-wide.</li>
+                                <li>Enter the <strong>Amount</strong> in PKR.</li>
+                                <li>Set the <strong>Frequency</strong> (one-time, monthly, etc.) and optional <strong>Due Date</strong>.</li>
+                                <li>Click <strong>Save Structure</strong>.</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Example card --}}
+                <div class="sparkline12-list" style="margin-bottom: 20px;">
+                    <div class="sparkline12-graph">
+                        <div class="basic-login-form-ad">
+                            <h5 style="margin-top:0; color:#3c8dbc;">
+                                <i class="fa fa-file-text-o"></i> Example
+                            </h5>
+                            <table class="table table-condensed table-bordered" style="font-size: 12px; margin-bottom: 0;">
+                                <tbody>
+                                    <tr>
+                                        <th style="width:42%; background:#f5f5f5;">Name</th>
+                                        <td>Monthly Tuition - Class 5</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="background:#f5f5f5;">Category</th>
+                                        <td>Tuition Fee</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="background:#f5f5f5;">Class</th>
+                                        <td>Class 5</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="background:#f5f5f5;">Amount</th>
+                                        <td>PKR 5,000.00</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="background:#f5f5f5;">Frequency</th>
+                                        <td>Monthly</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="background:#f5f5f5;">Due Date</th>
+                                        <td>5th of each month</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Frequency guide --}}
+                <div class="sparkline12-list">
+                    <div class="sparkline12-graph">
+                        <div class="basic-login-form-ad">
+                            <h5 style="margin-top:0; color:#3c8dbc;">
+                                <i class="fa fa-info-circle"></i> Frequency guide
+                            </h5>
+                            <table class="table table-condensed" style="font-size: 12px; margin-bottom: 0;">
+                                <tbody>
+                                    <tr>
+                                        <th style="width:35%; background:#f5f5f5;">One Time</th>
+                                        <td style="color:#555;">Charged once (e.g. admission).</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="background:#f5f5f5;">Monthly</th>
+                                        <td style="color:#555;">Recurs every month.</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="background:#f5f5f5;">Quarterly</th>
+                                        <td style="color:#555;">Every three months.</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="background:#f5f5f5;">Yearly</th>
+                                        <td style="color:#555;">Once per academic year.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
         </div>
     </div>
 </x-tenant-app-layout>

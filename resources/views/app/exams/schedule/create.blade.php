@@ -101,6 +101,90 @@
                 </div>
             </div>
 
+            <div class="col-lg-4 col-md-10 col-sm-12 col-xs-12">
+
+                {{-- Tips card --}}
+                <div class="sparkline12-list" style="margin-bottom: 20px;">
+                    <div class="sparkline12-graph">
+                        <div class="basic-login-form-ad">
+                            <h5 style="margin-top:0; color:#3c8dbc;">
+                                <i class="fa fa-lightbulb-o"></i> How to add a schedule entry
+                            </h5>
+                            <ol style="padding-left: 18px; line-height: 1.9; color: #555; font-size: 13px;">
+                                <li>Select the <strong>Class</strong> that will sit this paper.</li>
+                                <li>Choose the <strong>Subject</strong> being examined.</li>
+                                <li>Pick the <strong>Exam Date</strong> — must fall within <em>{{ \Carbon\Carbon::parse($exam->start_date)->format('d M Y') }} – {{ \Carbon\Carbon::parse($exam->end_date)->format('d M Y') }}</em>.</li>
+                                <li>Enter <strong>Start &amp; End Time</strong> so the timetable is clear for students and invigilators.</li>
+                                <li>Specify the <strong>Room / Hall</strong> where the exam takes place.</li>
+                                <li>Set <strong>Max Marks</strong> and <strong>Passing Marks</strong> — these are used when entering results later.</li>
+                                <li>Repeat this form for every class–subject combination in this exam.</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Example card --}}
+                <div class="sparkline12-list" style="margin-bottom: 20px;">
+                    <div class="sparkline12-graph">
+                        <div class="basic-login-form-ad">
+                            <h5 style="margin-top:0; color:#3c8dbc;">
+                                <i class="fa fa-file-text-o"></i> Example entry
+                            </h5>
+                            <table class="table table-condensed table-bordered" style="font-size: 12px; margin-bottom: 0;">
+                                <tbody>
+                                    <tr>
+                                        <th style="width:42%; background:#f5f5f5;">Class</th>
+                                        <td>Class 8</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="background:#f5f5f5;">Subject</th>
+                                        <td>Mathematics</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="background:#f5f5f5;">Exam Date</th>
+                                        <td>17 Jun 2026</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="background:#f5f5f5;">Start Time</th>
+                                        <td>09:00 AM</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="background:#f5f5f5;">End Time</th>
+                                        <td>12:00 PM</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="background:#f5f5f5;">Room</th>
+                                        <td>Hall A</td>
+                                    </tr>
+                                    <tr>
+                                        <th style="background:#f5f5f5;">Max / Pass</th>
+                                        <td>100 / 40</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Note card --}}
+                <div class="sparkline12-list">
+                    <div class="sparkline12-graph">
+                        <div class="basic-login-form-ad">
+                            <h5 style="margin-top:0; color:#e08e0b;">
+                                <i class="fa fa-exclamation-triangle"></i> Things to keep in mind
+                            </h5>
+                            <ul style="padding-left: 18px; line-height: 1.9; color: #555; font-size: 13px; margin-bottom: 0;">
+                                <li>Each <strong>Class + Subject</strong> combination should appear only once per exam.</li>
+                                <li>Passing marks must not exceed max marks.</li>
+                                <li>Students will see the schedule only if the exam is <strong>published</strong>.</li>
+                                <li>You can edit or delete schedule entries from the exam detail page.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
         </div>
     </div>
 </x-tenant-app-layout>
