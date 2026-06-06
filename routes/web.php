@@ -14,6 +14,7 @@ use App\Http\Controllers\Attendance\AttendanceController as SessionAttendanceCon
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SidebarSettingController;
+use App\Http\Controllers\Report\ReportController;
 use App\Http\Controllers\Holiday\HolidayController;
 use App\Http\Controllers\Notice\NoticeController;
 use App\Http\Controllers\Inventory\InventoryController;
@@ -243,7 +244,16 @@ Route::middleware(['auth', 'verified', 'scope.branch', 'role:super-admin|admin']
     Route::resource('notices', NoticeController::class);
     // ── Holidays ─────────────────────────────────────────────────
     Route::resource('holidays', HolidayController::class);
-    Route::get('/reports', fn () => response()->json(['message' => 'Reports module']))->name('reports.index');
+    // ── Reports ──────────────────────────────────────────────────
+    Route::prefix('reports')->name('reports.')->group(function () {
+        Route::get('/',           [ReportController::class, 'index'])->name('index');
+        Route::get('/students',   [ReportController::class, 'students'])->name('students');
+        Route::get('/attendance', [ReportController::class, 'attendance'])->name('attendance');
+        Route::get('/fees',       [ReportController::class, 'fees'])->name('fees');
+        Route::get('/exams',      [ReportController::class, 'exams'])->name('exams');
+        Route::get('/library',    [ReportController::class, 'library'])->name('library');
+        Route::get('/inventory',  [ReportController::class, 'inventory'])->name('inventory');
+    });
     Route::get('/branch-settings', fn () => response()->json(['message' => 'Branch settings']))->name('branch.settings');
     Route::get('/notifications', fn () => response()->json(['message' => 'Notifications']))->name('notifications.index');
 

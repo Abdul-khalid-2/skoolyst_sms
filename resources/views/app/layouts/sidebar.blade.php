@@ -114,7 +114,7 @@
                         </a>
                     </li>
                     <li>
-                        <a title="Reports" href="javascript:void(0)" aria-expanded="false">
+                        <a title="Reports" href="{{ route('reports.index') }}" aria-expanded="false">
                             <span class="icon-wrap sub-icon-mg"><i class="fa fa-bar-chart" aria-hidden="true"></i></span>
                             <span class="mini-click-non">Reports</span>
                         </a>
