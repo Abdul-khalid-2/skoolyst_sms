@@ -22,8 +22,9 @@ class FeeStructureController extends Controller
 
     public function create()
     {
+        $branchId   = auth()->user()->branch_id;
         $categories = FeeCategory::orderBy('name')->get();
-        $classes    = Classes::orderBy('numeric_value')->get();
+        $classes    = Classes::when($branchId, fn ($q) => $q->where('branch_id', $branchId))->orderBy('numeric_value')->get();
         return view('app.fees.structures.create', compact('categories', 'classes'));
     }
 
@@ -47,8 +48,9 @@ class FeeStructureController extends Controller
 
     public function edit(FeeStructure $structure)
     {
+        $branchId   = auth()->user()->branch_id;
         $categories = FeeCategory::orderBy('name')->get();
-        $classes    = Classes::orderBy('numeric_value')->get();
+        $classes    = Classes::when($branchId, fn ($q) => $q->where('branch_id', $branchId))->orderBy('numeric_value')->get();
         return view('app.fees.structures.edit', compact('structure', 'categories', 'classes'));
     }
 

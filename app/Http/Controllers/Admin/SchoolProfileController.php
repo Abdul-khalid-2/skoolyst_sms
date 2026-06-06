@@ -175,23 +175,28 @@ class SchoolProfileController extends Controller
 
     public function index()
     {
-        $school = $this->settings();
+        $school   = $this->settings();
+        $branchId = auth()->user()->branch_id;
+
         $stats = [
-            'students' => User::role('student')->count(),
-            'teachers' => User::role('teacher')->count(),
-            'classes' => Classes::count(),
+            'students' => User::role('student')->when($branchId, fn ($q) => $q->where('branch_id', $branchId))->count(),
+            'teachers' => User::role('teacher')->when($branchId, fn ($q) => $q->where('branch_id', $branchId))->count(),
+            'classes'  => Classes::when($branchId, fn ($q) => $q->where('branch_id', $branchId))->count(),
         ];
 
         $classes = Classes::with(['sections.students', 'classTeachersSubjects.subject'])
+            ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
             ->orderBy('numeric_value')
             ->get();
 
         $subjects = Subject::with(['teacherSubjects.class', 'teacherSubjects.teacher'])
+            ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
             ->orderBy('name')
             ->get();
 
         $teachers = User::role('teacher')
             ->with(['teacherProfile.classTeacherOf', 'teacherSubjects'])
+            ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
             ->orderBy('name')
             ->get();
 

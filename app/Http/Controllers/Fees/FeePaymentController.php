@@ -17,7 +17,7 @@ class FeePaymentController extends Controller
 {
     private function branchId(): ?int
     {
-        return Auth::user()?->branch_id ?? Branch::query()->value('id');
+        return Auth::user()?->branch_id;
     }
 
     public function index(Request $request)
@@ -49,8 +49,9 @@ class FeePaymentController extends Controller
 
     public function create()
     {
+        $branchId   = $this->branchId();
         $structures = FeeStructure::with(['category', 'schoolClass'])->orderBy('name')->get();
-        $classes    = Classes::orderBy('numeric_value')->get();
+        $classes    = Classes::when($branchId, fn ($q) => $q->where('branch_id', $branchId))->orderBy('numeric_value')->get();
         return view('app.fees.payments.create', compact('structures', 'classes'));
     }
 

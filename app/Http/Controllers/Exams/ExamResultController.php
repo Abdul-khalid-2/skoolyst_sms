@@ -18,7 +18,7 @@ class ExamResultController extends Controller
 {
     private function branchId(): ?int
     {
-        return Auth::user()?->branch_id ?? Branch::query()->value('id');
+        return Auth::user()?->branch_id;
     }
 
     public function index(Exam $exam, Request $request)
@@ -42,8 +42,9 @@ class ExamResultController extends Controller
         $failed   = $total - $passed;
         $avgMarks = ExamResult::where('exam_id', $exam->id)->avg('marks_obtained');
 
-        $classes  = Classes::orderBy('numeric_value')->get(['id', 'name']);
-        $subjects = \App\Models\Subject::orderBy('name')->get(['id', 'name']);
+        $branchId = $this->branchId();
+        $classes  = Classes::when($branchId, fn ($q) => $q->where('branch_id', $branchId))->orderBy('numeric_value')->get(['id', 'name']);
+        $subjects = \App\Models\Subject::when($branchId, fn ($q) => $q->where('branch_id', $branchId))->orderBy('name')->get(['id', 'name']);
 
         return view('app.exams.results.index', compact(
             'exam', 'results', 'total', 'passed', 'failed', 'avgMarks', 'classes', 'subjects'
@@ -52,8 +53,9 @@ class ExamResultController extends Controller
 
     public function enter(Exam $exam)
     {
-        $classes  = Classes::orderBy('numeric_value')->get();
-        $sections = Section::orderBy('name')->get();
+        $branchId = $this->branchId();
+        $classes  = Classes::when($branchId, fn ($q) => $q->where('branch_id', $branchId))->orderBy('numeric_value')->get();
+        $sections = Section::when($branchId, fn ($q) => $q->where('branch_id', $branchId))->orderBy('name')->get();
         return view('app.exams.results.enter', compact('exam', 'classes', 'sections'));
     }
 

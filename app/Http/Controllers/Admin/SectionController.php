@@ -17,7 +17,7 @@ class SectionController extends Controller
 
     public function __construct()
     {
-        $this->branchId = auth()->user()->branch_id ?? Branch::first()->id ?? null;
+        $this->branchId = auth()->user()?->branch_id;
     }
 
     public function index()
@@ -37,7 +37,8 @@ class SectionController extends Controller
 
     public function create()
     {
-        $classes = Classes::orderBy('numeric_value')->get();
+        $classes = Classes::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
+            ->orderBy('numeric_value')->get();
         return view('app.admin.sections.create', compact('classes'));
     }
 
@@ -199,7 +200,9 @@ class SectionController extends Controller
 
     public function getSectionsByClass($class_id)
     {
-        $sections = Section::where('class_id', $class_id)->get();
+        $sections = Section::where('class_id', $class_id)
+            ->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
+            ->get();
         return response()->json(['sections' => $sections]);
     }
 }

@@ -15,13 +15,14 @@ class ExamScheduleController extends Controller
 {
     private function branchId(): ?int
     {
-        return Auth::user()?->branch_id ?? Branch::query()->value('id');
+        return Auth::user()?->branch_id;
     }
 
     public function create(Exam $exam)
     {
-        $classes  = Classes::orderBy('numeric_value')->get();
-        $subjects = Subject::orderBy('name')->get();
+        $branchId = $this->branchId();
+        $classes  = Classes::when($branchId, fn ($q) => $q->where('branch_id', $branchId))->orderBy('numeric_value')->get();
+        $subjects = Subject::when($branchId, fn ($q) => $q->where('branch_id', $branchId))->orderBy('name')->get();
         return view('app.exams.schedule.create', compact('exam', 'classes', 'subjects'));
     }
 
@@ -50,8 +51,9 @@ class ExamScheduleController extends Controller
 
     public function edit(Exam $exam, ExamSchedule $schedule)
     {
-        $classes  = Classes::orderBy('numeric_value')->get();
-        $subjects = Subject::orderBy('name')->get();
+        $branchId = $this->branchId();
+        $classes  = Classes::when($branchId, fn ($q) => $q->where('branch_id', $branchId))->orderBy('numeric_value')->get();
+        $subjects = Subject::when($branchId, fn ($q) => $q->where('branch_id', $branchId))->orderBy('name')->get();
         return view('app.exams.schedule.edit', compact('exam', 'schedule', 'classes', 'subjects'));
     }
 

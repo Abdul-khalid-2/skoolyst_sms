@@ -16,7 +16,7 @@ class NoticeController extends Controller
 
     private function branchId(): ?int
     {
-        return Auth::user()?->branch_id ?? Branch::query()->value('id');
+        return Auth::user()?->branch_id;
     }
 
     private function validated(Request $request): array
@@ -51,7 +51,7 @@ class NoticeController extends Controller
 
     public function create()
     {
-        $classes = Classes::orderBy('numeric_value')->get();
+        $classes = Classes::when($this->branchId(), fn ($q) => $q->where('branch_id', $this->branchId()))->orderBy('numeric_value')->get();
         $roles   = self::TARGET_ROLES;
         return view('app.notices.create', compact('classes', 'roles'));
     }
@@ -74,7 +74,7 @@ class NoticeController extends Controller
 
     public function edit(Notice $notice)
     {
-        $classes = Classes::orderBy('numeric_value')->get();
+        $classes = Classes::when($this->branchId(), fn ($q) => $q->where('branch_id', $this->branchId()))->orderBy('numeric_value')->get();
         $roles   = self::TARGET_ROLES;
         return view('app.notices.edit', compact('notice', 'classes', 'roles'));
     }

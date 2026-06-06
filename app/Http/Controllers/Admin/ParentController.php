@@ -21,7 +21,7 @@ class ParentController extends Controller
 
     public function __construct()
     {
-        $this->branchId = auth()->user()->branch_id ?? Branch::first()->id ?? null;
+        $this->branchId = auth()->user()?->branch_id;
     }
     /**
      * Display the user's profile form.

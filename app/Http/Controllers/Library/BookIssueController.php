@@ -58,7 +58,7 @@ class BookIssueController extends Controller
     {
         $books   = Book::where('branch_id', $this->branchId())
             ->where('available', '>', 0)->orderBy('title')->get();
-        $classes = Classes::orderBy('numeric_value')->get();
+        $classes = Classes::when($this->branchId(), fn ($q) => $q->where('branch_id', $this->branchId()))->orderBy('numeric_value')->get();
 
         return view('app.library.issues.create', compact('books', 'classes'));
     }

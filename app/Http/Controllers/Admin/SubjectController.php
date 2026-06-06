@@ -18,7 +18,7 @@ class SubjectController extends Controller
 
     public function __construct()
     {
-        $this->branchId = auth()->user()->branch_id ?? Branch::first()->id ?? null;
+        $this->branchId = auth()->user()?->branch_id;
     }
     /**
      * Display a listing of the subjects.
@@ -48,7 +48,7 @@ class SubjectController extends Controller
     {
 
         $classes  = Classes::where('branch_id', $this->branchId)->orderBy('numeric_value')->get();
-        $sections = Section::orderBy('name')->get();
+        $sections = Section::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))->orderBy('name')->get();
 
         return view('app.admin.subjects.create', compact('classes', 'sections'));
     }
@@ -68,7 +68,7 @@ class SubjectController extends Controller
             'section_id' => 'nullable|exists:sections,id',
         ]);
 
-        $validated['branch_id'] = auth()->user()->branch_id ?? Branch::first()->id;
+        $validated['branch_id'] = $this->branchId;
 
         Subject::updateOrCreate(
             [

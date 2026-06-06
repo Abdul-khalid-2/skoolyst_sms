@@ -15,7 +15,7 @@ class ReportController extends Controller
 {
     private function branchId(): ?int
     {
-        return Auth::user()?->branch_id ?? Branch::query()->value('id');
+        return Auth::user()?->branch_id;
     }
 
     /** Reports hub / landing page. */
@@ -28,8 +28,8 @@ class ReportController extends Controller
     public function students(Request $request)
     {
         $branchId = $this->branchId();
-        $classes  = Classes::orderBy('numeric_value')->get();
-        $sections = Section::orderBy('name')->get();
+        $classes  = Classes::when($branchId, fn ($q) => $q->where('branch_id', $branchId))->orderBy('numeric_value')->get();
+        $sections = Section::when($branchId, fn ($q) => $q->where('branch_id', $branchId))->orderBy('name')->get();
 
         $base = DB::table('student_profiles as sp')
             ->join('users as u', 'u.id', '=', 'sp.student_id')
@@ -64,8 +64,8 @@ class ReportController extends Controller
     public function attendance(Request $request)
     {
         $branchId = $this->branchId();
-        $classes  = Classes::orderBy('numeric_value')->get();
-        $sections = Section::orderBy('name')->get();
+        $classes  = Classes::when($branchId, fn ($q) => $q->where('branch_id', $branchId))->orderBy('numeric_value')->get();
+        $sections = Section::when($branchId, fn ($q) => $q->where('branch_id', $branchId))->orderBy('name')->get();
 
         $sessions = DB::table('attendance_sessions as s')
             ->join('student_attendances as a', 'a.session_id', '=', 's.id')
@@ -111,7 +111,7 @@ class ReportController extends Controller
     public function fees(Request $request)
     {
         $branchId = $this->branchId();
-        $classes  = Classes::orderBy('numeric_value')->get();
+        $classes  = Classes::when($branchId, fn ($q) => $q->where('branch_id', $branchId))->orderBy('numeric_value')->get();
 
         $base = DB::table('fees as f')
             ->leftJoin('fee_structures as fs', 'fs.id', '=', 'f.structure_id')
@@ -149,7 +149,7 @@ class ReportController extends Controller
     public function exams(Request $request)
     {
         $branchId = $this->branchId();
-        $classes  = Classes::orderBy('numeric_value')->get();
+        $classes  = Classes::when($branchId, fn ($q) => $q->where('branch_id', $branchId))->orderBy('numeric_value')->get();
         $exams    = Exam::where('branch_id', $branchId)->orderByDesc('start_date')->get();
 
         $summary       = ['results' => 0, 'pass_pct' => 0, 'fail_pct' => 0, 'avg' => 0];

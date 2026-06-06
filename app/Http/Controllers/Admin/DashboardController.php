@@ -28,14 +28,26 @@ class DashboardController extends Controller
             return app(\App\Http\Controllers\Student\DashboardController::class)->index();
         }
 
-        // ── People ───────────────────────────────────────────────────
-        $numberOfTeachers = User::role('teacher')->count();
-        $numberOfStudent  = User::role('student')->count();
-        $numberOfParents  = User::role('parent')->count();
+        $branchId       = auth()->user()->branch_id;
+        $isSuperAdmin   = auth()->user()->hasRole('super-admin');
 
-        $section       = Section::sum('capacity');   // total seat capacity
-        $totalClasses  = Classes::count();
-        $totalSubjects = Subject::count();
+        // ── People ───────────────────────────────────────────────────
+        $numberOfTeachers = User::role('teacher')
+            ->when(! $isSuperAdmin && $branchId, fn ($q) => $q->where('branch_id', $branchId))
+            ->count();
+        $numberOfStudent  = User::role('student')
+            ->when(! $isSuperAdmin && $branchId, fn ($q) => $q->where('branch_id', $branchId))
+            ->count();
+        $numberOfParents  = User::role('parent')
+            ->when(! $isSuperAdmin && $branchId, fn ($q) => $q->where('branch_id', $branchId))
+            ->count();
+
+        $section       = Section::when(! $isSuperAdmin && $branchId, fn ($q) => $q->where('branch_id', $branchId))
+            ->sum('capacity');
+        $totalClasses  = Classes::when(! $isSuperAdmin && $branchId, fn ($q) => $q->where('branch_id', $branchId))
+            ->count();
+        $totalSubjects = Subject::when(! $isSuperAdmin && $branchId, fn ($q) => $q->where('branch_id', $branchId))
+            ->count();
 
         // Student : teacher ratio (e.g. 18 students per teacher).
         $studentTeacherRatio = $numberOfTeachers > 0
@@ -43,9 +55,21 @@ class DashboardController extends Controller
             : 0;
 
         // ── Fees ─────────────────────────────────────────────────────
-        $collectedFees = (float) FeePayment::sum('amount');
-        $totalBilled   = (float) Fee::where('status', '!=', 'cancelled')
-            ->sum(DB::raw('amount - COALESCE(discount, 0)'));
+        // fee_payments and fees link to students; scope via student's branch_id.
+        $studentIds = $isSuperAdmin || ! $branchId
+            ? null
+            : User::role('student')->where('branch_id', $branchId)->pluck('id');
+
+        $feeQuery = Fee::where('status', '!=', 'cancelled')
+            ->when($studentIds !== null, fn ($q) => $q->whereIn('student_id', $studentIds));
+
+        $totalBilled = (float) $feeQuery->sum(DB::raw('amount - COALESCE(discount, 0)'));
+
+        $collectedFees = (float) FeePayment::when(
+            $studentIds !== null,
+            fn ($q) => $q->whereHas('fee', fn ($fq) => $fq->whereIn('student_id', $studentIds))
+        )->sum('amount');
+
         $outstandingFees = round(max(0, $totalBilled - $collectedFees), 2);
 
         $feeCollectionRate = $totalBilled > 0
@@ -53,7 +77,14 @@ class DashboardController extends Controller
             : 0;
 
         // ── Salaries ─────────────────────────────────────────────────
-        $paidSalaries = (float) SalaryPayment::sum(
+        $teacherIds = $isSuperAdmin || ! $branchId
+            ? null
+            : User::role('teacher')->where('branch_id', $branchId)->pluck('id');
+
+        $paidSalaries = (float) SalaryPayment::when(
+            $teacherIds !== null,
+            fn ($q) => $q->whereIn('teacher_id', $teacherIds)
+        )->sum(
             DB::raw('COALESCE(amount, 0) + COALESCE(bonus, 0) - COALESCE(deductions, 0) - COALESCE(tax_amount, 0)')
         );
 
@@ -71,7 +102,10 @@ class DashboardController extends Controller
         $payments = FeePayment::whereBetween('payment_date', [
             Carbon::now()->subMonths(5)->startOfMonth(),
             Carbon::now()->endOfMonth(),
-        ])->select(['payment_date', 'amount'])->get();
+        ])->when(
+            $studentIds !== null,
+            fn ($q) => $q->whereHas('fee', fn ($fq) => $fq->whereIn('student_id', $studentIds))
+        )->select(['payment_date', 'amount'])->get();
 
         $earningsData = $earningsData->map(function ($amount, $month) use ($payments) {
             return $payments->filter(function ($payment) use ($month) {

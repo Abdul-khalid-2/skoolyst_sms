@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Branch;
 use App\Models\Classes;
 use App\Models\Setting;
 use App\Models\Section;
@@ -23,8 +22,11 @@ class StudentController extends Controller
      */
     public function index(Request $request)
     {
+        $branchId = auth()->user()->branch_id;
+
         // Get students with their profiles and related data
         $students = User::role('student')->with(['studentProfile.class', 'studentProfile.section'])
+            ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
             ->when($request->has('class_id'), function ($query) use ($request) {
                 $query->whereHas('studentProfile', function ($q) use ($request) {
                     $q->where('class_id', $request->class_id);
@@ -35,7 +37,6 @@ class StudentController extends Controller
                     $q->where('section_id', $request->section_id);
                 });
             })
-            // ->where('branch_id', auth()->user()->branch_id)
             ->orderBy('name')
             ->get();
 
@@ -45,7 +46,10 @@ class StudentController extends Controller
 
     public function create()
     {
-        $classes = Classes::with('sections')->get();
+        $branchId = auth()->user()->branch_id;
+        $classes  = Classes::with('sections')
+            ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
+            ->get();
         return view('app.admin.add_student', compact('classes'));
     }
 
@@ -79,7 +83,7 @@ class StudentController extends Controller
         try {
             DB::beginTransaction();
 
-            $branchId = auth()->user()->branch_id ?? Branch::first()?->id;
+            $branchId = auth()->user()->branch_id;
 
             $studentPhotoPath = null;
             if ($request->hasFile('student_photo')) {
@@ -172,8 +176,11 @@ class StudentController extends Controller
 
     public function edit($id)
     {
-        $student = User::with(['studentProfile.class', 'studentProfile.section'])->findOrFail($id);
-        $classes = Classes::with('sections')->get();
+        $branchId = auth()->user()->branch_id;
+        $student  = User::with(['studentProfile.class', 'studentProfile.section'])->findOrFail($id);
+        $classes  = Classes::with('sections')
+            ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
+            ->get();
         return view('app.admin.edit_student', compact('student', 'classes'));
     }
 

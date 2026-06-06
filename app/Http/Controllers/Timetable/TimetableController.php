@@ -19,12 +19,11 @@ class TimetableController extends Controller
     public function index()
     {
 
-        $branchId = auth()->user()->branch_id ?? Branch::first()?->id;
+        $branchId = auth()->user()->branch_id;
         $timetables = [];
 
-        // Get all classes with their sections for the current school
         $classes = Classes::with('sections')
-            // ->where('branch_id', auth()->user()->branch_id)
+            ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
             ->get();
 
         foreach ($classes as $class) {
@@ -82,8 +81,8 @@ class TimetableController extends Controller
             }
         }
 
-        $teachers = User::role('teacher')->get();
-        $subjects = Subject::get();
+        $teachers = User::role('teacher')->when($branchId, fn ($q) => $q->where('branch_id', $branchId))->get();
+        $subjects = Subject::when($branchId, fn ($q) => $q->where('branch_id', $branchId))->get();
 
         return view('app.timetable.index', compact('timetables', 'teachers', 'subjects'));
     }
@@ -91,11 +90,11 @@ class TimetableController extends Controller
 
     public function create()
     {
-        $branchId = auth()->user()->branch_id ?? Branch::first()?->id;
-        $classes  = Classes::where('branch_id', $branchId)->get();
-        $sections = Section::where('branch_id', $branchId)->get();
-        $subjects = Subject::where('branch_id', $branchId)->get();
-        $teachers = User::role('teacher')->get();
+        $branchId = auth()->user()->branch_id;
+        $classes  = Classes::when($branchId, fn ($q) => $q->where('branch_id', $branchId))->get();
+        $sections = Section::when($branchId, fn ($q) => $q->where('branch_id', $branchId))->get();
+        $subjects = Subject::when($branchId, fn ($q) => $q->where('branch_id', $branchId))->get();
+        $teachers = User::role('teacher')->when($branchId, fn ($q) => $q->where('branch_id', $branchId))->get();
 
         return view('app.timetable.create', compact('classes', 'sections', 'subjects', 'teachers'));
     }
@@ -161,7 +160,7 @@ class TimetableController extends Controller
 
                 // Prepare data
                 $isBreak = isset($period['is_break']) ? 1 : 0;
-                $branchId = auth()->user()->branch_id ?? Branch::first()?->id;
+                $branchId = auth()->user()->branch_id;
                 $timeTableData = [
                     'branch_id' => $branchId,
                     'class_id' => $validated['class_id'],
@@ -279,7 +278,7 @@ class TimetableController extends Controller
             ]);
         }
 
-        $branchId = auth()->user()->branch_id ?? Branch::first()?->id;
+        $branchId = auth()->user()->branch_id;
 
         return [
             'branch_id' => $branchId,
@@ -304,7 +303,7 @@ class TimetableController extends Controller
             'entry_id' => 'required|exists:time_tables,id',
         ]);
 
-        $branchId = auth()->user()->branch_id ?? Branch::first()?->id;
+        $branchId = auth()->user()->branch_id;
         $entry = TimeTable::where('branch_id', $branchId)->findOrFail($validated['entry_id']);
         $isBreak = $request->input('type') === 'event';
 
@@ -360,8 +359,11 @@ class TimetableController extends Controller
 
     public function create_schedule()
     {
-        $teachers = User::with('teacherProfile')->role('teacher')->get();
-        $subjects = Subject::get();
+        $branchId = auth()->user()->branch_id;
+        $teachers = User::with('teacherProfile')->role('teacher')
+            ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
+            ->get();
+        $subjects = Subject::when($branchId, fn ($q) => $q->where('branch_id', $branchId))->get();
         return response()->json([
             'teachers' => $teachers,
             'subjects' => $subjects,

@@ -21,7 +21,7 @@ class AttendanceController extends Controller
 {
     private function branchId(): ?int
     {
-        return Auth::user()?->branch_id ?? Branch::query()->value('id');
+        return Auth::user()?->branch_id;
     }
 
     private function dayOfWeekFromDate(string $date): string
@@ -32,7 +32,7 @@ class AttendanceController extends Controller
     public function index()
     {
         $today = now()->format('Y-m-d');
-        $schoolId = auth()->user()->branch_id ?? Branch::first()->id;
+        $schoolId = $this->branchId();
 
         // Get today's attendance sessions
         $todaySessions = AttendanceSession::where('branch_id', $schoolId)
@@ -229,7 +229,7 @@ class AttendanceController extends Controller
     public function getAttendanceTrends(Request $request)
     {
         $period = $request->input('period', 'daily');
-        $schoolId = auth()->user()->branch_id ?? Branch::first()->id;
+        $schoolId = $this->branchId();
 
         $days = [];
         $present = [];
@@ -332,11 +332,13 @@ class AttendanceController extends Controller
             ->orderByDesc('absent_count')
             ->value('absent_count') ?? 0;
 
-        $classes = Classes::orderBy('numeric_value')->get(['id', 'name']);
+        $classes = Classes::when($branchId, fn ($q) => $q->where('branch_id', $branchId))
+            ->orderBy('numeric_value')->get(['id', 'name']);
 
-        // Only load sections for the selected class (for pre-populating on filtered reload)
         $sections = $request->filled('class_id')
-            ? Section::where('class_id', $request->class_id)->orderBy('name')->get(['id', 'name'])
+            ? Section::where('class_id', $request->class_id)
+                ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
+                ->orderBy('name')->get(['id', 'name'])
             : collect();
 
         return view('app.attendance.history', compact(
@@ -347,8 +349,9 @@ class AttendanceController extends Controller
 
     public function create()
     {
-        // if subject wise attendance the update data for system_setting 
-        $classes = Classes::orderBy('numeric_value')->get();
+        $branchId = $this->branchId();
+        $classes  = Classes::when($branchId, fn ($q) => $q->where('branch_id', $branchId))
+            ->orderBy('numeric_value')->get();
         return view('app.attendance.take_attendance', compact('classes'));
     }
 

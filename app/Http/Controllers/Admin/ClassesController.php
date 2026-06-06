@@ -17,7 +17,7 @@ class ClassesController extends Controller
 
     public function __construct()
     {
-        $this->branchId = auth()->user()->branch_id ?? Branch::first()->id ?? null;
+        $this->branchId = auth()->user()?->branch_id;
     }
 
     private function redirectWithMessage($route, $message, $type = 'success')
@@ -47,6 +47,7 @@ class ClassesController extends Controller
     public function create()
     {
         $teachers = User::role('teacher')
+            ->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
             ->orderBy('name')
             ->get();
 
@@ -83,6 +84,7 @@ class ClassesController extends Controller
         $class = Classes::where('branch_id', $this->branchId)->findOrFail($id);
 
         $teachers = User::role('teacher')
+            ->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
             ->orderBy('name')
             ->get();
 

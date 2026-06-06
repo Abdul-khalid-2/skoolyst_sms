@@ -40,7 +40,7 @@ class UserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $validate['branch_id'] = auth()->user()->branch_id ?? Branch::first()?->id;
+        $validate['branch_id'] = auth()->user()->branch_id;
 
         User::create($validate);
         return redirect()->route('user.index');
