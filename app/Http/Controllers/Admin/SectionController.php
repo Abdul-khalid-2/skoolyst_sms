@@ -17,7 +17,8 @@ class SectionController extends Controller
 
     public function __construct()
     {
-        $this->branchId = auth()->user()?->branch_id;
+        $user = auth()->user();
+        $this->branchId = $user && $user->hasRole('super-admin') ? null : $user?->branch_id;
     }
 
     public function index()
@@ -26,7 +27,7 @@ class SectionController extends Controller
             ->with(['class' => function ($query) {
                 $query->withTrashed();
             }, 'students'])
-            ->where('branch_id', $this->branchId)
+            ->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
             ->orderBy('class_id')
             ->orderBy('name')
             ->get();
@@ -84,7 +85,7 @@ class SectionController extends Controller
                 'class' => fn($q) => $q->withTrashed(),
                 'students.student',
             ])
-            ->where('branch_id', $this->branchId)
+            ->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
             ->findOrFail(decrypt($id));
 
         return view('app.admin.sections.show', compact('section'));
@@ -93,10 +94,10 @@ class SectionController extends Controller
     public function edit($id)
     {
 
-        $section = Section::where('branch_id', $this->branchId)
+        $section = Section::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
             ->findOrFail(decrypt($id));
 
-        $classes = Classes::where('branch_id', $this->branchId)
+        $classes = Classes::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
             ->orderBy('numeric_value')
             ->get();
 
@@ -106,7 +107,7 @@ class SectionController extends Controller
 
     public function update(Request $request, $id)
     {
-        $section = Section::where('branch_id', $this->branchId)
+        $section = Section::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
             ->findOrFail(decrypt($id));
 
         $validated = $request->validate([
@@ -141,7 +142,7 @@ class SectionController extends Controller
     {
         try {
             $section = Section::with(['class'])
-                ->where('branch_id', $this->branchId)
+                ->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
                 ->findOrFail(decrypt($id));
 
             if ($section->students()->count() > 0) {
@@ -176,7 +177,7 @@ class SectionController extends Controller
                 ->with(['class' => function ($query) {
                     $query->withTrashed();
                 }])
-                ->where('branch_id', $this->branchId)
+                ->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
                 ->findOrFail(decrypt($id));
 
             $section->restore();

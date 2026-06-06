@@ -22,7 +22,8 @@ class TeacherController extends Controller
 
     public function __construct()
     {
-        $this->branchId = auth()->user()?->branch_id;
+        $user = auth()->user();
+        $this->branchId = $user && $user->hasRole('super-admin') ? null : $user?->branch_id;
     }
     /**
      * Display the user's profile form.
@@ -30,7 +31,7 @@ class TeacherController extends Controller
     public function index(Request $request): View
     {
         $teachers = User::role('teacher')->with('teacherProfile')
-            ->where('branch_id', $this->branchId)
+            ->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
             ->orderBy('name')
             ->get();
 
@@ -39,7 +40,7 @@ class TeacherController extends Controller
 
     public function create()
     {
-        $classes = Classes::where('branch_id', $this->branchId)
+        $classes = Classes::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
             ->get();
         return view('app.admin.add_teacher', compact('classes'));
     }
@@ -164,17 +165,17 @@ class TeacherController extends Controller
     public function edit($encodedId = null)
     {
         $id = Crypt::decrypt($encodedId);
-        $teacher = User::role('teacher')->where('branch_id', $this->branchId)->with('teacherProfile')
+        $teacher = User::role('teacher')->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))->with('teacherProfile')
             ->orderBy('name')
             ->findorfail($id);
-        $classes = Classes::where('branch_id', $this->branchId)->get();
+        $classes = Classes::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))->get();
         return view('app.admin.edit_teacher', compact('teacher', 'classes'));
     }
 
     public function show($encodedId = null)
     {
         $id = Crypt::decrypt($encodedId);
-        $teacher = User::role('teacher')->where('branch_id', $this->branchId)->with(['teacherProfile', 'teacherSubjects', 'teacherClasses'])
+        $teacher = User::role('teacher')->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))->with(['teacherProfile', 'teacherSubjects', 'teacherClasses'])
             ->orderBy('name')
             ->findorfail($id);
 
@@ -221,7 +222,7 @@ class TeacherController extends Controller
         try {
             DB::beginTransaction();
 
-            $user = User::where('branch_id', $this->branchId)->findorfail($id);
+            $user = User::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))->findorfail($id);
             $teacherProfile = TeacherProfile::where('teacher_id', $id)->firstOrFail();
 
             // Handle profile picture update
@@ -306,7 +307,7 @@ class TeacherController extends Controller
     public function updateStatus(Request $request)
     {
         // dd($request->all());
-        $teacher = User::where('branch_id', $this->branchId)->findOrFail($request->id); // Assuming User is teacher
+        $teacher = User::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))->findOrFail($request->id); // Assuming User is teacher
         $teacher->status = $request->status;
         $teacher->save();
 

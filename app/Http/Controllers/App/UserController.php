@@ -13,11 +13,38 @@ use Spatie\Permission\Models\Role;
 class UserController extends Controller
 {
     /**
+     * Active branch for the current user. Null for super-admins (see all branches).
+     */
+    private function branchId(): ?int
+    {
+        $user = auth()->user();
+
+        return $user && $user->hasRole('super-admin') ? null : $user?->branch_id;
+    }
+
+    /**
+     * Abort if a non-super-admin tries to access a user outside their branch.
+     */
+    private function authorizeBranch(User $user): void
+    {
+        $branchId = $this->branchId();
+
+        if ($branchId && $user->branch_id !== $branchId) {
+            abort(404);
+        }
+    }
+
+    /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $users = User::with('roles')->get();
+        $branchId = $this->branchId();
+
+        $users = User::with('roles')
+            ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
+            ->get();
+
         return view('app.users.index', compact('users'));
     }
 
@@ -40,7 +67,7 @@ class UserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $validate['branch_id'] = auth()->user()->branch_id;
+        $validate['branch_id'] = auth()->user()->branch_id;   // null for super-admin
 
         User::create($validate);
         return redirect()->route('user.index');
@@ -51,7 +78,7 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        //
+        $this->authorizeBranch($user);
     }
 
     /**
@@ -59,6 +86,8 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
+        $this->authorizeBranch($user);
+
         $roles = Role::get();
         return view('app.users.edit', compact('user', 'roles'));
     }
@@ -68,6 +97,7 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
+        $this->authorizeBranch($user);
 
         $validate = $request->validate([
             'name' => 'required|string',
@@ -85,7 +115,7 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        //
+        $this->authorizeBranch($user);
     }
 }
 

@@ -18,7 +18,8 @@ class SubjectController extends Controller
 
     public function __construct()
     {
-        $this->branchId = auth()->user()?->branch_id;
+        $user = auth()->user();
+        $this->branchId = $user && $user->hasRole('super-admin') ? null : $user?->branch_id;
     }
     /**
      * Display a listing of the subjects.
@@ -32,7 +33,7 @@ class SubjectController extends Controller
             'subjectTeacherClass.teacher',
             'subjectTeacherClass.class',
         ])
-            ->where('branch_id', $this->branchId)
+            ->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
             ->orderBy('name')
             ->get();
 
@@ -47,7 +48,7 @@ class SubjectController extends Controller
     public function create()
     {
 
-        $classes  = Classes::where('branch_id', $this->branchId)->orderBy('numeric_value')->get();
+        $classes  = Classes::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))->orderBy('numeric_value')->get();
         $sections = Section::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))->orderBy('name')->get();
 
         return view('app.admin.subjects.create', compact('classes', 'sections'));
@@ -92,8 +93,8 @@ class SubjectController extends Controller
     public function edit($id)
     {
 
-        $subject  = Subject::where('branch_id', $this->branchId)->findOrFail($id);
-        $classes  = Classes::where('branch_id', $this->branchId)->orderBy('numeric_value')->get();
+        $subject  = Subject::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))->findOrFail($id);
+        $classes  = Classes::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))->orderBy('numeric_value')->get();
         $sections = $subject->class_id
             ? Section::where('class_id', $subject->class_id)->orderBy('name')->get()
             : collect();
@@ -111,7 +112,7 @@ class SubjectController extends Controller
     public function update(Request $request, $id)
     {
 
-        $subject = Subject::where('branch_id', $this->branchId)
+        $subject = Subject::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
             ->findOrFail($id);
 
         $validated = $request->validate([
@@ -141,7 +142,7 @@ class SubjectController extends Controller
     public function destroy($id)
     {
 
-        $subject = Subject::where('branch_id', $this->branchId)
+        $subject = Subject::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
             ->findOrFail($id);
 
         if ($subject->teachers()->count() > 0) {
@@ -162,16 +163,16 @@ class SubjectController extends Controller
     public function assign()
     {
 
-        $subjects = Subject::where('branch_id', $this->branchId)
+        $subjects = Subject::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
             ->orderBy('name')
             ->get();
 
         $teachers = User::role('teacher')
-            ->where('branch_id', $this->branchId)
+            ->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
             ->orderBy('name')
             ->get();
 
-        $classes = Classes::where('branch_id', $this->branchId)
+        $classes = Classes::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
             ->orderBy('numeric_value')
             ->get();
 
@@ -207,7 +208,7 @@ class SubjectController extends Controller
             DB::beginTransaction();
 
             foreach ($request->subject_assignments as $subjectId => $teacherIds) {
-                $subject = Subject::where('branch_id', $this->branchId)
+                $subject = Subject::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
                     ->findOrFail($subjectId);
                 $subject->teachers()->sync($teacherIds ?? []);
             }
@@ -234,7 +235,7 @@ class SubjectController extends Controller
             DB::beginTransaction();
 
             foreach ($request->class_teachers as $classId => $teacherId) {
-                $class = Classes::where('branch_id', $this->branchId)
+                $class = Classes::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
                     ->findOrFail($classId);
                 $class->update(['teacher_id' => $teacherId]);
             }

@@ -17,7 +17,8 @@ class ClassesController extends Controller
 
     public function __construct()
     {
-        $this->branchId = auth()->user()?->branch_id;
+        $user = auth()->user();
+        $this->branchId = $user && $user->hasRole('super-admin') ? null : $user?->branch_id;
     }
 
     private function redirectWithMessage($route, $message, $type = 'success')
@@ -32,7 +33,7 @@ class ClassesController extends Controller
     public function index()
     {
         $classes = Classes::withTrashed()
-            ->where('branch_id', $this->branchId)
+            ->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
             ->with(['classTeachersSubjects.teacher' => function ($query) {
                 $query->withTrashed();
             }, 'classTeachersSubjects.subject' => function ($query) {
@@ -81,7 +82,7 @@ class ClassesController extends Controller
     public function edit($encodedId)
     {
         $id = Crypt::decrypt($encodedId);
-        $class = Classes::where('branch_id', $this->branchId)->findOrFail($id);
+        $class = Classes::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))->findOrFail($id);
 
         $teachers = User::role('teacher')
             ->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
@@ -95,7 +96,7 @@ class ClassesController extends Controller
     {
         $id = Crypt::decrypt($encodedId);
         $class = Classes::withTrashed()
-            ->where('branch_id', $this->branchId)
+            ->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
             ->with(['sections', 'classTeachersSubjects.teacher', 'classTeachersSubjects.subject'])
             ->findOrFail($id);
 
@@ -104,7 +105,7 @@ class ClassesController extends Controller
 
     public function update(Request $request, $id)
     {
-        $class = Classes::where('branch_id', $this->branchId)->findOrFail($id);
+        $class = Classes::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))->findOrFail($id);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -120,7 +121,7 @@ class ClassesController extends Controller
     public function destroy($id)
     {
         $id = Crypt::decrypt($id);
-        $class = Classes::where('branch_id', $this->branchId)->findOrFail($id);
+        $class = Classes::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))->findOrFail($id);
 
         if ($class->sections()->count() > 1) {
             return $this->redirectWithMessage('admin.academic.classes.index', 'Cannot delete class with sections', 'error');
@@ -135,7 +136,7 @@ class ClassesController extends Controller
     public function restore($id)
     {
         $class = Classes::withTrashed()
-            ->where('branch_id', $this->branchId)
+            ->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
             ->findOrFail(decrypt($id));
 
         $class->restore();

@@ -31,7 +31,7 @@ class TimetableController extends Controller
                 $timetableEntries = TimeTable::with(['subject', 'teacher'])
                     ->where('class_id', $class->id)
                     ->where('section_id', $section->id)
-                    ->where('branch_id', $branchId)
+                    ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
                     ->orderBy('day_of_week')
                     ->orderBy('start_time')
                     ->get();
