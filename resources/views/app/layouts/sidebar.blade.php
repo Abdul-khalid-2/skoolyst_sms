@@ -330,7 +330,7 @@
                         </a>
                     </li>
                     <li>
-                        <a title="My Attendance" href="" aria-expanded="false">
+                        <a title="My Attendance" href="{{ route('student.attendance') }}" aria-expanded="false">
                             <span class="icon-wrap sub-icon-mg"><i class="fa fa-calendar-check-o" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> My Attendance</span>
                         </a>
