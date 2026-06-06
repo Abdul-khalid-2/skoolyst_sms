@@ -14,6 +14,9 @@ use App\Http\Controllers\Attendance\AttendanceController as SessionAttendanceCon
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SidebarSettingController;
+use App\Http\Controllers\Inventory\InventoryController;
+use App\Http\Controllers\Inventory\InventoryItemController;
+use App\Http\Controllers\Inventory\InventoryTransactionController;
 use App\Http\Controllers\Library\LibraryController;
 use App\Http\Controllers\Library\BookController;
 use App\Http\Controllers\Library\BookIssueController;
@@ -216,7 +219,24 @@ Route::middleware(['auth', 'verified', 'scope.branch', 'role:super-admin|admin']
         Route::get('/issues/{issue}',                    [BookIssueController::class, 'show'])->name('issues.show');
         Route::put('/issues/{issue}/return',             [BookIssueController::class, 'returnBook'])->name('issues.return');
     });
-    Route::get('/inventory', fn () => response()->json(['message' => 'Inventory module']))->name('inventory.index');
+    // ── Inventory ────────────────────────────────────────────────
+    Route::prefix('inventory')->name('inventory.')->group(function () {
+        Route::get('/',                          [InventoryController::class,            'index'])->name('index');
+
+        // Items
+        Route::get('/items',                     [InventoryItemController::class,        'index'])->name('items.index');
+        Route::get('/items/create',              [InventoryItemController::class,        'create'])->name('items.create');
+        Route::post('/items',                    [InventoryItemController::class,        'store'])->name('items.store');
+        Route::get('/items/{item}',              [InventoryItemController::class,        'show'])->name('items.show');
+        Route::get('/items/{item}/edit',         [InventoryItemController::class,        'edit'])->name('items.edit');
+        Route::put('/items/{item}',              [InventoryItemController::class,        'update'])->name('items.update');
+        Route::delete('/items/{item}',           [InventoryItemController::class,        'destroy'])->name('items.destroy');
+
+        // Stock transactions
+        Route::get('/transactions',              [InventoryTransactionController::class, 'index'])->name('transactions.index');
+        Route::get('/transactions/create',       [InventoryTransactionController::class, 'create'])->name('transactions.create');
+        Route::post('/transactions',             [InventoryTransactionController::class, 'store'])->name('transactions.store');
+    });
     Route::get('/notices', fn () => response()->json(['message' => 'Notices module']))->name('notices.index');
     Route::get('/holidays', fn () => response()->json(['message' => 'Holidays module']))->name('holidays.index');
     Route::get('/reports', fn () => response()->json(['message' => 'Reports module']))->name('reports.index');

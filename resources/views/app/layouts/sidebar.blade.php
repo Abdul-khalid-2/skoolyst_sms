@@ -91,10 +91,15 @@
                         </ul>
                     </li>
                     <li>
-                        <a title="Inventory" href="javascript:void(0)" aria-expanded="false">
-                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-cubes" aria-hidden="true"></i></span>
+                        <a class="has-arrow" href="javascript:void(0)">
+                            <span class="icon-wrap"><i class="fa fa-cubes" aria-hidden="true"></i></span>
                             <span class="mini-click-non">Inventory</span>
                         </a>
+                        <ul class="submenu-angle" aria-expanded="false">
+                            <li><a href="{{ route('inventory.index') }}">Dashboard</a></li>
+                            <li><a href="{{ route('inventory.items.index') }}">Items</a></li>
+                            <li><a href="{{ route('inventory.transactions.index') }}">Transactions</a></li>
+                        </ul>
                     </li>
                     <li>
                         <a title="Notices" href="javascript:void(0)" aria-expanded="false">

@@ -140,6 +140,7 @@ class DatabaseSeeder extends Seeder
             FeesSeeder::class,
             ExamsSeeder::class,
             LibrarySeeder::class,
+            InventorySeeder::class,
         ]);
     }
 }
