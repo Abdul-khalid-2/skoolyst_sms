@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Classes;
+use App\Models\ParentProfile;
 use App\Models\Setting;
 use App\Models\Section;
+use App\Models\StudentParent;
 use App\Models\StudentProfile;
 use App\Models\User;
 
@@ -78,6 +80,13 @@ class StudentController extends Controller
             'signature'         => 'nullable|image',
             'documents'         => 'nullable|array',
             'documents.*'       => 'file|max:5120',
+
+            // Parent / Guardian (optional)
+            'parent_name'       => 'nullable|required_with:parent_email|string|max:255',
+            'parent_email'      => 'nullable|email|max:255',
+            'parent_phone'      => 'nullable|string|max:20',
+            'parent_relation'   => 'nullable|required_with:parent_email|in:father,mother,guardian',
+            'parent_occupation' => 'nullable|string|max:255',
         ]);
 
         try {
@@ -142,6 +151,9 @@ class StudentController extends Controller
                 'documents'         => json_encode($documentPaths),
             ]);
 
+            // Optionally create / link a parent for this student
+            $this->syncParent($user, $validated, $branchId);
+
             DB::commit();
 
             return redirect()->route('dashboard.students')
@@ -177,11 +189,15 @@ class StudentController extends Controller
     public function edit($id)
     {
         $branchId = auth()->user()->branch_id;
-        $student  = User::with(['studentProfile.class', 'studentProfile.section'])->findOrFail($id);
+        $student  = User::with(['studentProfile.class', 'studentProfile.section', 'parents.parentProfile'])->findOrFail($id);
         $classes  = Classes::with('sections')
             ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
             ->get();
-        return view('app.admin.edit_student', compact('student', 'classes'));
+
+        // The student's primary (or first) linked parent, for pre-filling the form.
+        $parent = $student->parents->firstWhere('pivot.is_primary', true) ?? $student->parents->first();
+
+        return view('app.admin.edit_student', compact('student', 'classes', 'parent'));
     }
 
     public function update(Request $request, $id)
@@ -208,6 +224,13 @@ class StudentController extends Controller
             'id_card_issued'    => 'nullable|boolean',
             'id_card_number'    => 'nullable|string',
             'student_photo'     => 'nullable|image|max:2048',
+
+            // Parent / Guardian (optional)
+            'parent_name'       => 'nullable|required_with:parent_email|string|max:255',
+            'parent_email'      => 'nullable|email|max:255',
+            'parent_phone'      => 'nullable|string|max:20',
+            'parent_relation'   => 'nullable|required_with:parent_email|in:father,mother,guardian',
+            'parent_occupation' => 'nullable|string|max:255',
         ]);
 
         try {
@@ -246,6 +269,9 @@ class StudentController extends Controller
                 ]
             );
 
+            // Optionally create / link a parent for this student
+            $this->syncParent($student, $validated, $student->branch_id);
+
             DB::commit();
 
             return redirect()->route('dashboard.students')
@@ -274,6 +300,51 @@ class StudentController extends Controller
                 ->with('message', 'Error deleting student: ' . $e->getMessage())
                 ->with('alert-type', 'error');
         }
+    }
+
+    /**
+     * Create or link a parent/guardian for the given student.
+     * No-op when no parent email is supplied.
+     */
+    private function syncParent(User $student, array $data, $branchId): void
+    {
+        if (empty($data['parent_email'])) {
+            return;
+        }
+
+        // Reuse an existing parent account with this email, otherwise create one.
+        $parent = User::firstOrCreate(
+            ['email' => $data['parent_email']],
+            [
+                'branch_id' => $branchId,
+                'name'      => $data['parent_name'],
+                'phone'     => $data['parent_phone'] ?? null,
+                'password'  => '12345678', // default password (auto-hashed)
+                'role'      => 'parent',
+            ]
+        );
+
+        if (! $parent->hasRole('parent')) {
+            $parent->assignRole('parent');
+        }
+
+        ParentProfile::updateOrCreate(
+            ['parent_id' => $parent->id],
+            [
+                'branch_id'     => $branchId,
+                'occupation'    => $data['parent_occupation'] ?? null,
+                'relation_type' => $data['parent_relation'],
+                'is_primary'    => true,
+            ]
+        );
+
+        StudentParent::updateOrCreate(
+            ['student_id' => $student->id, 'parent_id' => $parent->id],
+            [
+                'relationship' => $data['parent_relation'],
+                'is_primary'   => true,
+            ]
+        );
     }
 
     public function getSections($classId)

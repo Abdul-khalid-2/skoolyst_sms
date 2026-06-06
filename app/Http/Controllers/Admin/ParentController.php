@@ -21,7 +21,8 @@ class ParentController extends Controller
 
     public function __construct()
     {
-        $this->branchId = auth()->user()?->branch_id;
+        $user = auth()->user();
+        $this->branchId = $user && $user->hasRole('super-admin') ? null : $user?->branch_id;
     }
     /**
      * Display the user's profile form.
@@ -32,13 +33,13 @@ class ParentController extends Controller
             ->whereHas('roles', function ($q) {
                 $q->where('name', 'parent');
             })
-            ->where('branch_id', $this->branchId)
+            ->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
             ->get();
 
         $students = User::whereHas('roles', function ($q) {
             $q->where('name', 'student');
         })
-            ->where('branch_id', $this->branchId)
+            ->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
             ->get();
 
         return view('app.admin.parents', compact('parents', 'students'));
@@ -47,7 +48,7 @@ class ParentController extends Controller
     {
         $students = User::whereHas('roles', function ($q) {
             $q->where('name', 'student');
-        })->where('branch_id', $this->branchId)
+        })->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
             ->get();
         return view('app.admin.add_parent', compact('students'));
     }
@@ -169,7 +170,7 @@ class ParentController extends Controller
             'children.studentProfile.section',
             'studentParentRelationships',
         ])
-            ->where('branch_id', $this->branchId)
+            ->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
             ->whereHas('roles', fn ($q) => $q->where('name', 'parent'))
             ->findOrFail($id);
 
@@ -179,14 +180,14 @@ class ParentController extends Controller
     public function edit($id)
     {
         $parent = User::with(['parentProfile', 'children'])
-            ->where('branch_id', $this->branchId)
+            ->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
             ->whereHas('roles', fn ($q) => $q->where('name', 'parent'))
             ->findOrFail($id);
 
         $students = User::whereHas('roles', function ($q) {
             $q->where('name', 'student');
         })
-            ->where('branch_id', $this->branchId)
+            ->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
             ->get();
 
         $selectedChildren = $parent->children->pluck('id')->all();
@@ -196,7 +197,7 @@ class ParentController extends Controller
 
     public function update(Request $request, $id)
     {
-        $parent = User::where('branch_id', $this->branchId)
+        $parent = User::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
             ->whereHas('roles', fn ($q) => $q->where('name', 'parent'))
             ->findOrFail($id);
 

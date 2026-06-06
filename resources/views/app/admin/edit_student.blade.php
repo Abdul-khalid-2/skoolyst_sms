@@ -259,6 +259,83 @@
                                         </div>
                                     </div>
 
+                                    {{-- Parent / Guardian --}}
+                                    @php
+                                        $parentRelation = old('parent_relation', $parent?->pivot?->relationship ?? '');
+                                        $parentOccupation = old('parent_occupation', $parent?->parentProfile?->occupation ?? '');
+                                    @endphp
+                                    <div class="col-lg-12">
+                                        <div class="all-form-element-inner">
+                                            <div class="section-headline">
+                                                <h3>Parent / Guardian Information</h3>
+                                                <p style="color:#888; font-size:13px; margin:4px 0 0;">
+                                                    Optional — update or link a parent account. A new parent login is created with the
+                                                    default password <strong>12345678</strong> if the email is new.
+                                                </p>
+                                            </div>
+
+                                            <div class="form-group-inner">
+                                                <div class="row">
+                                                    <div class="col-lg-4"><label class="login2">Parent / Guardian Name</label></div>
+                                                    <div class="col-lg-8">
+                                                        <input type="text" name="parent_name" class="form-control @error('parent_name') is-invalid @enderror"
+                                                               value="{{ old('parent_name', $parent?->name ?? '') }}">
+                                                        @error('parent_name') <small class="text-danger">{{ $message }}</small> @enderror
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group-inner">
+                                                <div class="row">
+                                                    <div class="col-lg-4"><label class="login2">Parent Email</label></div>
+                                                    <div class="col-lg-8">
+                                                        <input type="email" name="parent_email" class="form-control @error('parent_email') is-invalid @enderror"
+                                                               value="{{ old('parent_email', $parent?->email ?? '') }}">
+                                                        <small class="text-muted">Required to create / link the parent account. Leave blank to skip.</small>
+                                                        @error('parent_email') <small class="text-danger">{{ $message }}</small> @enderror
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group-inner">
+                                                <div class="row">
+                                                    <div class="col-lg-4"><label class="login2">Parent Phone</label></div>
+                                                    <div class="col-lg-8">
+                                                        <input type="text" name="parent_phone" class="form-control @error('parent_phone') is-invalid @enderror"
+                                                               value="{{ old('parent_phone', $parent?->phone ?? '') }}">
+                                                        @error('parent_phone') <small class="text-danger">{{ $message }}</small> @enderror
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group-inner">
+                                                <div class="row">
+                                                    <div class="col-lg-4"><label class="login2">Relation</label></div>
+                                                    <div class="col-lg-8">
+                                                        <select name="parent_relation" class="form-control @error('parent_relation') is-invalid @enderror">
+                                                            <option value="">Select Relation</option>
+                                                            @foreach(['father', 'mother', 'guardian'] as $rel)
+                                                                <option value="{{ $rel }}" {{ $parentRelation === $rel ? 'selected' : '' }}>{{ ucfirst($rel) }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                        @error('parent_relation') <small class="text-danger">{{ $message }}</small> @enderror
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group-inner">
+                                                <div class="row">
+                                                    <div class="col-lg-4"><label class="login2">Occupation</label></div>
+                                                    <div class="col-lg-8">
+                                                        <input type="text" name="parent_occupation" class="form-control @error('parent_occupation') is-invalid @enderror"
+                                                               value="{{ $parentOccupation }}">
+                                                        @error('parent_occupation') <small class="text-danger">{{ $message }}</small> @enderror
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     {{-- ID Card --}}
                                     <div class="col-lg-12">
                                         <div class="all-form-element-inner">
