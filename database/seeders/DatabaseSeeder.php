@@ -141,6 +141,7 @@ class DatabaseSeeder extends Seeder
             ExamsSeeder::class,
             LibrarySeeder::class,
             InventorySeeder::class,
+            NoticesSeeder::class,
         ]);
     }
 }

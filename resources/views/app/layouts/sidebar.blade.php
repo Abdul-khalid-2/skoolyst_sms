@@ -102,7 +102,7 @@
                         </ul>
                     </li>
                     <li>
-                        <a title="Notices" href="javascript:void(0)" aria-expanded="false">
+                        <a title="Notices" href="{{ route('notices.index') }}" aria-expanded="false">
                             <span class="icon-wrap sub-icon-mg"><i class="fa fa-bullhorn" aria-hidden="true"></i></span>
                             <span class="mini-click-non">Notices</span>
                         </a>
