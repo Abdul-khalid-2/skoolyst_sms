@@ -221,7 +221,7 @@
                     @endif
                     @if($canSee('teacher_attendance'))
                     <li>
-                        <a title="Mark Attendance" href="" aria-expanded="false">
+                        <a title="Mark Attendance" href="{{ route('teacher.attendance') }}" aria-expanded="false">
                             <span class="icon-wrap sub-icon-mg"><i class="fa fa-calendar-check-o" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> Mark Attendance</span>
                         </a>

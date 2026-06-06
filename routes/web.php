@@ -17,6 +17,7 @@ use App\Http\Controllers\Student\FeeController as StudentFeeController;
 use App\Http\Controllers\Student\BookIssueController as StudentBookIssueController;
 use App\Http\Controllers\Teacher\ProfileController as TeacherProfileController;
 use App\Http\Controllers\Teacher\StudentController as TeacherStudentController;
+use App\Http\Controllers\Teacher\AttendanceController as TeacherAttendanceController;
 use App\Http\Controllers\Attendance\AttendanceController as SessionAttendanceController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\SettingController;
@@ -283,7 +284,15 @@ Route::middleware(['auth', 'verified', 'scope.branch', 'role:teacher'])->group(f
     Route::get('/teacher/profile', [TeacherProfileController::class, 'index'])->name('teacher.profile');
     Route::get('/teacher/students', [TeacherStudentController::class, 'index'])->name('teacher.students');
     Route::get('/teacher/timetable', [TimetableController::class, 'index'])->name('teacher.timetable');
-    Route::get('/teacher/attendance', [SessionAttendanceController::class, 'create'])->name('teacher.attendance');
+
+    Route::prefix('teacher/attendance')->name('teacher.attendance.')->group(function () {
+        Route::get('/get-sections', [TeacherAttendanceController::class, 'getSections'])->name('sections');
+        Route::get('/get-students', [TeacherAttendanceController::class, 'getStudents'])->name('students');
+        Route::get('/check-classes', [TeacherAttendanceController::class, 'checkClasses'])->name('check');
+        Route::post('/save', [TeacherAttendanceController::class, 'store'])->name('store');
+        Route::get('/{session}', [TeacherAttendanceController::class, 'show'])->name('show')->whereNumber('session');
+    });
+    Route::get('/teacher/attendance', [TeacherAttendanceController::class, 'create'])->name('teacher.attendance');
 });
 
 Route::middleware(['auth', 'verified', 'scope.branch', 'role:student'])->group(function () {
