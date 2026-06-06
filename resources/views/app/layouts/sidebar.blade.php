@@ -342,7 +342,7 @@
                         </a>
                     </li>
                     <li>
-                        <a title="Fee Status" href="" aria-expanded="false">
+                        <a title="Fee Status" href="{{ route('student.fees') }}" aria-expanded="false">
                             <span class="icon-wrap sub-icon-mg"><i class="fa fa-credit-card" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> Fee Status</span>
                         </a>
