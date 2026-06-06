@@ -36,13 +36,13 @@
                                 <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12">
                                     <div class="form-group">
                                         <label>From Date</label>
-                                        <input type="text" name="from_date" class="form-control input-sm datepicker" placeholder="YYYY-MM-DD" value="{{ request('from_date') }}">
+                                        <input type="date" name="from_date" class="form-control input-sm datepicker" placeholder="YYYY-MM-DD" value="{{ request('from_date') }}">
                                     </div>
                                 </div>
                                 <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12">
                                     <div class="form-group">
                                         <label>To Date</label>
-                                        <input type="text" name="to_date" class="form-control input-sm datepicker" placeholder="YYYY-MM-DD" value="{{ request('to_date') }}">
+                                        <input type="date" name="to_date" class="form-control input-sm datepicker" placeholder="YYYY-MM-DD" value="{{ request('to_date') }}">
                                     </div>
                                 </div>
                                 <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12">
@@ -156,11 +156,11 @@
 
     @push('js')
         <script>
-            $(document).ready(function () {
-                if ($.fn.datepicker) {
-                    $('.datepicker').datepicker({ format: 'yyyy-mm-dd', autoclose: true });
-                }
-            });
+            // $(document).ready(function () {
+            //     if ($.fn.datepicker) {
+            //         $('.datepicker').datepicker({ format: 'yyyy-mm-dd', autoclose: true });
+            //     }
+            // });
         </script>
         @if($payments->hasPages())
             <div style="margin-top:15px; padding:0 20px;">
