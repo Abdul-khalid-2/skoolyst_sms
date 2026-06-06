@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\SectionController;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\SubjectController;
 use App\Http\Controllers\Admin\TeacherController;
+use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\App\ProfileController;
 use App\Http\Controllers\App\UserController;
 use App\Http\Controllers\Student\ProfileController as StudentProfileController;
@@ -54,8 +55,7 @@ require __DIR__.'/auth.php';
 Route::middleware(['auth', 'verified', 'scope.branch'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/profile', [ProfileController::class, 'redirect'])->name('profile.edit');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
@@ -80,6 +80,9 @@ Route::middleware(['auth', 'verified', 'scope.branch', 'role:super-admin'])->pre
 });
 
 Route::middleware(['auth', 'verified', 'scope.branch', 'role:super-admin|admin'])->group(function () {
+    Route::get('/profile/edit', [AdminProfileController::class, 'edit'])->name('admin.profile.edit');
+    Route::patch('/profile', [AdminProfileController::class, 'update'])->name('admin.profile.update');
+
     Route::get('/school', [SchoolProfileController::class, 'index'])->name('schools.show');
     Route::get('/schools/edit', [SchoolProfileController::class, 'edit'])->name('schools.edit');
     Route::put('/schools', [SchoolProfileController::class, 'update'])->name('schools.update');
@@ -282,6 +285,8 @@ Route::middleware(['auth', 'verified', 'scope.branch', 'role:super-admin|admin']
 
 Route::middleware(['auth', 'verified', 'scope.branch', 'role:teacher'])->group(function () {
     Route::get('/teacher/profile', [TeacherProfileController::class, 'index'])->name('teacher.profile');
+    Route::get('/teacher/profile/edit', [TeacherProfileController::class, 'edit'])->name('teacher.profile.edit');
+    Route::patch('/teacher/profile', [TeacherProfileController::class, 'update'])->name('teacher.profile.update');
     Route::get('/teacher/students', [TeacherStudentController::class, 'index'])->name('teacher.students');
     Route::get('/teacher/timetable', [TimetableController::class, 'index'])->name('teacher.timetable');
 
@@ -297,6 +302,8 @@ Route::middleware(['auth', 'verified', 'scope.branch', 'role:teacher'])->group(f
 
 Route::middleware(['auth', 'verified', 'scope.branch', 'role:student'])->group(function () {
     Route::get('/student/profile', [StudentProfileController::class, 'index'])->name('student.profile');
+    Route::get('/student/profile/edit', [StudentProfileController::class, 'edit'])->name('student.profile.edit');
+    Route::patch('/student/profile', [StudentProfileController::class, 'update'])->name('student.profile.update');
     Route::get('/student/timetable', [TimetableController::class, 'index'])->name('student.timetable');
     Route::get('/student/attendance', [StudentAttendanceController::class, 'index'])->name('student.attendance');
     Route::get('/student/results', [StudentResultController::class, 'index'])->name('student.results');

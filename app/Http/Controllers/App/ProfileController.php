@@ -18,18 +18,29 @@ use Illuminate\View\View;
 class ProfileController extends Controller
 {
     /**
-     * Display the user's profile form.
+     * Redirect legacy /profile URL to the role-specific edit page.
      */
-    public function edit(Request $request): View
+    public function redirect(Request $request): RedirectResponse
     {
-        $user  = User::find(auth()->user()->id);
-        $roles = Role::orderBy('name')->get();
+        $user = $request->user();
 
-        return view('app.profile.edit', compact('user', 'roles'));
+        if ($user->hasRole('teacher')) {
+            return Redirect::route('teacher.profile.edit');
+        }
+
+        if ($user->hasRole('student')) {
+            return Redirect::route('student.profile.edit');
+        }
+
+        if ($user->hasAnyRole(['super-admin', 'admin'])) {
+            return Redirect::route('admin.profile.edit');
+        }
+
+        return Redirect::route('dashboard');
     }
 
     /**
-     * Update the user's profile information.
+     * @deprecated Use role-specific profile update routes instead.
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {

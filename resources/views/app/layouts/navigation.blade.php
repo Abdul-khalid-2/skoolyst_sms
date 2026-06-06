@@ -288,18 +288,31 @@
                                                 </div>
                                             </div>
                                         </li>
+                                        @php
+                                            $navUser = auth()->user();
+                                            $myProfileEditUrl = $navUser->hasRole('teacher')
+                                                ? route('teacher.profile.edit')
+                                                : ($navUser->hasRole('student')
+                                                    ? route('student.profile.edit')
+                                                    : ($navUser->hasAnyRole(['super-admin', 'admin'])
+                                                        ? route('admin.profile.edit')
+                                                        : route('profile.edit')));
+                                            $navAvatar = $navUser->profile_pic
+                                                ? asset('assets/' . ltrim($navUser->profile_pic, '/'))
+                                                : asset('backend/img/product/pro4.jpg');
+                                        @endphp
                                         <li class="nav-item">
                                             <a  href="javascript:void(0)" data-toggle="dropdown" role="button"
                                                 aria-expanded="false" class="nav-link dropdown-toggle">
-                                                <img src="{{ auth()->user()->profile_pic ? asset(auth()->user()->profile_pic):asset('backend/img/product/pro4.jpg') }}" alt="" />
-                                                <span class="admin-name">{{ auth()->user()->name??"--" }}</span>
+                                                <img src="{{ $navAvatar }}" alt="" />
+                                                <span class="admin-name">{{ $navUser->name ?? '--' }}</span>
                                                 <i class="fa fa-angle-down edu-icon edu-down-arrow"></i>
                                             </a>
                                             <ul role="menu"
                                                 class="dropdown-header-top author-log dropdown-menu animated zoomIn">
                                                
                                                 <li>
-                                                    <a href="{{ route('profile.edit') }}"><span class="edu-icon edu-user-rounded author-log-ic"></span>My Profile</a>
+                                                    <a href="{{ $myProfileEditUrl }}"><span class="edu-icon edu-user-rounded author-log-ic"></span>My Profile</a>
                                                 </li>
                                                 <li>
                                                     {{-- <a  href="javascript:void(0)">Log Out</a> --}}
