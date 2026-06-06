@@ -336,7 +336,7 @@
                         </a>
                     </li>
                     <li>
-                        <a title="My Results" href="" aria-expanded="false">
+                        <a title="My Results" href="{{ route('student.results') }}" aria-expanded="false">
                             <span class="icon-wrap sub-icon-mg"><i class="fa fa-trophy" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> My Results</span>
                         </a>

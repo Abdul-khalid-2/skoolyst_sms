@@ -12,6 +12,7 @@ use App\Http\Controllers\App\ProfileController;
 use App\Http\Controllers\App\UserController;
 use App\Http\Controllers\Student\ProfileController as StudentProfileController;
 use App\Http\Controllers\Student\AttendanceController as StudentAttendanceController;
+use App\Http\Controllers\Student\ResultController as StudentResultController;
 use App\Http\Controllers\Attendance\AttendanceController as SessionAttendanceController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\SettingController;
@@ -283,7 +284,8 @@ Route::middleware(['auth', 'verified', 'scope.branch', 'role:student'])->group(f
     Route::get('/student/profile', [StudentProfileController::class, 'index'])->name('student.profile');
     Route::get('/student/timetable', [TimetableController::class, 'index'])->name('student.timetable');
     Route::get('/student/attendance', [StudentAttendanceController::class, 'index'])->name('student.attendance');
-    Route::get('/student/results', fn () => response()->json(['message' => 'Student results']))->name('student.results');
+    Route::get('/student/results', [StudentResultController::class, 'index'])->name('student.results');
+    Route::get('/student/results/{exam}', [StudentResultController::class, 'show'])->name('student.results.show');
     Route::get('/student/fees', fn () => response()->json(['message' => 'Student fees']))->name('student.fees');
 });
 
