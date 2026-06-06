@@ -120,13 +120,13 @@
                     <div class="analytics-sparkle-line reso-mg-b-30">
                         <div class="analytics-content">
                             <h5>Total Teachers</h5>
-                            <h2><span class="counter">{{ $numberOfTeachers }}</span> <span class="tuition-fees">Current Inrolled</span>
+                            <h2><span class="counter">{{ $numberOfTeachers }}</span> <span class="tuition-fees">Teaching Staff</span>
                             </h2>
-                            <span class="text-danger">{{ number_format(($numberOfTeachers / 15) * 100, 2) }}%</span>
+                            <span class="text-danger">1 : {{ $studentTeacherRatio }} students</span>
                             <div class="progress m-b-0">
                                 <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="50"
-                                    aria-valuemin="0" aria-valuemax="100" style="width:{{ ($numberOfTeachers / 15) * 100 }}%;"> <span
-                                        class="sr-only">230% Complete</span> </div>
+                                    aria-valuemin="0" aria-valuemax="100" style="width:{{ $numberOfStudent > 0 ? min(100, ($numberOfTeachers / $numberOfStudent) * 100) : 0 }}%;"> <span
+                                        class="sr-only">Staff ratio</span> </div>
                             </div>
                         </div>
                     </div>
@@ -135,13 +135,13 @@
                     <div class="analytics-sparkle-line reso-mg-b-30">
                         <div class="analytics-content">
                             <h5>Collected Fees</h5>
-                            <h2>$<span class="counter">2000</span> <span class="tuition-fees">Tuition Fees</span>
+                            <h2>PKR <span class="counter">{{ number_format($collectedFees, 0) }}</span> <span class="tuition-fees">Total Received</span>
                             </h2>
-                            <span class="text-info">60%</span>
+                            <span class="text-info">{{ $feeCollectionRate }}% collected</span>
                             <div class="progress m-b-0">
                                 <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="50"
-                                    aria-valuemin="0" aria-valuemax="100" style="width:60%;"> <span
-                                        class="sr-only">20% Complete</span> </div>
+                                    aria-valuemin="0" aria-valuemax="100" style="width:{{ min(100, $feeCollectionRate) }}%;"> <span
+                                        class="sr-only">{{ $feeCollectionRate }}% Complete</span> </div>
                             </div>
                         </div>
                     </div>
@@ -149,14 +149,14 @@
                 <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
                     <div class="analytics-sparkle-line reso-mg-b-30">
                         <div class="analytics-content">
-                            <h5>Payed Salaries</h5>
-                            <h2>$<span class="counter">3500</span> <span class="tuition-fees">Tuition Fees</span>
+                            <h5>Paid Salaries</h5>
+                            <h2>PKR <span class="counter">{{ number_format($paidSalaries, 0) }}</span> <span class="tuition-fees">Staff Payroll</span>
                             </h2>
-                            <span class="text-inverse">80%</span>
+                            <span class="text-inverse">Outstanding fees: PKR {{ number_format($outstandingFees, 0) }}</span>
                             <div class="progress m-b-0">
                                 <div class="progress-bar progress-bar-inverse" role="progressbar" aria-valuenow="50"
-                                    aria-valuemin="0" aria-valuemax="100" style="width:80%;"> <span
-                                        class="sr-only">230% Complete</span> </div>
+                                    aria-valuemin="0" aria-valuemax="100" style="width:{{ $collectedFees > 0 ? min(100, ($paidSalaries / $collectedFees) * 100) : 0 }}%;"> <span
+                                        class="sr-only">Payroll vs collection</span> </div>
                             </div>
                         </div>
                     </div>
@@ -184,21 +184,31 @@
                             </div>
                         </div>
                         @php
-                            $showEarningsChart = isset($earningsData) && collect($earningsData)->sum() > 0;
+                            $earnings = $earningsData ?? [];
+                            $maxEarning = collect($earnings)->max() ?: 0;
+                            $showEarningsChart = collect($earnings)->sum() > 0;
                         @endphp
                         @if ($showEarningsChart)
-                        <ul class="list-inline cus-product-sl-rp">
-                            <li>
-                                <h5><i class="fa fa-circle" style="color: #006DF0;"></i>CSE</h5>
-                            </li>
-                            <li>
-                                <h5><i class="fa fa-circle" style="color: #933EC5;"></i>Accounting</h5>
-                            </li>
-                            <li>
-                                <h5><i class="fa fa-circle" style="color: #65b12d;"></i>Electrical</h5>
-                            </li>
-                        </ul>
-                            <div id="extra-area-chart" style="height: 356px;"></div>
+                            <ul class="list-inline cus-product-sl-rp">
+                                <li>
+                                    <h5><i class="fa fa-circle" style="color: #006DF0;"></i> Monthly Fee Collection (PKR)</h5>
+                                </li>
+                            </ul>
+                            <div style="height: 356px; display:flex; align-items:flex-end; gap:18px; padding:20px 10px 0;">
+                                @foreach ($earnings as $month => $amount)
+                                    @php $barHeight = $maxEarning > 0 ? max(2, ($amount / $maxEarning) * 100) : 2; @endphp
+                                    <div style="flex:1; display:flex; flex-direction:column; align-items:center; height:100%; justify-content:flex-end;">
+                                        <span style="font-size:12px; font-weight:600; color:#444; margin-bottom:6px;">
+                                            {{ $amount > 0 ? number_format($amount, 0) : '' }}
+                                        </span>
+                                        <div title="PKR {{ number_format($amount, 2) }}"
+                                             style="width:60%; max-width:60px; height:{{ $barHeight }}%;
+                                                    background:linear-gradient(180deg,#006DF0,#4aa3ff);
+                                                    border-radius:4px 4px 0 0; transition:height .3s;"></div>
+                                        <span style="font-size:12px; color:#888; margin-top:8px; white-space:nowrap;">{{ $month }}</span>
+                                    </div>
+                                @endforeach
+                            </div>
                         @else
                             <div class="chart-empty-state">
                                 <div>
@@ -212,46 +222,46 @@
                 <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                     <div
                         class="white-box analytics-info-cs mg-b-10 res-mg-b-30 res-mg-t-30 table-mg-t-pro-n tb-sm-res-d-n dk-res-t-d-n">
-                        <h3 class="box-title">Total Visit</h3>
+                        <h3 class="box-title">Total Parents</h3>
                         <ul class="list-inline two-part-sp">
                             <li>
                                 <div id="sparklinedash"></div>
                             </li>
-                            <li class="text-right sp-cn-r"><i class="fa fa-level-up" aria-hidden="true"></i> <span
-                                    class="counter text-success">1500</span></li>
+                            <li class="text-right sp-cn-r"><i class="fa fa-users" aria-hidden="true"></i> <span
+                                    class="counter text-success">{{ $numberOfParents }}</span></li>
                         </ul>
                     </div>
                     <div class="white-box analytics-info-cs mg-b-10 res-mg-b-30 tb-sm-res-d-n dk-res-t-d-n">
-                        <h3 class="box-title">Page Views</h3>
+                        <h3 class="box-title">Total Classes</h3>
                         <ul class="list-inline two-part-sp">
                             <li>
                                 <div id="sparklinedash2"></div>
                             </li>
-                            <li class="text-right graph-two-ctn"><i class="fa fa-level-up" aria-hidden="true"></i>
-                                <span class="counter text-purple">3000</span>
+                            <li class="text-right graph-two-ctn"><i class="fa fa-graduation-cap" aria-hidden="true"></i>
+                                <span class="counter text-purple">{{ $totalClasses }}</span>
                             </li>
                         </ul>
                     </div>
                     <div class="white-box analytics-info-cs mg-b-10 res-mg-b-30 tb-sm-res-d-n dk-res-t-d-n">
-                        <h3 class="box-title">Unique Visitor</h3>
+                        <h3 class="box-title">Total Subjects</h3>
                         <ul class="list-inline two-part-sp">
                             <li>
                                 <div id="sparklinedash3"></div>
                             </li>
-                            <li class="text-right graph-three-ctn"><i class="fa fa-level-up" aria-hidden="true"></i>
-                                <span class="counter text-info">5000</span>
+                            <li class="text-right graph-three-ctn"><i class="fa fa-book" aria-hidden="true"></i>
+                                <span class="counter text-info">{{ $totalSubjects }}</span>
                             </li>
                         </ul>
                     </div>
                     <div class="white-box analytics-info-cs table-dis-n-pro tb-sm-res-d-n dk-res-t-d-n">
-                        <h3 class="box-title">Bounce Rate</h3>
+                        <h3 class="box-title">Enrollment Rate</h3>
                         <ul class="list-inline two-part-sp">
                             <li>
                                 <div id="sparklinedash4"></div>
                             </li>
-                            <li class="text-right graph-four-ctn"><i class="fa fa-level-down"
-                                    aria-hidden="true"></i> <span class="text-danger"><span
-                                        class="counter">18</span>%</span>
+                            <li class="text-right graph-four-ctn"><i class="fa fa-level-up"
+                                    aria-hidden="true"></i> <span class="text-success"><span
+                                        class="counter">{{ $enrollmentRate }}</span>%</span>
                             </li>
                         </ul>
                     </div>
