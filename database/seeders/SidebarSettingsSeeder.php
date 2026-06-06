@@ -7,39 +7,72 @@ use Illuminate\Database\Seeder;
 
 class SidebarSettingsSeeder extends Seeder
 {
+    /** Convenience: every role in the system. */
+    private const ALL = ['super-admin', 'admin', 'teacher', 'student', 'parent', 'accountant'];
+
+    /**
+     * The full sidebar feature catalogue.
+     * Format: [menu_key, label, icon, route, sort_order, roles_visible]
+     */
+    public static function catalog(): array
+    {
+        return [
+            // ── Admin / Super-admin panel ───────────────────────────────
+            ['dashboard',         'Dashboard',         'fa fa-tachometer',      'dashboard',                    1,  self::ALL],
+            ['school_profile',    'School Profile',    'fa fa-university',      'schools.show',                 2,  ['super-admin', 'admin']],
+            ['academic_setup',    'Academic Setup',    'fa fa-graduation-cap',  'admin.academic.classes.index', 3,  ['super-admin', 'admin']],
+            ['people_management', 'Users Manage',      'fa fa-users',           'dashboard.students',           4,  ['super-admin', 'admin']],
+            ['attendance',        'Attendance',        'fa fa-calendar-check-o','admin.attendance.index',       5,  ['super-admin', 'admin']],
+            ['fees',              'Fees Management',   'fa fa-money',           'fees.index',                   6,  ['super-admin', 'admin']],
+            ['exams',             'Exams',             'fa fa-pencil-square-o', 'exams.index',                  7,  ['super-admin', 'admin']],
+            ['library',           'Library',           'fa fa-book',            'library.index',                8,  ['super-admin', 'admin']],
+            ['inventory',         'Inventory',         'fa fa-cubes',           'inventory.index',              9,  ['super-admin', 'admin']],
+            ['notices',           'Notices',           'fa fa-bullhorn',        'notices.index',                10, ['super-admin', 'admin']],
+            ['holidays',          'Holidays',          'fa fa-calendar',        'holidays.index',               11, ['super-admin', 'admin']],
+            ['reports',           'Reports',           'fa fa-bar-chart',       'reports.index',                12, ['super-admin', 'admin']],
+            ['settings',          'Platform Settings', 'fa fa-cog',             'admin.platform.index',         13, ['super-admin']],
+
+            // ── Student panel ───────────────────────────────────────────
+            ['student_profile',    'My Profile',    'fa fa-id-card',           'student.profile',    20, ['student']],
+            ['student_attendance', 'My Attendance', 'fa fa-calendar-check-o',  'student.attendance', 21, ['student']],
+            ['student_results',    'My Results',    'fa fa-trophy',            'student.results',    22, ['student']],
+            ['student_fees',       'Fee Status',    'fa fa-credit-card',       'student.fees',       23, ['student']],
+            ['student_books',      'Book Issues',   'fa fa-book',              'student.books',      24, ['student']],
+
+            // ── Teacher panel ───────────────────────────────────────────
+            ['teacher_profile',    'My Profile',      'fa fa-id-card',           '', 30, ['teacher']],
+            ['teacher_students',   'My Students',     'fa fa-users',             '', 31, ['teacher']],
+            ['teacher_attendance', 'Mark Attendance', 'fa fa-calendar-check-o',  '', 32, ['teacher']],
+            ['teacher_exams',      'Exams',           'fa fa-pencil-square-o',   '', 33, ['teacher']],
+            ['teacher_subjects',   'Subjects',        'fa fa-flask',             '', 34, ['teacher']],
+            ['teacher_reports',    'My Reports',      'fa fa-bar-chart',         '', 35, ['teacher']],
+
+            // ── Parent panel ────────────────────────────────────────────
+            ['parent_children', 'My Children',  'fa fa-child',       '', 40, ['parent']],
+            ['parent_fees',     'Fee Payments', 'fa fa-credit-card', '', 41, ['parent']],
+            ['parent_library',  'Library Books','fa fa-book',        '', 42, ['parent']],
+            ['parent_notices',  'Notices',      'fa fa-bullhorn',    '', 43, ['parent']],
+
+            // ── Common features (all panels) ────────────────────────────
+            ['notifications', 'Notifications', 'fa fa-bell',         'notifications.index', 90, self::ALL],
+            ['my_account',    'My Account',    'fa fa-user-circle',  '',                    91, self::ALL],
+        ];
+    }
+
     public function run(): void
     {
-        SidebarSetting::query()->delete();
-
-        $sidebarItems = [
-            ['dashboard', 'Dashboard', 'fa fa-tachometer', 'dashboard', 1],
-            ['school_profile', 'School Profile', 'fa fa-building', 'schools.show', 2],
-            ['academic_setup', 'Academic Setup', 'fa fa-graduation-cap', 'admin.academic.classes.index', 3],
-            ['people_management', 'People', 'fa fa-users', 'dashboard.students', 4],
-            ['attendance', 'Attendance', 'fa fa-check-square-o', 'admin.attendance.index', 5],
-            ['fees', 'Fees', 'fa fa-money', 'fees.index', 6],
-            ['exams', 'Exams', 'fa fa-pencil-square-o', 'exams.index', 7],
-            ['library', 'Library', 'fa fa-book', 'library.index', 8],
-            ['inventory', 'Inventory', 'fa fa-archive', 'inventory.index', 9],
-            ['notices', 'Notices', 'fa fa-bullhorn', 'notices.index', 10],
-            ['holidays', 'Holidays', 'fa fa-calendar', 'holidays.index', 11],
-            ['reports', 'Reports', 'fa fa-bar-chart', 'reports.index', 12],
-            ['settings', 'Settings', 'fa fa-cog', 'admin.settings.index', 13],
-            ['notifications', 'Notifications', 'fa fa-bell', 'notifications.index', 14],
-        ];
-
-        $allRoles = ['super-admin', 'admin', 'teacher', 'student', 'parent', 'accountant'];
-
-        foreach ($sidebarItems as [$key, $label, $icon, $route, $order]) {
-            SidebarSetting::create([
-                'menu_key' => $key,
-                'label' => $label,
-                'icon' => $icon,
-                'route' => $route,
-                'roles_visible' => $allRoles,
-                'sort_order' => $order,
-                'is_active' => true,
-            ]);
+        foreach (self::catalog() as [$key, $label, $icon, $route, $order, $roles]) {
+            SidebarSetting::updateOrCreate(
+                ['menu_key' => $key],
+                [
+                    'label'         => $label,
+                    'icon'          => $icon,
+                    'route'         => $route ?: null,
+                    'roles_visible' => $roles,
+                    'sort_order'    => $order,
+                    'is_active'     => true,
+                ]
+            );
         }
 
         SidebarSetting::clearCache();

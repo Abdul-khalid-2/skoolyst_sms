@@ -24,6 +24,7 @@
                 <div class="col-lg-12" style="margin-bottom:10px;">
                     <p class="text-muted" style="font-size:13px;">
                         Tick a role to show that sidebar feature for it. Untick <strong>Active</strong> to hide a feature from everyone.
+                        Features are grouped by the panel they appear in. <strong>Super Admin</strong> always sees every feature.
                     </p>
                 </div>
 
@@ -44,23 +45,31 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse($menus as $menu)
+                                    @forelse($menus as $panel => $panelMenus)
                                         <tr>
-                                            <td class="feature">
-                                                <i class="fa {{ $menu->icon ?: 'fa-circle-o' }}"></i>
-                                                {{ $menu->label }}
-                                            </td>
-                                            @foreach($roles as $role)
-                                                <td>
-                                                    <input type="checkbox" name="visible[{{ $menu->id }}][]" value="{{ $role }}"
-                                                        {{ in_array($role, $menu->roles_visible ?? []) ? 'checked' : '' }}>
-                                                </td>
-                                            @endforeach
-                                            <td>
-                                                <input type="checkbox" name="active[{{ $menu->id }}]" value="1"
-                                                    {{ $menu->is_active ? 'checked' : '' }}>
+                                            <td colspan="{{ count($roles) + 2 }}"
+                                                style="text-align:left;background:#eef2f7;font-weight:700;color:#334155;text-transform:uppercase;font-size:11px;letter-spacing:.5px;">
+                                                {{ $panel }}
                                             </td>
                                         </tr>
+                                        @foreach($panelMenus as $menu)
+                                            <tr>
+                                                <td class="feature">
+                                                    <i class="fa {{ $menu->icon ?: 'fa-circle-o' }}"></i>
+                                                    {{ $menu->label }}
+                                                </td>
+                                                @foreach($roles as $role)
+                                                    <td>
+                                                        <input type="checkbox" name="visible[{{ $menu->id }}][]" value="{{ $role }}"
+                                                            {{ in_array($role, $menu->roles_visible ?? []) ? 'checked' : '' }}>
+                                                    </td>
+                                                @endforeach
+                                                <td>
+                                                    <input type="checkbox" name="active[{{ $menu->id }}]" value="1"
+                                                        {{ $menu->is_active ? 'checked' : '' }}>
+                                                </td>
+                                            </tr>
+                                        @endforeach
                                     @empty
                                         <tr><td colspan="{{ count($roles) + 2 }}" class="text-center text-muted" style="padding:30px;">No sidebar features configured.</td></tr>
                                     @endforelse

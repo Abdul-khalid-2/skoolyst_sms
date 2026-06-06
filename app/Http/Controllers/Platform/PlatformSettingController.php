@@ -29,10 +29,24 @@ class PlatformSettingController extends Controller
     // ── Feature Visibility (sidebar gates per role) ──────────────────────────
     public function features()
     {
-        $menus = SidebarSetting::orderBy('sort_order')->get();
+        $menus = SidebarSetting::orderBy('sort_order')->get()
+            ->groupBy(fn (SidebarSetting $menu) => $this->panelFor($menu->menu_key));
+
         $roles = Role::orderBy('name')->pluck('name')->all();
 
         return view('app.platform.features', compact('menus', 'roles'));
+    }
+
+    /** Group a sidebar menu_key into a human-readable panel section. */
+    private function panelFor(string $menuKey): string
+    {
+        return match (true) {
+            str_starts_with($menuKey, 'student_') => 'Student Panel',
+            str_starts_with($menuKey, 'teacher_') => 'Teacher Panel',
+            str_starts_with($menuKey, 'parent_')  => 'Parent Panel',
+            in_array($menuKey, ['notifications', 'my_account'], true) => 'Common Features',
+            default => 'Admin Panel',
+        };
     }
 
     public function featuresUpdate(Request $request)
