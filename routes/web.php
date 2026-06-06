@@ -15,6 +15,7 @@ use App\Http\Controllers\Student\AttendanceController as StudentAttendanceContro
 use App\Http\Controllers\Student\ResultController as StudentResultController;
 use App\Http\Controllers\Student\FeeController as StudentFeeController;
 use App\Http\Controllers\Student\BookIssueController as StudentBookIssueController;
+use App\Http\Controllers\Teacher\ProfileController as TeacherProfileController;
 use App\Http\Controllers\Attendance\AttendanceController as SessionAttendanceController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\SettingController;
@@ -117,7 +118,7 @@ Route::middleware(['auth', 'verified', 'scope.branch', 'role:super-admin|admin']
     Route::get('/add_teacher', [TeacherController::class, 'create'])->name('dashboard.add.teacher');
     Route::post('/add_teacher', [TeacherController::class, 'store'])->name('admin.store.teacher');
     Route::get('/edit_teacher/{id?}', [TeacherController::class, 'edit'])->name('admin.edit.teacher');
-    Route::get('/teacher/{id?}', [TeacherController::class, 'show'])->name('admin.show.teacher');
+    Route::get('/show_teacher/{id?}', [TeacherController::class, 'show'])->name('admin.show.teacher');
     Route::put('/edit_teacher/{id?}', [TeacherController::class, 'update'])->name('admin.update.teacher');
     Route::delete('/destroy_teacher', [TeacherController::class, 'destroy'])->name('admin.destroy.teacher');
     Route::post('/teacher/status-update', [TeacherController::class, 'updateStatus'])->name('teacher.update.status');
@@ -278,6 +279,7 @@ Route::middleware(['auth', 'verified', 'scope.branch', 'role:super-admin|admin']
 });
 
 Route::middleware(['auth', 'verified', 'scope.branch', 'role:teacher'])->group(function () {
+    Route::get('/teacher/profile', [TeacherProfileController::class, 'index'])->name('teacher.profile');
     Route::get('/teacher/timetable', [TimetableController::class, 'index'])->name('teacher.timetable');
     Route::get('/teacher/attendance', [SessionAttendanceController::class, 'create'])->name('teacher.attendance');
 });

@@ -205,7 +205,7 @@
                     @endif
                     @if($canSee('teacher_profile'))
                     <li>
-                        <a title="My Profile" href="" aria-expanded="false">
+                        <a title="My Profile" href="{{ route('teacher.profile') }}" aria-expanded="false">
                             <span class="icon-wrap sub-icon-mg"><i class="fa fa-id-card" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> My Profile</span>
                         </a>

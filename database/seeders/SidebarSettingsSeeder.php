@@ -40,7 +40,7 @@ class SidebarSettingsSeeder extends Seeder
             ['student_books',      'Book Issues',   'fa fa-book',              'student.books',      24, ['student']],
 
             // ── Teacher panel ───────────────────────────────────────────
-            ['teacher_profile',    'My Profile',      'fa fa-id-card',           '', 30, ['teacher']],
+            ['teacher_profile',    'My Profile',      'fa fa-id-card',           'teacher.profile', 30, ['teacher']],
             ['teacher_students',   'My Students',     'fa fa-users',             '', 31, ['teacher']],
             ['teacher_attendance', 'Mark Attendance', 'fa fa-calendar-check-o',  '', 32, ['teacher']],
             ['teacher_exams',      'Exams',           'fa fa-pencil-square-o',   '', 33, ['teacher']],
