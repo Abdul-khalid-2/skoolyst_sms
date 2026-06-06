@@ -161,6 +161,148 @@ class ParentController extends Controller
         }
     }
 
+    public function show($id)
+    {
+        $parent = User::with([
+            'parentProfile',
+            'children.studentProfile.class',
+            'children.studentProfile.section',
+            'studentParentRelationships',
+        ])
+            ->where('branch_id', $this->branchId)
+            ->whereHas('roles', fn ($q) => $q->where('name', 'parent'))
+            ->findOrFail($id);
+
+        return view('app.admin.show_parent', compact('parent'));
+    }
+
+    public function edit($id)
+    {
+        $parent = User::with(['parentProfile', 'children'])
+            ->where('branch_id', $this->branchId)
+            ->whereHas('roles', fn ($q) => $q->where('name', 'parent'))
+            ->findOrFail($id);
+
+        $students = User::whereHas('roles', function ($q) {
+            $q->where('name', 'student');
+        })
+            ->where('branch_id', $this->branchId)
+            ->get();
+
+        $selectedChildren = $parent->children->pluck('id')->all();
+
+        return view('app.admin.edit_parent', compact('parent', 'students', 'selectedChildren'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $parent = User::where('branch_id', $this->branchId)
+            ->whereHas('roles', fn ($q) => $q->where('name', 'parent'))
+            ->findOrFail($id);
+
+        $validated = $request->validate([
+            'name'              => 'required|string|max:255',
+            'email'             => 'required|email|unique:users,email,' . $parent->id,
+            'phone'             => 'required|string|max:20',
+            'address'           => 'required|string',
+            'gender'            => 'required|in:male,female,other',
+
+            // Parent profile fields
+            'occupation'        => 'required|string|max:255',
+            'employer'          => 'nullable|string|max:255',
+            'income_range'      => 'required|string|max:50',
+            'education_level'   => 'required|string|max:50',
+            'relation_type'     => 'required|string|in:father,mother,guardian',
+            'emergency_contact' => 'required|string|max:255',
+            'is_primary'        => 'boolean',
+            'children'          => 'required|array',
+            'children.*'        => 'exists:users,id',
+
+            // File uploads (optional on update)
+            'address_proof'     => 'nullable|file|max:5120',
+            'id_proof'          => 'nullable|file|max:5120',
+            'documents'         => 'nullable|array',
+            'documents.*'       => 'file|max:5120',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $isPrimary = $request->boolean('is_primary');
+
+            // Update user account
+            $parent->update([
+                'name'    => $validated['name'],
+                'email'   => $validated['email'],
+                'phone'   => $validated['phone'],
+                'address' => $validated['address'],
+                'gender'  => $validated['gender'],
+            ]);
+
+            // Profile attributes
+            $profileData = [
+                'branch_id'         => $parent->branch_id,
+                'occupation'        => $validated['occupation'],
+                'employer'          => $validated['employer'] ?? null,
+                'income_range'      => $validated['income_range'],
+                'education_level'   => $validated['education_level'],
+                'relation_type'     => $validated['relation_type'],
+                'is_primary'        => $isPrimary,
+                'emergency_contact' => $validated['emergency_contact'],
+            ];
+
+            // Handle optional file uploads (keep existing if none provided)
+            if ($request->hasFile('address_proof')) {
+                $profileData['address_proof'] = $request->file('address_proof')
+                    ->store('tenants/parents/address_proofs', 'website');
+            }
+            if ($request->hasFile('id_proof')) {
+                $profileData['id_proof'] = $request->file('id_proof')
+                    ->store('tenants/parents/id_proofs', 'website');
+            }
+            if ($request->hasFile('documents')) {
+                $documentPaths = [];
+                foreach ($request->file('documents') as $document) {
+                    $documentPaths[] = $document->store('tenants/parents/documents', 'website');
+                }
+                $profileData['documents'] = json_encode($documentPaths);
+            }
+
+            ParentProfile::updateOrCreate(
+                ['parent_id' => $parent->id],
+                $profileData
+            );
+
+            // Sync student-parent relationships
+            $childIds = $validated['children'];
+
+            // Remove relationships for children no longer selected
+            StudentParent::where('parent_id', $parent->id)
+                ->whereNotIn('student_id', $childIds)
+                ->delete();
+
+            // Add / restore selected children
+            foreach ($childIds as $childId) {
+                StudentParent::withTrashed()->updateOrCreate(
+                    ['student_id' => $childId, 'parent_id' => $parent->id],
+                    [
+                        'relationship' => $validated['relation_type'],
+                        'is_primary'   => $isPrimary,
+                        'deleted_at'   => null,
+                    ]
+                );
+            }
+
+            DB::commit();
+
+            return redirect()->route('dashboard.parents')
+                ->with('success', 'Parent updated successfully');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withInput()->with('error', 'Error updating parent: ' . $e->getMessage());
+        }
+    }
+
     public function destroy($id)
     {
         try {

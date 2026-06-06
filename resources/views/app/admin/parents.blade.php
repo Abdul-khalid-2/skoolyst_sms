@@ -72,10 +72,10 @@
                                                 </td>
                                                 <td>
                                                     <div style="display: flex; align-items: center; gap: 4px;">
-                                                        <a href="" class="btn btn-xs btn-success" title="View">
+                                                        <a href="{{ route('admin.show.parent', $parent->id) }}" class="btn btn-xs btn-success" title="View">
                                                             <i class="fa fa-eye"></i>
                                                         </a>
-                                                        <a href="" class="btn btn-xs btn-primary" title="Edit">
+                                                        <a href="{{ route('admin.edit.parent', $parent->id) }}" class="btn btn-xs btn-primary" title="Edit">
                                                             <i class="fa fa-edit"></i>
                                                         </a>
                                                         <form action="{{ route('admin.destroy.parent', $parent->id) }}"

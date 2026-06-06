@@ -83,9 +83,10 @@ Route::middleware(['auth', 'verified', 'scope.branch', 'role:super-admin|admin']
     Route::get('/parents', [ParentController::class, 'index'])->name('dashboard.parents');
     Route::post('/add_parent', [ParentController::class, 'Store'])->name('admin.store.parent');
     Route::get('/add_parent', [ParentController::class, 'create'])->name('dashboard.add.parent');
-    Route::get('/edit_parent', [ParentController::class, 'edit'])->name('admin.edit.parent');
-    Route::post('/edit_parent', [ParentController::class, 'update'])->name('admin.update.parent');
-    Route::get('/destroy_parent/{encryptedId}', [ParentController::class, 'destroy'])->name('admin.destroy.parent');
+    Route::get('/show_parent/{id}', [ParentController::class, 'show'])->name('admin.show.parent');
+    Route::get('/edit_parent/{id}', [ParentController::class, 'edit'])->name('admin.edit.parent');
+    Route::put('/edit_parent/{id}', [ParentController::class, 'update'])->name('admin.update.parent');
+    Route::delete('/destroy_parent/{id}', [ParentController::class, 'destroy'])->name('admin.destroy.parent');
 
     Route::get('/students', [StudentController::class, 'index'])->name('dashboard.students');
     Route::get('/add_student', [StudentController::class, 'create'])->name('dashboard.add.student');

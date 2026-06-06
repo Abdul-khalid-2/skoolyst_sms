@@ -137,6 +137,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             TestDataSeeder::class,
+            ParentsSeeder::class,
             FeesSeeder::class,
             ExamsSeeder::class,
             LibrarySeeder::class,
