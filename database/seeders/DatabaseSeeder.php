@@ -142,6 +142,7 @@ class DatabaseSeeder extends Seeder
             LibrarySeeder::class,
             InventorySeeder::class,
             NoticesSeeder::class,
+            HolidaysSeeder::class,
         ]);
     }
 }

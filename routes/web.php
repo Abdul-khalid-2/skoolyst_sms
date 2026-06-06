@@ -14,6 +14,7 @@ use App\Http\Controllers\Attendance\AttendanceController as SessionAttendanceCon
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SidebarSettingController;
+use App\Http\Controllers\Holiday\HolidayController;
 use App\Http\Controllers\Notice\NoticeController;
 use App\Http\Controllers\Inventory\InventoryController;
 use App\Http\Controllers\Inventory\InventoryItemController;
@@ -240,7 +241,8 @@ Route::middleware(['auth', 'verified', 'scope.branch', 'role:super-admin|admin']
     });
     // ── Notices ──────────────────────────────────────────────────
     Route::resource('notices', NoticeController::class);
-    Route::get('/holidays', fn () => response()->json(['message' => 'Holidays module']))->name('holidays.index');
+    // ── Holidays ─────────────────────────────────────────────────
+    Route::resource('holidays', HolidayController::class);
     Route::get('/reports', fn () => response()->json(['message' => 'Reports module']))->name('reports.index');
     Route::get('/branch-settings', fn () => response()->json(['message' => 'Branch settings']))->name('branch.settings');
     Route::get('/notifications', fn () => response()->json(['message' => 'Notifications']))->name('notifications.index');
