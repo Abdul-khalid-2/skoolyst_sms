@@ -348,7 +348,7 @@
                         </a>
                     </li>
                     <li>
-                        <a title="Book Issues" href="" aria-expanded="false">
+                        <a title="Book Issues" href="{{ route('student.books') }}" aria-expanded="false">
                             <span class="icon-wrap sub-icon-mg"><i class="fa fa-book" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> Book Issues</span>
                         </a>
