@@ -213,8 +213,8 @@
                     @endif
                     @if($canSee('teacher_students'))
                     <li>
-                        <a title="My Students" href="" aria-expanded="false">
-                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-user-graduate fa fa-users" aria-hidden="true"></i></span>
+                        <a title="My Students" href="{{ route('teacher.students') }}" aria-expanded="false">
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-users" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> My Students</span>
                         </a>
                     </li>
