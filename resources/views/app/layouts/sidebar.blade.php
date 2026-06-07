@@ -213,7 +213,7 @@
                     <li><h6 style="color: rgb(95, 95, 95);padding-left:20px" class="mini-click-non">Teacher Panel</h6></li>
                     @if($canSee('dashboard'))
                     <li>
-                        <a title="Dashboard" href="" aria-expanded="false">
+                        <a title="Dashboard" href="{{ route('dashboard') }}" aria-expanded="false">
                             <span class="icon-wrap sub-icon-mg"><i class="fa fa-tachometer" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> Dashboard</span>
                         </a>
@@ -257,17 +257,107 @@
                     @endif
                     @if($canSee('teacher_subjects'))
                     <li>
-                        <a title="Subjects" href="" aria-expanded="false">
+                        <a title="Subjects" href="{{ route('teacher.subjects') }}" aria-expanded="false">
                             <span class="icon-wrap sub-icon-mg"><i class="fa fa-flask" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> Subjects</span>
                         </a>
                     </li>
                     @endif
+                    @if($canSee('teacher_timetable'))
+                    <li>
+                        <a title="My Timetable" href="{{ route('teacher.timetable') }}" aria-expanded="false">
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-calendar" aria-hidden="true"></i></span>
+                            <span class="mini-click-non"> My Timetable</span>
+                        </a>
+                    </li>
+                    @endif
                     @if($canSee('teacher_reports'))
                     <li>
-                        <a title="My Reports" href="" aria-expanded="false">
+                        <a title="My Reports" href="{{ route('teacher.reports') }}" aria-expanded="false">
                             <span class="icon-wrap sub-icon-mg"><i class="fa fa-bar-chart" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> My Reports</span>
+                        </a>
+                    </li>
+                    @endif
+
+                    <!-- Common Features -->
+                    <li><h6 style="color: rgb(95, 95, 95);padding-left:20px" class="mini-click-non">Common Features</h6></li>
+                    @if($canSee('notifications'))
+                    <li>
+                        <a title="Notifications" href="{{ route('notifications.index') }}" aria-expanded="false">
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-bell" aria-hidden="true"></i></span>
+                            <span class="mini-click-non"> Notifications</span>
+                        </a>
+                    </li>
+                    @endif
+                    @if($canSee('my_account'))
+                    <li>
+                        <a title="My Account" href="" aria-expanded="false">
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-user-circle" aria-hidden="true"></i></span>
+                            <span class="mini-click-non"> My Account</span>
+                        </a>
+                    </li>
+                    @endif
+                    <li>
+                        <a title="Logout" href="{{ route('logout') }}" aria-expanded="false"
+                           onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-sign-out" aria-hidden="true"></i></span>
+                            <span class="mini-click-non">Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </nav>
+@elseif (Auth::user()->hasRole('parent'))
+
+    <!-- Parent Panel -->
+    <nav id="sidebar" class="">
+        <div class="sidebar-header">
+            <a href="index.html"><img class="main-logo" src="{{ asset('backend/img/logo/logo.png') }}" alt="" /></a>
+            <strong><a href="index.html"><img src="{{ asset('backend/img/logo/logosn.png') }}" alt="" /></a></strong>
+        </div>
+        <div class="left-custom-menu-adp-wrap comment-scrollbar">
+            <nav class="sidebar-nav left-sidebar-menu-pro">
+                <ul class="metismenu" id="menu1">
+                    <li><h6 style="color: rgb(95, 95, 95);padding-left:20px" class="mini-click-non">Parent Panel</h6></li>
+                    @if($canSee('dashboard'))
+                    <li>
+                        <a title="Dashboard" href="{{ route('dashboard') }}" aria-expanded="false">
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-tachometer" aria-hidden="true"></i></span>
+                            <span class="mini-click-non"> Dashboard</span>
+                        </a>
+                    </li>
+                    @endif
+                    @if($canSee('parent_children'))
+                    <li>
+                        <a title="My Children" href="{{ route('parent.children') }}" aria-expanded="false">
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-child" aria-hidden="true"></i></span>
+                            <span class="mini-click-non"> My Children</span>
+                        </a>
+                    </li>
+                    @endif
+                    @if($canSee('parent_fees'))
+                    <li>
+                        <a title="Fee Payments" href="{{ route('parent.fees') }}" aria-expanded="false">
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-credit-card" aria-hidden="true"></i></span>
+                            <span class="mini-click-non"> Fee Payments</span>
+                        </a>
+                    </li>
+                    @endif
+                    @if($canSee('parent_library'))
+                    <li>
+                        <a title="Library Books" href="{{ route('parent.books') }}" aria-expanded="false">
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-book" aria-hidden="true"></i></span>
+                            <span class="mini-click-non">Library Books</span>
+                        </a>
+                    </li>
+                    @endif
+                    @if($canSee('parent_notices'))
+                    <li>
+                        <a title="Notices" href="{{ route('parent.notices') }}" aria-expanded="false">
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-bullhorn" aria-hidden="true"></i></span>
+                            <span class="mini-click-non"> Notices</span>
                         </a>
                     </li>
                     @endif
@@ -291,7 +381,7 @@
                     </li>
                     @endif
                     <li>
-                        <a title="Logout" href="" aria-expanded="false">
+                        <a title="Logout" href="{{ route('logout') }}" aria-expanded="false">
                             <span class="icon-wrap sub-icon-mg"><i class="fa fa-sign-out" aria-hidden="true"></i></span>
                             <span class="mini-click-non">Logout</span>
                         </a>
@@ -300,9 +390,8 @@
             </nav>
         </div>
     </nav>
-@elseif (Auth::user()->hasRole('parent'))
-
-    <!-- Parent Panel -->
+@elseif (Auth::user()->hasRole('accountant'))
+    <!-- Accountant Panel -->
     <nav id="sidebar" class="">
         <div class="sidebar-header">
             <a href="index.html"><img class="main-logo" src="{{ asset('backend/img/logo/logo.png') }}" alt="" /></a>
@@ -311,54 +400,40 @@
         <div class="left-custom-menu-adp-wrap comment-scrollbar">
             <nav class="sidebar-nav left-sidebar-menu-pro">
                 <ul class="metismenu" id="menu1">
-                    <li><h6 style="color: rgb(95, 95, 95);padding-left:20px" class="mini-click-non">Parent Panel</h6></li>
+                    <li><h6 style="color: rgb(95, 95, 95);padding-left:20px" class="mini-click-non">Accountant Panel</h6></li>
                     @if($canSee('dashboard'))
                     <li>
-                        <a title="Dashboard" href="" aria-expanded="false">
+                        <a title="Dashboard" href="{{ route('dashboard') }}" aria-expanded="false">
                             <span class="icon-wrap sub-icon-mg"><i class="fa fa-tachometer" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> Dashboard</span>
                         </a>
                     </li>
                     @endif
-                    @if($canSee('parent_children'))
+                    @if($canSee('accountant_fees'))
                     <li>
-                        <a class="has-arrow" href="javascript:void(0)">
-                            <span class="icon-wrap"><i class="fa fa-child" aria-hidden="true"></i></span>
-                            <span class="mini-click-non"> My Children</span>
+                        <a title="Fees" href="{{ route('accountant.fees') }}" aria-expanded="false">
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-money" aria-hidden="true"></i></span>
+                            <span class="mini-click-non"> Fees</span>
                         </a>
-                        <ul class="submenu-angle" aria-expanded="false">
-                            <li><a href="">Profile</a></li>
-                            <li><a href="">Attendance</a></li>
-                            <li><a href="">Results</a></li>
-                        </ul>
                     </li>
                     @endif
-                    @if($canSee('parent_fees'))
+                    @if($canSee('accountant_payments'))
                     <li>
-                        <a title="Fee Payments" href="" aria-expanded="false">
+                        <a title="Payments" href="{{ route('accountant.payments') }}" aria-expanded="false">
                             <span class="icon-wrap sub-icon-mg"><i class="fa fa-credit-card" aria-hidden="true"></i></span>
-                            <span class="mini-click-non"> Fee Payments</span>
+                            <span class="mini-click-non"> Payments</span>
                         </a>
                     </li>
                     @endif
-                    @if($canSee('parent_library'))
+                    @if($canSee('accountant_reports'))
                     <li>
-                        <a title="Library Books" href="" aria-expanded="false">
-                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-book" aria-hidden="true"></i></span>
-                            <span class="mini-click-non">Library Books</span>
-                        </a>
-                    </li>
-                    @endif
-                    @if($canSee('parent_notices'))
-                    <li>
-                        <a title="Notices" href="" aria-expanded="false">
-                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-bullhorn" aria-hidden="true"></i></span>
-                            <span class="mini-click-non"> Notices</span>
+                        <a title="Reports" href="{{ route('accountant.reports') }}" aria-expanded="false">
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-bar-chart" aria-hidden="true"></i></span>
+                            <span class="mini-click-non"> Reports</span>
                         </a>
                     </li>
                     @endif
 
-                    <!-- Common Features -->
                     <li><h6 style="color: rgb(95, 95, 95);padding-left:20px" class="mini-click-non">Common Features</h6></li>
                     @if($canSee('notifications'))
                     <li>
@@ -445,12 +520,28 @@
                         </a>
                     </li>
                     @endif
+                    @if($canSee('student_timetable'))
+                    <li>
+                        <a title="My Timetable" href="{{ route('student.timetable') }}" aria-expanded="false">
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-calendar" aria-hidden="true"></i></span>
+                            <span class="mini-click-non"> My Timetable</span>
+                        </a>
+                    </li>
+                    @endif
+                    @if($canSee('student_notices'))
+                    <li>
+                        <a title="Notices" href="{{ route('student.notices') }}" aria-expanded="false">
+                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-bullhorn" aria-hidden="true"></i></span>
+                            <span class="mini-click-non"> Notices</span>
+                        </a>
+                    </li>
+                    @endif
 
                     <!-- Common Features -->
                     <li><h6 style="color: rgb(95, 95, 95);padding-left:20px" class="mini-click-non">Common Features</h6></li>
                     @if($canSee('notifications'))
                     <li>
-                        <a title="Notifications" href="" aria-expanded="false">
+                        <a title="Notifications" href="{{ route('notifications.index') }}" aria-expanded="false">
                             <span class="icon-wrap sub-icon-mg"><i class="fa fa-bell" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> Notifications</span>
                         </a>

@@ -5,12 +5,14 @@ namespace Database\Seeders;
 use App\Models\Branch;
 use App\Models\Classes;
 use App\Models\Section;
+use App\Models\SectionSubjectTeacher;
 use App\Models\StudentProfile;
 use App\Models\Subject;
 use App\Models\TeacherProfile;
 use App\Models\TeacherSubject;
 use App\Models\TimeTable;
 use App\Models\User;
+use App\Services\Academic\AssignmentService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -80,6 +82,13 @@ class TestDataSeeder extends Seeder
         }
         $this->command->info("✓ 10 subjects created.");
 
+        $assignmentService = app(AssignmentService::class);
+        $curriculumSubjectIds = collect($subjects)->only(['MATH', 'ENG', 'URD', 'SCI', 'SS', 'ISL'])->pluck('id')->all();
+        foreach ($classes as $class) {
+            $assignmentService->assignClassCurriculum($class, $curriculumSubjectIds);
+        }
+        $this->command->info("✓ Class curriculum (class_subject) assigned.");
+
         // ─── Step 5: Admin User (already created by DatabaseSeeder — ensure exists) ─
         $admin = User::firstOrCreate(
             ['email' => 'admin@skoolyst.com'],
@@ -133,9 +142,6 @@ class TestDataSeeder extends Seeder
                 $teacher->assignRole('teacher');
             }
 
-            // First 6 teachers are class teachers (one per class)
-            $isClassTeacher = $position <= 6;
-
             TeacherProfile::firstOrCreate(
                 ['teacher_id' => $teacher->id],
                 [
@@ -145,7 +151,6 @@ class TestDataSeeder extends Seeder
                     'specialization'   => implode(', ', $subjectCodes),
                     'experience_years' => $expYears,
                     'joining_date'     => $joining,
-                    'is_class_teacher' => $isClassTeacher,
                 ]
             );
 
@@ -158,14 +163,10 @@ class TestDataSeeder extends Seeder
             }
         }
 
-        // Assign class teacher_id on each class, and update profile class_teacher_of
+        $assignmentService = app(AssignmentService::class);
         foreach ($classes as $classNum => $class) {
             if (isset($teachers[$classNum])) {
-                $class->teacher_id = $teachers[$classNum]->id;
-                $class->save();
-
-                TeacherProfile::where('teacher_id', $teachers[$classNum]->id)
-                    ->update(['class_teacher_of' => $class->id]);
+                $assignmentService->assignClassTeacher($teachers[$classNum], $class);
             }
         }
         $this->command->info("✓ 8 teachers created with profiles.");
@@ -176,13 +177,10 @@ class TestDataSeeder extends Seeder
             $subjectCodes = $td[5];
 
             foreach ($subjectCodes as $code) {
-                // firstOrCreate handles null class_id correctly (WHERE class_id IS NULL)
                 TeacherSubject::firstOrCreate([
                     'teacher_id' => $teacher->id,
                     'subject_id' => $subjects[$code]->id,
-                    'class_id'   => null,
-                ], [
-                    'is_class_teacher' => 0,
+                    'branch_id'  => $branchId,
                 ]);
             }
         }
@@ -311,6 +309,17 @@ class TestDataSeeder extends Seeder
                         // Prefer the teacher whose primary subject is $code;
                         // fall back to teacher 1 (Muhammad Ali) if no mapping.
                         $teacher = $teacherBySubject[$code] ?? $teachers[1];
+
+                        SectionSubjectTeacher::firstOrCreate(
+                            [
+                                'section_id' => $section->id,
+                                'subject_id' => $subject->id,
+                            ],
+                            [
+                                'teacher_id' => $teacher->id,
+                                'branch_id'  => $branchId,
+                            ]
+                        );
 
                         TimeTable::firstOrCreate(
                             [

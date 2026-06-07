@@ -3,12 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Branch;
 use App\Models\Classes;
-use App\Models\Section;
 use App\Models\Subject;
-use App\Models\TeacherProfile;
 use App\Models\User;
+use App\Services\Academic\AssignmentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -30,10 +28,7 @@ class SubjectController extends Controller
     public function index()
     {
 
-        $subjects = Subject::with([
-            'subjectTeacherClass.teacher',
-            'subjectTeacherClass.class',
-        ])
+        $subjects = Subject::withCount('classes')
             ->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
             ->orderBy('name')
             ->get();
@@ -48,11 +43,7 @@ class SubjectController extends Controller
      */
     public function create()
     {
-
-        $classes  = Classes::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))->orderBy('numeric_value')->get();
-        $sections = Section::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))->orderBy('name')->get();
-
-        return view('app.admin.subjects.create', compact('classes', 'sections'));
+        return view('app.admin.subjects.create');
     }
 
     /**
@@ -64,18 +55,15 @@ class SubjectController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name'       => 'required|string|max:255',
-            'code'       => 'required|string|max:10',
-            'class_id'   => 'nullable|exists:classes,id',
-            'section_id' => 'nullable|exists:sections,id',
+            'name' => 'required|string|max:255',
+            'code' => 'required|string|max:10',
         ]);
 
         $validated['branch_id'] = $this->branchId;
 
         Subject::updateOrCreate(
             [
-                'code' => $validated['code'],
-                'name' => $validated['name'],
+                'code'      => $validated['code'],
                 'branch_id' => $validated['branch_id'],
             ],
             $validated
@@ -94,13 +82,9 @@ class SubjectController extends Controller
     public function edit($id)
     {
 
-        $subject  = Subject::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))->findOrFail($id);
-        $classes  = Classes::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))->orderBy('numeric_value')->get();
-        $sections = $subject->class_id
-            ? Section::where('class_id', $subject->class_id)->orderBy('name')->get()
-            : collect();
+        $subject = Subject::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))->findOrFail($id);
 
-        return view('app.admin.subjects.edit', compact('subject', 'classes', 'sections'));
+        return view('app.admin.subjects.edit', compact('subject'));
     }
 
     /**
@@ -117,16 +101,9 @@ class SubjectController extends Controller
             ->findOrFail($id);
 
         $validated = $request->validate([
-            'name'       => 'required|string|max:255',
-            'code'       => 'required|string|max:10',
-            'class_id'   => 'nullable|exists:classes,id',
-            'section_id' => 'nullable|exists:sections,id',
+            'name' => 'required|string|max:255',
+            'code' => 'required|string|max:10',
         ]);
-
-        // Clear section if class was cleared
-        if (empty($validated['class_id'])) {
-            $validated['section_id'] = null;
-        }
 
         $subject->update($validated);
 
@@ -185,24 +162,15 @@ class SubjectController extends Controller
             $classSubjectIds[$class->id] = $class->subjects->pluck('id')->toArray();
         }
 
-        // teacher_id => [subject ids] — for the "Assign Subjects (to teachers)" form
         $teacherSubjectIds = [];
-        // teacher_id => class_id — for the "Assign Classes (to teachers)" form
-        $teacherClassOf = [];
         foreach ($teachers as $teacher) {
             $teacherSubjectIds[$teacher->id] = $teacher->teacherSubjects->pluck('id')->toArray();
-            $teacherClassOf[$teacher->id]    = optional($teacher->teacherProfile)->class_teacher_of;
         }
 
-        // Kept for the read-only summary tabs.
-        $subjectAssignments = [];
-        foreach ($subjects as $subject) {
-            $subjectAssignments[$subject->id] = $subject->teachers()->pluck('users.id')->toArray();
-        }
-
+        $classes->load('classTeacherProfile');
         $classTeachers = [];
         foreach ($classes as $class) {
-            $classTeachers[$class->id] = $class->teacher_id;
+            $classTeachers[$class->id] = optional($class->classTeacherProfile)->teacher_id;
         }
 
         return view('app.admin.subjects.assign', compact(
@@ -210,9 +178,7 @@ class SubjectController extends Controller
             'teachers',
             'classes',
             'teacherSubjectIds',
-            'teacherClassOf',
             'classSubjectIds',
-            'subjectAssignments',
             'classTeachers'
         ));
     }
@@ -231,11 +197,13 @@ class SubjectController extends Controller
         try {
             DB::beginTransaction();
 
+            $service = app(AssignmentService::class);
+
             foreach ($request->class_subjects as $classId => $subjectIds) {
                 $class = Classes::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
                     ->findOrFail($classId);
 
-                $class->subjects()->sync($subjectIds ?? []);
+                $service->assignClassCurriculum($class, $subjectIds ?? []);
             }
 
             DB::commit();
@@ -263,12 +231,14 @@ class SubjectController extends Controller
         try {
             DB::beginTransaction();
 
+            $service = app(AssignmentService::class);
+
             foreach ($request->teacher_subjects as $teacherId => $subjectIds) {
                 $teacher = User::role('teacher')
                     ->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
                     ->findOrFail($teacherId);
 
-                $teacher->teacherSubjects()->sync($subjectIds ?? []);
+                $service->assignTeacherCapabilities($teacher, $subjectIds ?? []);
             }
 
             DB::commit();
@@ -284,40 +254,34 @@ class SubjectController extends Controller
 
     /**
      * Assign a class (class-teacher role) to each teacher (inverse of the old class→teacher form).
-     * Keeps teacher_profiles.class_teacher_of and classes.teacher_id in sync.
+     * Sets teacher_profiles.class_teacher_of via AssignmentService (single source of truth).
      */
     public function assignClassTeacherStore(Request $request)
     {
         $request->validate([
-            'teacher_class'   => 'required|array',
-            'teacher_class.*' => 'nullable|exists:classes,id',
+            'class_teacher'   => 'required|array',
+            'class_teacher.*' => 'nullable|exists:users,id',
         ]);
 
         try {
             DB::beginTransaction();
 
-            // Reset current class-teacher links within the branch, then re-apply from the form.
-            Classes::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
-                ->update(['teacher_id' => null]);
-            TeacherProfile::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
-                ->update(['class_teacher_of' => null, 'is_class_teacher' => false]);
+            $service = app(AssignmentService::class);
 
-            foreach ($request->teacher_class as $teacherId => $classId) {
+            foreach ($request->class_teacher as $classId => $teacherId) {
+                $class = Classes::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
+                    ->findOrFail($classId);
+
+                if (empty($teacherId)) {
+                    $service->assignClassTeacher(null, $class);
+                    continue;
+                }
+
                 $teacher = User::role('teacher')
                     ->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
                     ->findOrFail($teacherId);
 
-                if (empty($classId)) {
-                    continue;
-                }
-
-                $class = Classes::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
-                    ->findOrFail($classId);
-
-                TeacherProfile::where('teacher_id', $teacher->id)
-                    ->update(['class_teacher_of' => $class->id, 'is_class_teacher' => true]);
-
-                $class->update(['teacher_id' => $teacher->id]);
+                $service->assignClassTeacher($teacher, $class);
             }
 
             DB::commit();

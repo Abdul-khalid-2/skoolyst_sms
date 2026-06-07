@@ -11,19 +11,14 @@ class Subject extends Model
     use SoftDeletes, BelongsToSchoolBranch;
 
     protected $fillable = [
-        'branch_id', 'name', 'code', 'class_id', 'section_id',
+        'branch_id', 'name', 'code',
     ];
 
     // Relationships
-    public function class()
-    {
-        return $this->belongsTo(Classes::class);
-    }
-
     public function teachers()
     {
         return $this->belongsToMany(User::class, 'teacher_subjects', 'subject_id', 'teacher_id')
-            ->withPivot('class_id', 'is_class_teacher');
+            ->withPivot('branch_id');
     }
 
     public function classes()

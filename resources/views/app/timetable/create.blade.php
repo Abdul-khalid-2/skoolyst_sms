@@ -395,25 +395,20 @@
                     type: 'GET',
                     data: {
                         subject_id: subjectId,
-                        class_id: classId
+                        class_id: classId,
+                        section_id: $('#section_id').val()
                     },
                     success: function(response) {
                         let options = '<option value="">Select Teacher</option>';
                         
                         if (response.teachers && response.teachers.length > 0) {
                             response.teachers.forEach(function(teacher) {
-                                // Mark the assigned teacher as selected if available
                                 const selected = (response.assigned_teacher_id && teacher.id == response.assigned_teacher_id) ? 'selected' : '';
                                 options += `<option value="${teacher.id}" ${selected}>${teacher.name}</option>`;
                             });
+                        } else {
+                            options += '<option value="" disabled>No allocated teachers — assign in Section Teacher Allocation first</option>';
                         }
-                        
-                        // Also include all teachers as options
-                        @foreach($teachers as $teacher)
-                            if (!options.includes(`value="{{ $teacher->id }}"`)) {
-                                options += `<option value="{{ $teacher->id }}">{{ $teacher->name }}</option>`;
-                            }
-                        @endforeach
                         
                         teacherSelect.html(options);
                     },

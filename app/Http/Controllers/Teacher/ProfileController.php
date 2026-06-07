@@ -21,6 +21,9 @@ class ProfileController extends Controller
             'teacherProfile.classTeacherOf',
             'teacherSubjects',
             'teacherClasses',
+            'subjectAllocations.subject',
+            'subjectAllocations.section',
+            'subjectAllocations.class',
             'branch',
         ]);
 

@@ -35,11 +35,7 @@ class ClassesController extends Controller
     {
         $classes = Classes::withTrashed()
             ->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
-            ->with(['classTeachersSubjects.teacher' => function ($query) {
-                $query->withTrashed();
-            }, 'classTeachersSubjects.subject' => function ($query) {
-                $query->withTrashed();
-            }])
+            ->withCount(['sections', 'classStudents'])
             ->orderBy('numeric_value')
             ->get();
 
@@ -48,12 +44,7 @@ class ClassesController extends Controller
 
     public function create()
     {
-        $teachers = User::role('teacher')
-            ->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
-            ->orderBy('name')
-            ->get();
-
-        return view('app.admin.classes.create', compact('teachers'));
+        return view('app.admin.classes.create');
     }
 
     public function store(Request $request)
@@ -61,7 +52,6 @@ class ClassesController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'numeric_value' => 'required|integer|min:0',
-            'teacher_id' => 'nullable|exists:users,id'
         ]);
 
         $validated['branch_id'] = $this->branchId;
@@ -85,12 +75,7 @@ class ClassesController extends Controller
         $id = Crypt::decrypt($encodedId);
         $class = Classes::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))->findOrFail($id);
 
-        $teachers = User::role('teacher')
-            ->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
-            ->orderBy('name')
-            ->get();
-
-        return view('app.admin.classes.edit', compact('class', 'teachers'));
+        return view('app.admin.classes.edit', compact('class'));
     }
 
     public function show($encodedId)
@@ -106,8 +91,8 @@ class ClassesController extends Controller
             ])
             ->findOrFail($id);
 
-        // Per-section subject → teacher, from the section_subject_teacher allocation.
-        $allocations = SectionSubjectTeacher::where('class_id', $class->id)
+        $sectionIds = $class->sections->pluck('id');
+        $allocations = SectionSubjectTeacher::whereIn('section_id', $sectionIds)
             ->with('teacher:id,name,email')
             ->get();
 
@@ -142,7 +127,6 @@ class ClassesController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'numeric_value' => 'required|integer',
-            'teacher_id' => 'nullable|exists:users,id'
         ]);
 
         $class->update($validated);

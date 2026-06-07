@@ -9,7 +9,7 @@ class SectionSubjectTeacher extends Model
     protected $table = 'section_subject_teacher';
 
     protected $fillable = [
-        'class_id',
+        'branch_id',
         'section_id',
         'subject_id',
         'teacher_id',
@@ -30,8 +30,15 @@ class SectionSubjectTeacher extends Model
         return $this->belongsTo(Section::class);
     }
 
-    public function class()
+    public function schoolClass()
     {
-        return $this->belongsTo(Classes::class, 'class_id');
+        return $this->hasOneThrough(
+            Classes::class,
+            Section::class,
+            'id',
+            'id',
+            'section_id',
+            'class_id'
+        );
     }
 }

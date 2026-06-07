@@ -134,8 +134,8 @@
                                                 </td>
                                                 <td>{{ $class->name??"" }}</td>
                                                 <td>{{ $class->numeric_value??"" }}</td>
-                                                <td>{{ $class->sections->count() }}</td>
-                                                <td>{{ $class->classStudents->count() }}</td>
+                                                <td>{{ $class->sections_count }}</td>
+                                                <td>{{ $class->class_students_count }}</td>
                                                 <td>
                                                     <div style="display: flex; align-items: center; gap: 4px;">
                                                         <a href="{{ route('admin.academic.classes.show', encrypt($class->id)) }}"

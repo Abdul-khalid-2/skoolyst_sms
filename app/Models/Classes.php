@@ -14,7 +14,6 @@ class Classes extends Model
         'branch_id',
         'name',
         'numeric_value',
-        'teacher_id'
     ];
 
     // Relationships
@@ -28,26 +27,29 @@ class Classes extends Model
         return $this->hasMany(Section::class, 'class_id');
     }
 
-    public function classTeachersSubjects()
+    /**
+     * Teacher profile for the class teacher (teacher_profiles.class_teacher_of).
+     */
+    public function classTeacherProfile()
     {
-        return $this->hasMany(TeacherSubject::class, 'class_id');
+        return $this->hasOne(TeacherProfile::class, 'class_teacher_of');
     }
 
-    /**
-     * The class teacher stored directly on the class (classes.teacher_id).
-     */
-    public function classTeacher()
-    {
-        return $this->belongsTo(User::class, 'teacher_id');
-    }
-
-    /**
-     * Teacher profiles marked as class-teacher of this class
-     * (teacher_profiles.class_teacher_of). Use ->teacher for the user.
-     */
     public function classTeacherProfiles()
     {
         return $this->hasMany(TeacherProfile::class, 'class_teacher_of');
+    }
+
+    public function classTeacher()
+    {
+        return $this->hasOneThrough(
+            User::class,
+            TeacherProfile::class,
+            'class_teacher_of',
+            'id',
+            'id',
+            'teacher_id'
+        );
     }
 
     public function timetables()

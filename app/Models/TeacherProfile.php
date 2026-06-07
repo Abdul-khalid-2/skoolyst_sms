@@ -25,7 +25,6 @@ class TeacherProfile extends Model
         'signature',
         'bio',
         'social_links',
-        'is_class_teacher',
         'class_teacher_of',
         'base_salary',
         'current_salary',
@@ -47,6 +46,11 @@ class TeacherProfile extends Model
     public function classTeacherOf()
     {
         return $this->belongsTo(Classes::class, 'class_teacher_of');
+    }
+
+    public function getIsClassTeacherAttribute(): bool
+    {
+        return $this->class_teacher_of !== null;
     }
 }
 

@@ -23,9 +23,20 @@ class DashboardController extends Controller
      */
     public function index(Request $request): View
     {
-        // Students get their own personalised dashboard.
         if (auth()->user()->hasRole('student')) {
             return app(\App\Http\Controllers\Student\DashboardController::class)->index();
+        }
+
+        if (auth()->user()->hasRole('teacher')) {
+            return app(\App\Http\Controllers\Teacher\DashboardController::class)->index();
+        }
+
+        if (auth()->user()->hasRole('parent')) {
+            return app(\App\Http\Controllers\Parent\DashboardController::class)->index();
+        }
+
+        if (auth()->user()->hasRole('accountant')) {
+            return app(\App\Http\Controllers\Accountant\DashboardController::class)->index();
         }
 
         $branchId       = auth()->user()->branch_id;

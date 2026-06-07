@@ -206,21 +206,6 @@ class ExamResultController extends Controller
         ]);
     }
 
-    private function allowedSubjectIds()
-    {
-        // Curriculum subjects across the teacher's accessible classes, limited
-        // to the subjects actually assigned to this teacher (teacher_subjects).
-        $curriculum = Classes::whereIn('id', $this->allowedClassIds())
-            ->with('subjects:id')
-            ->get()
-            ->flatMap(fn (Classes $class) => $class->subjects->pluck('id'))
-            ->unique();
-
-        $teacherSubjects = auth()->user()->teacherSubjects->pluck('id');
-
-        return $curriculum->intersect($teacherSubjects)->values();
-    }
-
     private function calcGrade(float $marks, int $max = 100): string
     {
         $pct = ($max > 0) ? ($marks / $max) * 100 : 0;

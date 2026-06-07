@@ -481,6 +481,24 @@
                 });
             }
 
+            const classSubjects = @json($classSubjects);
+
+            function populateSubjectsForClass(classId, selectEl, selectedId) {
+                let options = '<option value="">Select Subject</option>';
+                const subjects = classSubjects[classId] || [];
+
+                if (subjects.length === 0) {
+                    options += '<option value="" disabled>No subjects in class curriculum — add them in Academic Assignments</option>';
+                } else {
+                    subjects.forEach(function(subject) {
+                        const selected = (selectedId && String(selectedId) === String(subject.id)) ? 'selected' : '';
+                        options += `<option value="${subject.id}" ${selected}>${subject.name} (${subject.code})</option>`;
+                    });
+                }
+
+                $(selectEl).html(options);
+            }
+
             function showScheduleError(xhr) {
                 if (xhr.responseJSON && xhr.responseJSON.errors) {
                     var messages = Object.values(xhr.responseJSON.errors).flat();
@@ -509,24 +527,24 @@
                
                 // Add button and to load subjects start
                 $('.add-btn').click(function() {
-                    $('#addClassId').val($(this).data('class_id'));
+                    const classId = $(this).data('class_id');
+                    const sectionId = $(this).data('section_id');
+
+                    $('#addForm')[0].reset();
+                    $('#addClassId').val(classId);
                     $('#addClass').val($(this).data('class'));
-                    $('#addPeriodId').val($(this).data('section_id'));
+                    $('#addPeriodId').val(sectionId);
                     $('#addPeriod').val($(this).data('period'));
                     $('#addDay').val($(this).data('day'));
-                    
-                    // Reset form
-                    $('#addForm')[0].reset();
                     $('#addType').val('class').trigger('change');
                     
-                    // Show loading state
                     $('#addTeacher').html('<option value="">Select Subject First</option>');
                     $('#addSubject').html('<option value="">Loading subjects...</option>');
                     
-                    // Fetch subjects via AJAX
                     $.ajax({
                         url: "{{ route('admin.timetable.create.schedule') }}",
                         method: "GET",
+                        data: { class_id: classId },
                         success: function(response) {
                             // Populate subjects dropdown
                             var subjectOptions = '<option value="">Select Subject</option>';
@@ -644,17 +662,14 @@
                      type: 'GET',
                      data: {
                          subject_id: subjectId,
-                         class_id: classId
+                         class_id: classId,
+                         section_id: $('#addPeriodId').val()
                      },
                      success: function(response) {
                          let options = '<option value="">Select Teacher</option>';
                          
                          if (response.teachers && response.teachers.length > 0) {
-                             // Add assigned teachers first
- 
                              response.teachers.forEach(function(teacher) {
-                                 // Mark the assigned teacher as selected if available
-                                 
                                  const selected = (response.assigned_teacher_id && teacher.id == response.assigned_teacher_id) ? 'selected' : '';
                                  const employeeId = (teacher.teacher_profile && teacher.teacher_profile.employee_id) 
                                      ? teacher.teacher_profile.employee_id 
@@ -662,15 +677,9 @@
                                  
                                  options += `<option value="${teacher.id}" ${selected}>${teacher.name} (${employeeId})</option>`;
                              });
+                         } else {
+                             options += '<option value="" disabled>No allocated teachers — assign in Section Teacher Allocation first</option>';
                          }
-                         
-                         // Also include all teachers as options
-                         @foreach($teachers as $teacher)
-                             if (!options.includes(`value="{{ $teacher->id }}"`)) {
-                                 const employeeId = "{{ $teacher->teacherProfile && $teacher->teacherProfile->employee_id ? $teacher->teacherProfile->employee_id : 'N/A' }}";
-                                 options += `<option value="{{ $teacher->id }}">{{ $teacher->name }} (${employeeId})</option>`;
-                             }
-                         @endforeach
                          
                          teacherSelect.html(options);
                      },
@@ -697,15 +706,14 @@
                         type: 'GET',
                         data: {
                             subject_id: subjectId,
-                            class_id: classId
+                            class_id: classId,
+                            section_id: $('#updateSectionId').val()
                         },
                         success: function(response) {
                             let options = '<option value="">Select Teacher</option>';
                             
                             if (response.teachers && response.teachers.length > 0) {
-                                // Add assigned teachers first
                                 response.teachers.forEach(function(teacher) {
-                                    // Mark the assigned teacher as selected if available
                                     const selected = (response.assigned_teacher_id && teacher.id == response.assigned_teacher_id) ? 'selected' : '';
                                     const employeeId = (teacher.teacher_profile && teacher.teacher_profile.employee_id) 
                                         ? teacher.teacher_profile.employee_id 
@@ -713,15 +721,9 @@
                                     
                                     options += `<option value="${teacher.id}" ${selected}>${teacher.name} (${employeeId})</option>`;
                                 });
+                            } else {
+                                options += '<option value="" disabled>No allocated teachers — assign in Section Teacher Allocation first</option>';
                             }
-                            
-                            // Also include all teachers as options
-                            @foreach($teachers as $teacher)
-                                if (!options.includes(`value="{{ $teacher->id }}"`)) {
-                                    const employeeId = "{{ $teacher->teacherProfile && $teacher->teacherProfile->employee_id ? $teacher->teacherProfile->employee_id : 'N/A' }}";
-                                    options += `<option value="{{ $teacher->id }}">{{ $teacher->name }} (${employeeId})</option>`;
-                                }
-                            @endforeach
                             
                             teacherSelect.html(options);
                             
@@ -742,9 +744,12 @@
 
                     // Update button click handler
                     $('.update-btn').click(function() {
+                        const classId = $(this).data('class_id');
+                        const subjectId = $(this).data('subject_id');
+
                         $('#updateEntryId').val($(this).data('entry-id'));
                         $('#updateClass').val($(this).data('class'));
-                        $('#updateClassId').val($(this).data('class_id'));
+                        $('#updateClassId').val(classId);
                         $('#updatePeriod').val($(this).data('period'));
                         $('#updateDay').val($(this).data('day'));
                         $('#updateSectionId').val($(this).data('section_id'));
@@ -758,7 +763,7 @@
                             $('#updateEvent').val($(this).data('event'));
                         } else {
                             $('#updateType').val('class').trigger('change');
-                            $('#updateSubject').val($(this).data('subject_id'));
+                            populateSubjectsForClass(classId, '#updateSubject', subjectId);
                             $('#updateTeacher').data('current-teacher-id', $(this).data('teacher_id'));
                             fetchUpdateTeachers(document.getElementById('updateSubject'));
                         }

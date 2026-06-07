@@ -1,0 +1,168 @@
+================================================================================
+SKOOLYST SMS — COMPLETE APP STRUCTURE PLAN (IMPLEMENTED)
+================================================================================
+Last updated: 2026-06-08
+Status: Development phase — schema unified, panels expanded
+
+================================================================================
+PART 1 — DATA ARCHITECTURE (SINGLE SOURCE OF TRUTH)
+================================================================================
+
+CANONICAL MODEL
+---------------
+branches
+  └── classes
+        └── sections
+              └── section_subject_teacher (allocation: who teaches what)
+subjects (master catalog: name, code, branch_id ONLY)
+  └── class_subject (curriculum: which subjects each class offers)
+  └── teacher_subjects (capability: subjects teacher is qualified to teach)
+teacher_profiles.class_teacher_of (ONLY source for class teacher)
+time_tables (weekly schedule only — validated against section_subject_teacher)
+
+REMOVED / DEPRECATED COLUMNS (migrations 2026_06_08_*)
+------------------------------------------------------
+- subjects.class_id, subjects.section_id
+- classes.teacher_id
+- teacher_profiles.is_class_teacher
+- teacher_subjects.class_id, teacher_subjects.is_class_teacher
+- section_subject_teacher.class_id (derive via sections.class_id)
+
+ADDED
+-----
+- branch_id on teacher_subjects, class_subject, section_subject_teacher
+- app_notifications table (per-user notifications)
+
+ASSIGNMENT SERVICE (app/Services/Academic/AssignmentService.php)
+----------------------------------------------------------------
+assignClassCurriculum()      → class_subject pivot
+assignTeacherCapabilities()  → teacher_subjects pivot
+assignSectionTeachers()      → section_subject_teacher (PRIMARY allocation)
+assignClassTeacher()         → teacher_profiles.class_teacher_of
+getTeacherScope()            → (class_id, section_id, subject_id) tuples
+validateTimetableSlot()      → enforces allocation before timetable save
+
+ACADEMIC SETUP FLOW (Admin)
+---------------------------
+1. Classes & Sections
+2. Subject Catalog (master list)
+3. Class Curriculum (class_subject)
+4. Teacher Capabilities (teacher_subjects)
+5. Section Teacher Allocation (section_subject_teacher) ← PRIMARY
+6. Class Teacher (teacher_profiles.class_teacher_of)
+7. Timetable (validates against step 5)
+Route hub: admin.academic.setup
+
+================================================================================
+PART 2 — ROLE PANELS
+================================================================================
+
+ADMIN / SUPER-ADMIN (~95%)
+--------------------------
+Route prefix: / (role: super-admin|admin)
+Dashboard, School Profile, Academic Setup hub, Users (students/teachers/parents)
+Classes, Sections, Subjects, Subject Assign, Section Teacher Assign
+Timetable, Attendance, Fees, Exams, Library, Inventory, Notices, Holidays
+Reports, Branch Settings, Platform Settings (super-admin), Branches (super-admin)
+Notifications: notifications.index
+
+TEACHER (~100% core features)
+-----------------------------
+Routes:
+  teacher.dashboard        → Teacher\DashboardController
+  teacher.profile          → Teacher\ProfileController
+  teacher.students         → Teacher\StudentController
+  teacher.attendance       → Teacher\AttendanceController
+  teacher.exams.tests.*    → Teacher\ExamController (Create Tests)
+  teacher.exams.marks.*    → Teacher\ExamResultController (Enter Marks)
+  teacher.subjects         → Teacher\SubjectController (read-only allocations)
+  teacher.timetable        → Teacher\TimetableController (own schedule)
+  teacher.reports          → Teacher\ReportController
+
+Scoping: ScopesTeacherAssignments trait → AssignmentService
+
+STUDENT (~100% core features)
+-----------------------------
+Routes:
+  student.profile, student.attendance, student.results, student.fees
+  student.books, student.timetable, student.notices
+Dashboard via Admin\DashboardController → Student\DashboardController
+
+PARENT (full panel)
+-------------------
+Routes (prefix /parent):
+  parent.dashboard, parent.children
+  parent.children.attendance, parent.children.results
+  parent.fees, parent.books, parent.notices
+Policy: ParentStudentPolicy (student_parents pivot)
+Dashboard via Admin\DashboardController → Parent\DashboardController
+
+ACCOUNTANT (full panel)
+-----------------------
+Routes (prefix /accountant):
+  accountant.dashboard, accountant.fees
+  accountant.payments, accountant.reports
+Dashboard via Admin\DashboardController → Accountant\DashboardController
+
+================================================================================
+PART 3 — KEY FILES
+================================================================================
+
+MIGRATIONS (new)
+  database/migrations/2026_06_08_000001_add_branch_id_to_academic_pivot_tables.php
+  database/migrations/2026_06_08_000002_run_academic_data_consolidation.php
+  database/migrations/2026_06_08_000003_drop_redundant_academic_columns.php
+  database/migrations/2026_06_08_000004_create_notifications_table.php
+
+SEEDERS
+  database/seeders/AcademicDataConsolidationSeeder.php
+  database/seeders/SidebarSettingsSeeder.php (updated routes)
+
+SERVICES
+  app/Services/Academic/AssignmentService.php
+
+TRAITS
+  app/Http/Controllers/Teacher/Concerns/ScopesTeacherAssignments.php
+
+POLICIES
+  app/Policies/ParentStudentPolicy.php
+
+CONTROLLERS (new/updated)
+  Admin: AcademicSetupController, SubjectController, SubjectTeacherController,
+         ClassesController, TeacherController, TimetableController
+  Teacher: DashboardController, SubjectController, TimetableController, ReportController
+  Student: TimetableController, NoticeController
+  Parent: DashboardController, ChildrenController, AttendanceController,
+          ResultController, FeeController, BookIssueController, NoticeController
+  Accountant: DashboardController, FeeController, PaymentController, ReportController
+  App: NotificationController
+
+VIEWS (new)
+  app/admin/academic/setup.blade.php
+  app/teacher/dashboard, subjects, timetable, reports
+  app/student/timetable, notices
+  app/parent/* (dashboard, children, attendance, results, fees, books, notices)
+  app/accountant/* (dashboard, fees, payments, reports)
+  app/notifications/index.blade.php
+
+================================================================================
+PART 4 — TESTING CHECKLIST
+================================================================================
+[ ] Admin: assign curriculum → section teacher → timetable validates
+[ ] Teacher sees only allocated students/subjects (section_subject_teacher)
+[ ] Class teacher sees all sections of assigned class
+[ ] Student timetable shows own class/section only
+[ ] Parent sees only linked children (student_parents)
+[ ] Class teacher change clears previous holder (assignClassTeacher)
+[ ] Notifications page loads for all roles
+
+================================================================================
+PART 5 — MAINTENANCE COMMANDS
+================================================================================
+php artisan migrate
+php artisan db:seed --class=AcademicDataConsolidationSeeder
+php artisan db:seed --class=SidebarSettingsSeeder
+
+================================================================================
+END OF PLAN
+================================================================================

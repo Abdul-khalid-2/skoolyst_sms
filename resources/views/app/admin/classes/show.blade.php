@@ -65,7 +65,7 @@
                                 <th>Subjects Assigned</th>
                                 <td>
                                     <span class="badge" style="background:#8e44ad;">
-                                        {{ $class->classTeachersSubjects->unique('subject_id')->count() }}
+                                        {{ $class->subjects->count() }}
                                     </span>
                                 </td>
                             </tr>

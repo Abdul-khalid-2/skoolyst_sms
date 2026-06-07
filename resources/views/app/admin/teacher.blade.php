@@ -177,7 +177,13 @@
                                                         </div>
                                                         <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
                                                             <div class="address-hr biography">
-                                                                <p><b>Class Teacher</b><br> {{ isset($teacher->teacherProfile->is_class_teacher) && $teacher->teacherProfile->is_class_teacher ? 'Yes' : 'No' }}</p>
+                                                                <p><b>Class Teacher</b><br>
+                                                                    @if($teacher->teacherProfile->class_teacher_of && $teacher->teacherProfile->classTeacherOf)
+                                                                        Yes — {{ $teacher->teacherProfile->classTeacherOf->name }}
+                                                                    @else
+                                                                        No
+                                                                    @endif
+                                                                </p>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -208,9 +214,10 @@
                                                         <hr>
                                                     </div>
                                                     <div class="ex-pro">
-                                                        @if(count($teacher->teacherClasses) > 0)
+                                                        @php $assignedClasses = $teacher->allAssignedClasses(); @endphp
+                                                        @if($assignedClasses->count() > 0)
                                                             <ul>
-                                                                @foreach($teacher->teacherClasses as $teacherClass)
+                                                                @foreach($assignedClasses as $teacherClass)
                                                                     <li><i class="fa fa-angle-right"></i> {{ $teacherClass->name }}</li>
                                                                 @endforeach
                                                             </ul>
@@ -243,8 +250,46 @@
                                                         @endif
                                                     </div>
                                                 </div>
-                                            
-                                                
+
+
+                                            </div>
+
+                                            <div class="row">
+                                                {{-- Subject Allocations (class + section + subject) --}}
+                                                <div class="col-xs-12 col-sm-12">
+                                                    <div class="skill-title">
+                                                        <h2>Subject Allocations</h2>
+                                                        <hr>
+                                                    </div>
+                                                    <div class="ex-pro">
+                                                        @if(count($teacher->subjectAllocations) > 0)
+                                                            <div class="table-responsive">
+                                                                <table class="table table-bordered table-striped" style="margin-bottom:0;">
+                                                                    <thead style="background:#f5f5f5;">
+                                                                        <tr>
+                                                                            <th style="width:40px;">#</th>
+                                                                            <th>Class</th>
+                                                                            <th>Section</th>
+                                                                            <th>Subject</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        @foreach($teacher->subjectAllocations->sortBy(fn ($a) => [$a->class?->name, $a->section?->name]) as $alloc)
+                                                                            <tr>
+                                                                                <td>{{ $loop->iteration }}</td>
+                                                                                <td>{{ $alloc->class?->name ?? '—' }}</td>
+                                                                                <td>{{ $alloc->section?->name ?? '—' }}</td>
+                                                                                <td>{{ $alloc->subject?->name ?? '—' }} @if($alloc->subject)({{ $alloc->subject->code }})@endif</td>
+                                                                            </tr>
+                                                                        @endforeach
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        @else
+                                                            <p>No subject allocations yet.</p>
+                                                        @endif
+                                                    </div>
+                                                </div>
                                             </div>
                                             
                                         </div>

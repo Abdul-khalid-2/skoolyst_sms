@@ -184,12 +184,12 @@ class SchoolProfileController extends Controller
             'classes'  => Classes::when($branchId, fn ($q) => $q->where('branch_id', $branchId))->count(),
         ];
 
-        $classes = Classes::with(['sections.students', 'classTeachersSubjects.subject'])
+        $classes = Classes::with(['sections.students'])
             ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
             ->orderBy('numeric_value')
             ->get();
 
-        $subjects = Subject::with(['teacherSubjects.class', 'teacherSubjects.teacher'])
+        $subjects = Subject::with(['teacherSubjects.teacher'])
             ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
             ->orderBy('name')
             ->get();

@@ -22,7 +22,7 @@
                 </small>
             </div>
             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 text-right">
-                <a href="{{ route('student.results') }}" class="btn btn-default btn-sm">
+                <a href="{{ $backUrl ?? route('student.results') }}" class="btn btn-default btn-sm">
                     <i class="fa fa-arrow-left"></i> Back to Results
                 </a>
             </div>

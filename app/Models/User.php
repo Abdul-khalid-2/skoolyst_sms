@@ -59,6 +59,32 @@ class User extends Authenticatable
         return $this->hasMany(TimeTable::class, 'teacher_id');
     }
 
+    /**
+     * Subjects this teacher is allocated to teach per class section
+     * (section_subject_teacher).
+     */
+    public function subjectAllocations()
+    {
+        return $this->hasMany(SectionSubjectTeacher::class, 'teacher_id');
+    }
+
+    /**
+     * Every distinct class this teacher is associated with — from the timetable,
+     * from their subject allocations, and the class they are class teacher of.
+     */
+    public function allAssignedClasses()
+    {
+        return app(\App\Services\Academic\AssignmentService::class)
+            ->getTeacherScope($this)
+            ->pluck('class_id')
+            ->unique()
+            ->filter()
+            ->map(fn ($id) => Classes::find($id))
+            ->filter()
+            ->unique('id')
+            ->values();
+    }
+
 
     public function studentProfile()
     {

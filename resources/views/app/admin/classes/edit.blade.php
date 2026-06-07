@@ -60,29 +60,6 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                
-                                                <div class="form-group-inner {{ $errors->has('teacher_id') ? 'has-error' : '' }}">
-                                                    <div class="row">
-                                                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                                                            <label class="login2">Class Teacher</label>
-                                                        </div>
-                                                        <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-                                                            <select class="form-control chosen-select" name="teacher_id">
-                                                                <option value="">-- Select Teacher --</option>
-                                                                @foreach($teachers as $teacher)
-                                                                    <option value="{{ $teacher->id }}" 
-                                                                        {{ $class->teacher_id == $teacher->id ? 'selected' : '' }}>
-                                                                        {{ $teacher->name }}
-                                                                    </option>
-                                                                @endforeach
-                                                            </select>
-                                                            @if($errors->has('teacher_id'))
-                                                                <span class="help-block text-danger">{{ $errors->first('teacher_id') }}</span>
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                
                                                 <div class="form-group-inner">
                                                     <div class="row">
                                                         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12"></div>

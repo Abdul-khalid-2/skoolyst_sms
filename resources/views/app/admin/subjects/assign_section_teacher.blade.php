@@ -92,10 +92,14 @@
                         <li>The dropdown lists only teachers <strong>assigned to teach that subject</strong>.</li>
                         <li>Leave blank to clear an assignment.</li>
                     </ol>
-                    <p style="font-size:12px; color:#888; margin-bottom:0;">
-                        Tip: a teacher appears here only if the subject is assigned to them on the
-                        <em>Assign Subjects</em> page.
+                    <p style="font-size:12px; color:#888; margin-bottom:10px;">
+                        Tip: a teacher appears here only if the subject is in their
+                        <em>Teacher Capabilities</em>.
                     </p>
+                    <a href="{{ route('admin.academic.subjects.assign') }}#teacher-capabilities"
+                       class="btn btn-default btn-sm btn-block">
+                        <i class="fa fa-user-plus"></i> Manage Teacher Capabilities
+                    </a>
                 </div>
             </div>
 
@@ -159,7 +163,9 @@
                                 });
 
                                 var noTeachers = s.teachers.length === 0
-                                    ? '<br><small class="text-danger">No teacher is assigned to this subject yet.</small>'
+                                    ? '<br><small class="text-danger">No teacher is qualified for this subject yet.</small>'
+                                    + ' <a href="{{ route('admin.academic.subjects.assign') }}#teacher-capabilities" class="small">'
+                                    + '<i class="fa fa-external-link"></i> Assign in Teacher Capabilities</a>'
                                     : '';
 
                                 rows += '<tr>'

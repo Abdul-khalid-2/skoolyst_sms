@@ -8,7 +8,6 @@ use App\Models\Classes;
 use App\Models\Exam;
 use App\Models\ExamSchedule;
 use App\Models\Subject;
-use App\Models\TimeTable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -166,12 +165,4 @@ class ExamController extends Controller
         return response()->json(['subjects' => $subjects]);
     }
 
-    private function allowedSubjectIds()
-    {
-        return TimeTable::where('teacher_id', auth()->id())
-            ->whereNotNull('subject_id')
-            ->pluck('subject_id')
-            ->unique()
-            ->values();
-    }
 }

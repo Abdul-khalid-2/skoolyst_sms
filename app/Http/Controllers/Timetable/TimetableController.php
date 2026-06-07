@@ -7,11 +7,13 @@ use App\Models\Branch;
 use App\Models\Classes;
 use App\Models\Section;
 use App\Models\Subject;
-use App\Models\TeacherSubject;
+use App\Models\SectionSubjectTeacher;
 use App\Models\TimeTable;
 use App\Models\User;
+use App\Services\Academic\AssignmentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class TimetableController extends Controller
 {
@@ -22,9 +24,17 @@ class TimetableController extends Controller
         $branchId = auth()->user()->branch_id;
         $timetables = [];
 
-        $classes = Classes::with('sections')
+        $classes = Classes::with(['sections', 'subjects:id,name,code'])
             ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
             ->get();
+
+        $classSubjects = $classes->mapWithKeys(fn ($c) => [
+            $c->id => $c->subjects->map(fn ($s) => [
+                'id'   => $s->id,
+                'name' => $s->name,
+                'code' => $s->code,
+            ])->values(),
+        ]);
 
         foreach ($classes as $class) {
             foreach ($class->sections as $section) {
@@ -84,7 +94,7 @@ class TimetableController extends Controller
         $teachers = User::role('teacher')->when($branchId, fn ($q) => $q->where('branch_id', $branchId))->get();
         $subjects = Subject::when($branchId, fn ($q) => $q->where('branch_id', $branchId))->get();
 
-        return view('app.timetable.index', compact('timetables', 'teachers', 'subjects'));
+        return view('app.timetable.index', compact('timetables', 'teachers', 'subjects', 'classSubjects'));
     }
 
 
@@ -183,34 +193,15 @@ class TimetableController extends Controller
                     'subject_id' => $isBreak ? null : ($period['subject_id'] ?? null),
                     'teacher_id' => $isBreak ? null : ($period['teacher_id'] ?? null),
                 ];
-                $teacherSubject = TeacherSubject::where([
-                    'subject_id' => $period['subject_id'] ?? null,
-                    'teacher_id' => $period['teacher_id'] ?? null,
-                ])->first();
-
-                if ($teacherSubject) {
-                    // If record exists with matching subject_id and teacher_id
-                    if ($teacherSubject->class_id === null || $teacherSubject->class_id == $validated['class_id']) {
-                        // Update if class_id is null or matches
-                        $teacherSubject->update(['class_id' => $validated['class_id']]);
-                    } else {
-                        // Create new record if class_id doesn't match
-                        TeacherSubject::create([
-                            'class_id' => $validated['class_id'],
-                            'subject_id' => $period['subject_id'],
-                            'teacher_id' => $period['teacher_id'],
-                        ]);
-                    }
-                } else {
-                    // Create new record if no matching record found
-                    TeacherSubject::create([
-                        'class_id' => $validated['class_id'],
-                        'subject_id' => $period['subject_id'],
-                        'teacher_id' => $period['teacher_id'],
-                    ]);
+                if (! $isBreak && ! empty($period['subject_id']) && ! empty($period['teacher_id'])) {
+                    app(AssignmentService::class)->validateTimetableSlot(
+                        (int) $validated['class_id'],
+                        (int) $validated['section_id'],
+                        (int) $period['subject_id'],
+                        (int) $period['teacher_id'],
+                    );
                 }
 
-                // Create the entry
                 TimeTable::create($timeTableData);
             }
 
@@ -235,6 +226,71 @@ class TimetableController extends Controller
     }
 
     public function destroy($id) {}
+
+    private function findConflictingScheduleSlot(array $payload, ?int $ignoreEntryId = null): ?TimeTable
+    {
+        $query = TimeTable::withTrashed()
+            ->where('class_id', $payload['class_id'])
+            ->where('section_id', $payload['section_id'])
+            ->where('day_of_week', $payload['day_of_week'])
+            ->where('start_time', $payload['start_time']);
+
+        if ($ignoreEntryId) {
+            $query->where('id', '!=', $ignoreEntryId);
+        }
+
+        return $query->first();
+    }
+
+    private function assertScheduleSlotAvailable(array $payload, ?int $ignoreEntryId = null): void
+    {
+        $existing = $this->findConflictingScheduleSlot($payload, $ignoreEntryId);
+
+        if ($existing && ! $existing->trashed()) {
+            $time = strlen($payload['start_time']) >= 5
+                ? substr($payload['start_time'], 0, 5)
+                : $payload['start_time'];
+
+            throw ValidationException::withMessages([
+                'start' => [
+                    "A schedule already exists on {$payload['day_of_week']} at {$time} for this class and section. Update that period or choose a different start time.",
+                ],
+            ]);
+        }
+    }
+
+    private function persistScheduleSlot(array $payload, ?TimeTable $entry = null): TimeTable
+    {
+        if ($entry) {
+            $this->assertScheduleSlotAvailable($payload, $entry->id);
+            $entry->update($payload);
+
+            return $entry->fresh(['subject', 'teacher']);
+        }
+
+        $existing = $this->findConflictingScheduleSlot($payload);
+
+        if ($existing) {
+            if ($existing->trashed()) {
+                $existing->restore();
+                $existing->update($payload);
+
+                return $existing->fresh(['subject', 'teacher']);
+            }
+
+            $time = strlen($payload['start_time']) >= 5
+                ? substr($payload['start_time'], 0, 5)
+                : $payload['start_time'];
+
+            throw ValidationException::withMessages([
+                'start' => [
+                    "A schedule already exists on {$payload['day_of_week']} at {$time} for this class and section. Use Update on the existing period instead.",
+                ],
+            ]);
+        }
+
+        return TimeTable::create($payload)->load(['subject', 'teacher']);
+    }
 
     private function validateScheduleTimes(string $start, string $end): void
     {
@@ -315,62 +371,43 @@ class TimetableController extends Controller
         $isBreak = $request->input('type') === 'event';
 
         $payload = $this->buildSchedulePayload($request, $isBreak);
-        $entry->update($payload);
 
         if (! $isBreak) {
-            $this->syncTeacherSubject(
+            app(AssignmentService::class)->validateTimetableSlot(
                 (int) $payload['class_id'],
+                (int) $payload['section_id'],
                 (int) $payload['subject_id'],
-                (int) $payload['teacher_id']
+                (int) $payload['teacher_id'],
             );
         }
 
+        $entry = $this->persistScheduleSlot($payload, $entry);
+
         return response()->json([
             'message' => 'Schedule updated successfully',
-            'data' => $entry->fresh(['subject', 'teacher']),
+            'data' => $entry,
         ]);
     }
 
-    private function syncTeacherSubject(int $classId, ?int $subjectId, ?int $teacherId): void
-    {
-        if (! $subjectId || ! $teacherId) {
-            return;
-        }
-
-        $teacherSubject = TeacherSubject::where([
-            'subject_id' => $subjectId,
-            'teacher_id' => $teacherId,
-        ])->first();
-
-        if ($teacherSubject) {
-            if ($teacherSubject->class_id === null || $teacherSubject->class_id == $classId) {
-                $teacherSubject->update(['class_id' => $classId]);
-            } else {
-                TeacherSubject::create([
-                    'class_id' => $classId,
-                    'subject_id' => $subjectId,
-                    'teacher_id' => $teacherId,
-                ]);
-            }
-
-            return;
-        }
-
-        TeacherSubject::create([
-            'class_id' => $classId,
-            'subject_id' => $subjectId,
-            'teacher_id' => $teacherId,
-        ]);
-    }
-
-
-    public function create_schedule()
+    public function create_schedule(Request $request)
     {
         $branchId = auth()->user()->branch_id;
         $teachers = User::with('teacherProfile')->role('teacher')
             ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
             ->get();
-        $subjects = Subject::when($branchId, fn ($q) => $q->where('branch_id', $branchId))->get();
+
+        $subjectsQuery = Subject::when($branchId, fn ($q) => $q->where('branch_id', $branchId));
+
+        if ($request->filled('class_id')) {
+            $class = Classes::with('subjects:id,name,code')
+                ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
+                ->find($request->integer('class_id'));
+
+            $subjects = $class ? $class->subjects : collect();
+        } else {
+            $subjects = $subjectsQuery->orderBy('name')->get();
+        }
+
         return response()->json([
             'teachers' => $teachers,
             'subjects' => $subjects,
@@ -381,15 +418,17 @@ class TimetableController extends Controller
     {
         $isBreak = $request->input('type') === 'event';
         $payload = $this->buildSchedulePayload($request, $isBreak);
-        $data = TimeTable::create($payload);
 
         if (! $isBreak) {
-            $this->syncTeacherSubject(
+            app(AssignmentService::class)->validateTimetableSlot(
                 (int) $payload['class_id'],
+                (int) $payload['section_id'],
                 (int) $payload['subject_id'],
-                (int) $payload['teacher_id']
+                (int) $payload['teacher_id'],
             );
         }
+
+        $data = $this->persistScheduleSlot($payload);
 
         return response()->json([
             'message' => 'Schedule added successfully',
@@ -403,25 +442,23 @@ class TimetableController extends Controller
         $subjectId  = $request->input('subject_id');
         $classId    = $request->input('class_id');
 
-        // Get assigned teachers for this subject and class
-        $assignedTeachers = TeacherSubject::where('subject_id', $subjectId)
-            ->where('class_id', $classId)
-            ->with('teacher.teacherProfile')
-            ->get();
+        $branchId = auth()->user()->branch_id;
+        $service  = app(AssignmentService::class);
+        $sectionId = $request->integer('section_id') ?: null;
 
+        $teachers = $sectionId
+            ? $service->getAllocatedTeachersForSectionSubject((int) $sectionId, (int) $subjectId, $branchId)
+            : $service->getEligibleTeachersForSubject((int) $subjectId, $branchId);
 
-
-        // Extract teacher details
-        $teachers = $assignedTeachers->map(function ($assign) {
-            return $assign->teacher;
-        });
-
-        // Get the first assigned teacher ID (if any)
-        $assignedTeacherId = $assignedTeachers->first() ? $assignedTeachers->first()->teacher_id : null;
+        $assignedTeacherId = $sectionId
+            ? SectionSubjectTeacher::where('section_id', $sectionId)
+                ->where('subject_id', $subjectId)
+                ->value('teacher_id')
+            : null;
 
         return response()->json([
-            'teachers' => $teachers,
-            'assigned_teacher_id' => $assignedTeacherId
+            'teachers'            => $teachers,
+            'assigned_teacher_id' => $assignedTeacherId,
         ]);
     }
 }

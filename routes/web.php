@@ -1,5 +1,6 @@
 ﻿<?php
 
+use App\Http\Controllers\Admin\AcademicSetupController;
 use App\Http\Controllers\Admin\ClassesController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ParentController;
@@ -17,11 +18,29 @@ use App\Http\Controllers\Student\AttendanceController as StudentAttendanceContro
 use App\Http\Controllers\Student\ResultController as StudentResultController;
 use App\Http\Controllers\Student\FeeController as StudentFeeController;
 use App\Http\Controllers\Student\BookIssueController as StudentBookIssueController;
+use App\Http\Controllers\Parent\DashboardController as ParentDashboardController;
+use App\Http\Controllers\Parent\ChildrenController as ParentChildrenController;
+use App\Http\Controllers\Parent\AttendanceController as ParentAttendanceController;
+use App\Http\Controllers\Parent\ResultController as ParentResultController;
+use App\Http\Controllers\Parent\FeeController as ParentFeeController;
+use App\Http\Controllers\Parent\BookIssueController as ParentBookIssueController;
+use App\Http\Controllers\Parent\NoticeController as ParentNoticeController;
+use App\Http\Controllers\Accountant\DashboardController as AccountantDashboardController;
+use App\Http\Controllers\Accountant\FeeController as AccountantFeeController;
+use App\Http\Controllers\Accountant\PaymentController as AccountantPaymentController;
+use App\Http\Controllers\Accountant\ReportController as AccountantReportController;
 use App\Http\Controllers\Teacher\ProfileController as TeacherProfileController;
 use App\Http\Controllers\Teacher\StudentController as TeacherStudentController;
 use App\Http\Controllers\Teacher\AttendanceController as TeacherAttendanceController;
 use App\Http\Controllers\Teacher\ExamController as TeacherExamController;
 use App\Http\Controllers\Teacher\ExamResultController as TeacherExamResultController;
+use App\Http\Controllers\Teacher\DashboardController as TeacherDashboardController;
+use App\Http\Controllers\Teacher\SubjectController as TeacherSubjectController;
+use App\Http\Controllers\Teacher\TimetableController as TeacherTimetableController;
+use App\Http\Controllers\Teacher\ReportController as TeacherReportController;
+use App\Http\Controllers\Student\TimetableController as StudentTimetableController;
+use App\Http\Controllers\Student\NoticeController as StudentNoticeController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Attendance\AttendanceController as SessionAttendanceController;
 use App\Http\Controllers\Admin\BranchController as AdminBranchController;
 use App\Http\Controllers\Admin\BranchSettingsController;
@@ -58,6 +77,7 @@ require __DIR__.'/auth.php';
 
 Route::middleware(['auth', 'verified', 'scope.branch'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
 
     Route::get('/profile', [ProfileController::class, 'redirect'])->name('profile.edit');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -131,6 +151,8 @@ Route::middleware(['auth', 'verified', 'scope.branch', 'role:super-admin|admin']
     Route::put('/edit_teacher/{id?}', [TeacherController::class, 'update'])->name('admin.update.teacher');
     Route::delete('/destroy_teacher', [TeacherController::class, 'destroy'])->name('admin.destroy.teacher');
     Route::post('/teacher/status-update', [TeacherController::class, 'updateStatus'])->name('teacher.update.status');
+
+    Route::get('/academic-setup', [AcademicSetupController::class, 'index'])->name('admin.academic.setup');
 
     Route::prefix('classes')->name('admin.academic.classes.')->group(function () {
         Route::get('/', [ClassesController::class, 'index'])->name('index');
@@ -291,8 +313,6 @@ Route::middleware(['auth', 'verified', 'scope.branch', 'role:super-admin|admin']
     });
     Route::get('/branch-settings', [BranchSettingsController::class, 'edit'])->name('branch.settings');
     Route::put('/branch-settings', [BranchSettingsController::class, 'update'])->name('branch.settings.update');
-    Route::get('/notifications', fn () => response()->json(['message' => 'Notifications']))->name('notifications.index');
-
     Route::resource('user', UserController::class);
 });
 
@@ -300,8 +320,11 @@ Route::middleware(['auth', 'verified', 'scope.branch', 'role:teacher'])->group(f
     Route::get('/teacher/profile', [TeacherProfileController::class, 'index'])->name('teacher.profile');
     Route::get('/teacher/profile/edit', [TeacherProfileController::class, 'edit'])->name('teacher.profile.edit');
     Route::patch('/teacher/profile', [TeacherProfileController::class, 'update'])->name('teacher.profile.update');
+    Route::get('/teacher/dashboard', [TeacherDashboardController::class, 'index'])->name('teacher.dashboard');
     Route::get('/teacher/students', [TeacherStudentController::class, 'index'])->name('teacher.students');
-    Route::get('/teacher/timetable', [TimetableController::class, 'index'])->name('teacher.timetable');
+    Route::get('/teacher/subjects', [TeacherSubjectController::class, 'index'])->name('teacher.subjects');
+    Route::get('/teacher/timetable', [TeacherTimetableController::class, 'index'])->name('teacher.timetable');
+    Route::get('/teacher/reports', [TeacherReportController::class, 'index'])->name('teacher.reports');
 
     Route::prefix('teacher/attendance')->name('teacher.attendance.')->group(function () {
         Route::get('/get-sections', [TeacherAttendanceController::class, 'getSections'])->name('sections');
@@ -336,7 +359,8 @@ Route::middleware(['auth', 'verified', 'scope.branch', 'role:student'])->group(f
     Route::get('/student/profile', [StudentProfileController::class, 'index'])->name('student.profile');
     Route::get('/student/profile/edit', [StudentProfileController::class, 'edit'])->name('student.profile.edit');
     Route::patch('/student/profile', [StudentProfileController::class, 'update'])->name('student.profile.update');
-    Route::get('/student/timetable', [TimetableController::class, 'index'])->name('student.timetable');
+    Route::get('/student/timetable', [StudentTimetableController::class, 'index'])->name('student.timetable');
+    Route::get('/student/notices', [StudentNoticeController::class, 'index'])->name('student.notices');
     Route::get('/student/attendance', [StudentAttendanceController::class, 'index'])->name('student.attendance');
     Route::get('/student/results', [StudentResultController::class, 'index'])->name('student.results');
     Route::get('/student/results/{exam}', [StudentResultController::class, 'show'])->name('student.results.show');
@@ -345,15 +369,20 @@ Route::middleware(['auth', 'verified', 'scope.branch', 'role:student'])->group(f
     Route::get('/student/books', [StudentBookIssueController::class, 'index'])->name('student.books');
 });
 
-Route::middleware(['auth', 'verified', 'scope.branch', 'role:parent'])->group(function () {
-    Route::get('/parent/children', fn () => response()->json(['message' => 'Parent children']))->name('parent.children');
-    Route::get('/parent/attendance', fn () => response()->json(['message' => 'Parent attendance']))->name('parent.attendance');
-    Route::get('/parent/results', fn () => response()->json(['message' => 'Parent results']))->name('parent.results');
-    Route::get('/parent/fees', fn () => response()->json(['message' => 'Parent fees']))->name('parent.fees');
+Route::middleware(['auth', 'verified', 'scope.branch', 'role:parent'])->prefix('parent')->name('parent.')->group(function () {
+    Route::get('/dashboard', [ParentDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/children', [ParentChildrenController::class, 'index'])->name('children');
+    Route::get('/children/{student}/attendance', [ParentAttendanceController::class, 'index'])->name('children.attendance');
+    Route::get('/children/{student}/results', [ParentResultController::class, 'index'])->name('children.results');
+    Route::get('/children/{student}/results/{exam}', [ParentResultController::class, 'show'])->name('children.results.show');
+    Route::get('/fees', [ParentFeeController::class, 'index'])->name('fees');
+    Route::get('/books', [ParentBookIssueController::class, 'index'])->name('books');
+    Route::get('/notices', [ParentNoticeController::class, 'index'])->name('notices');
 });
 
-Route::middleware(['auth', 'verified', 'scope.branch', 'role:accountant'])->group(function () {
-    Route::get('/accountant/fees', fn () => response()->json(['message' => 'Accountant fees']))->name('accountant.fees');
-    Route::get('/accountant/payments', fn () => response()->json(['message' => 'Accountant payments']))->name('accountant.payments');
-    Route::get('/accountant/reports', fn () => response()->json(['message' => 'Accountant reports']))->name('accountant.reports');
+Route::middleware(['auth', 'verified', 'scope.branch', 'role:accountant'])->prefix('accountant')->name('accountant.')->group(function () {
+    Route::get('/dashboard', [AccountantDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/fees', [AccountantFeeController::class, 'index'])->name('fees');
+    Route::get('/payments', [AccountantPaymentController::class, 'index'])->name('payments');
+    Route::get('/reports', [AccountantReportController::class, 'index'])->name('reports');
 });

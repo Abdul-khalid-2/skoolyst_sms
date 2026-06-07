@@ -8,6 +8,7 @@ use App\Models\Section;
 use App\Models\SectionSubjectTeacher;
 use App\Models\Subject;
 use App\Models\User;
+use App\Services\Academic\AssignmentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -65,11 +66,10 @@ class SubjectTeacherController extends Controller
         $assigned = SectionSubjectTeacher::where('section_id', $request->section_id)
             ->pluck('teacher_id', 'subject_id');
 
-        $subjects = $class->subjects->map(function (Subject $subject) use ($assigned) {
-            $teachers = $subject->teachers()
-                ->when($this->branchId, fn ($q) => $q->where('users.branch_id', $this->branchId))
-                ->orderBy('name')
-                ->get(['users.id', 'users.name'])
+        $service = app(AssignmentService::class);
+
+        $subjects = $class->subjects->map(function (Subject $subject) use ($assigned, $service) {
+            $teachers = $service->getEligibleTeachersForSubject($subject->id, $this->branchId)
                 ->map(fn ($t) => ['id' => $t->id, 'name' => $t->name])
                 ->values();
 
@@ -102,30 +102,20 @@ class SubjectTeacherController extends Controller
             ->with('subjects:id')
             ->findOrFail($data['class_id']);
 
-        Section::where('id', $data['section_id'])
+        $section = Section::where('id', $data['section_id'])
             ->where('class_id', $class->id)
             ->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
             ->firstOrFail();
 
-        $curriculumIds = $class->subjects->pluck('id');
+        $subjectTeacherMap = [];
+        foreach ($class->subjects->pluck('id') as $subjectId) {
+            $subjectTeacherMap[$subjectId] = $data['teachers'][$subjectId] ?? null;
+        }
 
         try {
             DB::beginTransaction();
 
-            foreach ($curriculumIds as $subjectId) {
-                $teacherId = $data['teachers'][$subjectId] ?? null;
-
-                if ($teacherId) {
-                    SectionSubjectTeacher::updateOrCreate(
-                        ['section_id' => $data['section_id'], 'subject_id' => $subjectId],
-                        ['class_id' => $class->id, 'teacher_id' => $teacherId]
-                    );
-                } else {
-                    SectionSubjectTeacher::where('section_id', $data['section_id'])
-                        ->where('subject_id', $subjectId)
-                        ->delete();
-                }
-            }
+            app(AssignmentService::class)->assignSectionTeachers($section, $subjectTeacherMap);
 
             DB::commit();
 

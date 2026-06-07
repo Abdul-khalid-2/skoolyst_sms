@@ -329,20 +329,7 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div class="form-group-inner">
-                                                        <div class="row">
-                                                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                                                                <label class="login2">Is Class Teacher</label>
-                                                            </div>
-                                                            <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-                                                                <div class="bt-df-checkbox">
-                                                                    <input type="checkbox" name="is_class_teacher" value="1" id="isClassTeacher" {{ old('is_class_teacher') ? 'checked' : '' }}>
-                                                                    <span class="checkmark"></span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="form-group-inner {{ $errors->has('class_teacher_of') ? 'has-error' : '' }}" id="classTeacherOfContainer" style="display:{{ old('is_class_teacher') ? 'block' : 'none' }};">
+                                                    <div class="form-group-inner {{ $errors->has('class_teacher_of') ? 'has-error' : '' }}">
                                                         <div class="row">
                                                             <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                                                 <label class="login2">Class Teacher Of</label>
@@ -447,9 +434,6 @@
                 document.addEventListener('DOMContentLoaded', function() {
                     var profileInput = document.getElementById('profile_pic');
                     var preview = document.getElementById('profilePicPreview');
-                    var classTeacherCheckbox = document.getElementById('isClassTeacher');
-                    var classTeacherContainer = document.getElementById('classTeacherOfContainer');
-
                     if (profileInput && preview) {
                         profileInput.addEventListener('change', function() {
                             var file = this.files[0];
@@ -461,12 +445,6 @@
                                 preview.src = '';
                                 preview.style.display = 'none';
                             }
-                        });
-                    }
-
-                    if (classTeacherCheckbox && classTeacherContainer) {
-                        classTeacherCheckbox.addEventListener('change', function() {
-                            classTeacherContainer.style.display = this.checked ? 'block' : 'none';
                         });
                     }
                 });

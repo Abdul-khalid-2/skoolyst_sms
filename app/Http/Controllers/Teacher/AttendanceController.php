@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Teacher\Concerns\ScopesTeacherAssignments;
 use App\Models\Attendance;
 use App\Models\AttendanceSession;
 use App\Models\Classes;
@@ -17,56 +18,11 @@ use Illuminate\View\View;
 
 class AttendanceController extends Controller
 {
-    private function branchId(): ?int
-    {
-        return Auth::user()?->branch_id;
-    }
+    use ScopesTeacherAssignments;
 
     private function dayOfWeekFromDate(string $date): string
     {
         return date('l', strtotime($date));
-    }
-
-    /**
-     * (class_id, section_id) combinations the authenticated teacher may take
-     * attendance for: the sections they teach via timetable, plus every
-     * section of the class they are class-teacher of.
-     */
-    private function allowedPairs(): Collection
-    {
-        $teacher = Auth::user();
-
-        $pairs = TimeTable::where('teacher_id', $teacher->id)
-            ->whereNotNull('class_id')
-            ->whereNotNull('section_id')
-            ->select('class_id', 'section_id')
-            ->distinct()
-            ->get()
-            ->map(fn ($row) => [
-                'class_id'   => (int) $row->class_id,
-                'section_id' => (int) $row->section_id,
-            ]);
-
-        $classTeacherOfId = optional($teacher->teacherProfile)->class_teacher_of;
-
-        if ($classTeacherOfId) {
-            Section::where('class_id', $classTeacherOfId)
-                ->pluck('id')
-                ->each(function ($sectionId) use (&$pairs, $classTeacherOfId) {
-                    $pairs->push([
-                        'class_id'   => (int) $classTeacherOfId,
-                        'section_id' => (int) $sectionId,
-                    ]);
-                });
-        }
-
-        return $pairs->unique(fn ($p) => $p['class_id'].'-'.$p['section_id'])->values();
-    }
-
-    private function allows(int $classId, int $sectionId): bool
-    {
-        return $this->allowedPairs()
-            ->contains(fn ($p) => $p['class_id'] === $classId && $p['section_id'] === $sectionId);
     }
 
     public function create(): View

@@ -434,21 +434,7 @@
                                                     </div>
                                                 </div>
 
-                                                <div class="form-group-inner">
-                                                    <div class="row">
-                                                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                                                            <label class="login2">Is Class Teacher</label>
-                                                        </div>
-                                                        <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-                                                            <div class="bt-df-checkbox">
-                                                                <input type="checkbox" name="is_class_teacher" value="1" id="isClassTeacher" {{ old('is_class_teacher', $teacher->teacherProfile->is_class_teacher) ? 'checked' : '' }}>
-                                                                <span class="checkmark"></span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="form-group-inner @error('class_teacher_of') has-error @enderror" id="classTeacherOfContainer" style="display: {{ old('is_class_teacher', $teacher->teacherProfile->is_class_teacher) ? 'block' : 'none' }};">
+                                                <div class="form-group-inner @error('class_teacher_of') has-error @enderror">
                                                     <div class="row">
                                                         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                                             <label class="login2">Class Teacher Of</label>
@@ -609,15 +595,6 @@
  
         @push('js')
              <script>
-                // Show/hide class teacher field based on checkbox
-                $('#isClassTeacher').change(function() {
-                    if(this.checked) {
-                        $('#classTeacherOfContainer').show();
-                    } else {
-                        $('#classTeacherOfContainer').hide();
-                    }
-                });
-                
                 // You might want to add salary calculation logic here
                 // For example, automatically update current salary when base salary changes
                 $('input[name="base_salary"]').on('change', function() {

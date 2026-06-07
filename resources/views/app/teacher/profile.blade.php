@@ -44,7 +44,7 @@
                         @endif
                     </p>
 
-                    @if($profile && $profile->is_class_teacher && $profile->classTeacherOf)
+                    @if($profile && $profile->class_teacher_of && $profile->classTeacherOf)
                         <span class="label label-success">Class Teacher — {{ $profile->classTeacherOf->name }}</span>
                     @endif
 
@@ -158,11 +158,9 @@
                                 <tr>
                                     <th>Class Teacher</th>
                                     <td>
-                                        @if($profile->is_class_teacher)
+                                        @if($profile->class_teacher_of && $profile->classTeacherOf)
                                             <span class="label label-success">Yes</span>
-                                            @if($profile->classTeacherOf)
-                                                &nbsp;<small class="text-muted">{{ $profile->classTeacherOf->name }}</small>
-                                            @endif
+                                            &nbsp;<small class="text-muted">{{ $profile->classTeacherOf->name }}</small>
                                         @else
                                             <span class="label label-default">No</span>
                                         @endif
@@ -193,13 +191,59 @@
                         </div>
                         <div class="col-md-6">
                             <h5 class="text-muted"><i class="fa fa-graduation-cap"></i> Classes</h5>
-                            @forelse($teacher->teacherClasses->unique('id') as $class)
+                            @forelse($teacher->allAssignedClasses() as $class)
                                 <span class="label label-primary" style="display:inline-block; margin:2px;">{{ $class->name }}</span>
                             @empty
                                 <p class="text-muted">No classes assigned.</p>
                             @endforelse
                         </div>
                     </div>
+                </div>
+
+                {{-- Subject allocations (class + section + subject) --}}
+                <div class="white-box">
+                    <h3 class="box-title">
+                        <i class="fa fa-list-alt"></i> My Subject Allocations
+                        <span class="badge" style="background:#16a085; margin-left:6px;">
+                            {{ $teacher->subjectAllocations->count() }}
+                        </span>
+                    </h3>
+
+                    @if($teacher->subjectAllocations->isEmpty())
+                        <p class="text-muted text-center" style="padding: 20px 0;">
+                            <i class="fa fa-inbox fa-2x" style="display:block; margin-bottom:8px;"></i>
+                            You have not been allocated any subjects yet.
+                        </p>
+                    @else
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped" style="margin-bottom:0;">
+                                <thead style="background:#f5f5f5;">
+                                    <tr>
+                                        <th style="width:40px;">#</th>
+                                        <th>Class</th>
+                                        <th>Section</th>
+                                        <th>Subject</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($teacher->subjectAllocations->sortBy(fn ($a) => [$a->class?->name, $a->section?->name]) as $i => $alloc)
+                                        <tr>
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{ $alloc->class?->name ?? '—' }}</td>
+                                            <td>{{ $alloc->section?->name ?? '—' }}</td>
+                                            <td>
+                                                <i class="fa fa-book text-muted"></i>
+                                                {{ $alloc->subject?->name ?? '—' }}
+                                                @if($alloc->subject)
+                                                    <span class="label label-default">{{ $alloc->subject->code }}</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
                 </div>
 
             </div>

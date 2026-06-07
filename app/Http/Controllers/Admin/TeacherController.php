@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Classes;
-use App\Models\Branch;
 use App\Models\TeacherProfile;
 use App\Models\User;
+use App\Services\Academic\AssignmentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
@@ -67,7 +67,6 @@ class TeacherController extends Controller
             'emergency_contact' => 'required|string|max:255',
             'bio'               => 'nullable|string',
             'social_links'      => 'nullable|string',
-            'is_class_teacher'  => 'boolean',
             'class_teacher_of'  => 'nullable|exists:classes,id',
 
             // File uploads
@@ -141,11 +140,17 @@ class TeacherController extends Controller
                 'signature'         => $signaturePath,
                 'bio'               => $validated['bio'],
                 'social_links'      => $validated['social_links'],
-                'is_class_teacher'  => $validated['is_class_teacher'] ?? false,
-                'class_teacher_of'  => $validated['class_teacher_of'],
+                'class_teacher_of'  => null,
                 'qualification_documents' => $qualificationDocPath,
             ]);
 
+            if (! empty($validated['class_teacher_of'])) {
+                $class = Classes::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
+                    ->find($validated['class_teacher_of']);
+                if ($class) {
+                    app(AssignmentService::class)->assignClassTeacher($user, $class);
+                }
+            }
 
             // In future I might want to add additional features like:
             // Sending a welcome email with login credentials
@@ -175,7 +180,15 @@ class TeacherController extends Controller
     public function show($encodedId = null)
     {
         $id = Crypt::decrypt($encodedId);
-        $teacher = User::role('teacher')->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))->with(['teacherProfile', 'teacherSubjects', 'teacherClasses'])
+        $teacher = User::role('teacher')->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
+            ->with([
+                'teacherProfile.classTeacherOf',
+                'teacherSubjects',
+                'teacherClasses',
+                'subjectAllocations.subject',
+                'subjectAllocations.section',
+                'subjectAllocations.section.class',
+            ])
             ->orderBy('name')
             ->findorfail($id);
 
@@ -210,7 +223,6 @@ class TeacherController extends Controller
             'emergency_contact' => 'required|string|max:255',
             'bio'               => 'nullable|string',
             'social_links'      => 'nullable|string',
-            'is_class_teacher'  => 'sometimes|boolean', // Changed to sometimes
             'class_teacher_of'  => 'nullable|exists:classes,id',
 
             // File uploads
@@ -289,9 +301,15 @@ class TeacherController extends Controller
                 'signature'        => $signaturePath,
                 'bio'               => $validated['bio'],
                 'social_links'     => $validated['social_links'],
-                'is_class_teacher'  => $validated['is_class_teacher'] ?? false,
-                'class_teacher_of'  => $validated['class_teacher_of'],
+                'class_teacher_of'  => null,
             ]);
+
+            $class = null;
+            if (! empty($validated['class_teacher_of'])) {
+                $class = Classes::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
+                    ->find($validated['class_teacher_of']);
+            }
+            app(AssignmentService::class)->assignClassTeacher($user, $class);
 
             DB::commit();
 
