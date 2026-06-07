@@ -98,7 +98,7 @@ class TeacherController extends Controller
                 'address'     => $validated['address'],
                 'gender'      => $validated['gender'],
                 'dob'         => $validated['dob'],
-                'password'    => bcrypt('12345678'), // Default password
+                'password'    => '12345678', // Default password
                 'role'        => $validated['role'],
             ]);
 

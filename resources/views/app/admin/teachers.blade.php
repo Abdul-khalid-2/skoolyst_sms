@@ -12,12 +12,14 @@
     <div class="data-table-area mg-b-15">
        <div class="container-fluid">
            <div class="row">
-                <x-page-header
-                    title="All Teachers"
-                    :add-route="route('dashboard.add.teacher')"
-                    add-label="Add Teacher"
-                    add-icon="fa-user-plus"
-                />
+                <x-page-header title="All Subjects">
+                    <a href="{{ route('dashboard.add.teacher') }}" style="color: #333;">
+                        <i class="fa fa-plus"></i> Add Teacher
+                    </a>
+                    <a href="{{ route('admin.academic.subjects.assign') }}" style="color: #333;">
+                        <i class="fa fa-user-plus"></i> Assign Class
+                    </a>
+                </x-page-header>
                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                    <div class="sparkline13-list">
                        

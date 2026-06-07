@@ -1,4 +1,13 @@
 <x-tenant-app-layout>
+    @push('css')
+        <link rel="stylesheet" href="{{ asset('backend/css/select2/select2.min.css') }}">
+        <style>
+            /* Make select2 match the Bootstrap form-control height */
+            .select2-container .select2-selection--single { height: 34px; }
+            .select2-container--default .select2-selection--single .select2-selection__rendered { line-height: 34px; }
+            .select2-container--default .select2-selection--single .select2-selection__arrow { height: 32px; }
+        </style>
+    @endpush
     <x-slot name="header"></x-slot>
 
     <div class="container-fluid">
@@ -59,12 +68,21 @@
                                     <div class="col-lg-4">
                                         <div class="form-group">
                                             <label>Category</label>
-                                            <select name="category" class="form-control">
-                                                <option value="">-- Select Category --</option>
-                                                @foreach(['Science','Mathematics','English','Urdu','Social Studies','Islamic Studies','Computer','History','Geography','Arts','Sports','Reference','Fiction','Non-Fiction','Other'] as $cat)
-                                                    <option value="{{ $cat }}" {{ old('category') === $cat ? 'selected' : '' }}>{{ $cat }}</option>
-                                                @endforeach
-                                            </select>
+                                            <div style="display:flex; gap:6px; align-items:flex-start;">
+                                                <div style="flex:1; min-width:0;">
+                                                    <select name="category" id="book_category" class="form-control">
+                                                        <option value="">-- Select Category --</option>
+                                                        @foreach(['Science','Mathematics','English','Urdu','Social Studies','Islamic Studies','Computer','History','Geography','Arts','Sports','Reference','Fiction','Non-Fiction','Other'] as $cat)
+                                                            <option value="{{ $cat }}" {{ old('category') === $cat ? 'selected' : '' }}>{{ $cat }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <button type="button" id="add_category_btn" class="btn btn-primary"
+                                                    title="Add a new category">
+                                                    <i class="fa fa-plus"></i>
+                                                </button>
+                                            </div>
+                                            <small class="text-muted">Search the list, type a new name, or click <strong>+</strong> to add one.</small>
                                         </div>
                                     </div>
                                     <div class="col-lg-4">
@@ -124,6 +142,7 @@
     </div>
 
     @push('js')
+        <script src="{{ asset('backend/js/select2/select2.full.min.js') }}"></script>
         <script>
         $(document).ready(function () {
             $('#qty_total').on('input', function () {
@@ -131,6 +150,33 @@
                 var avail = parseInt($('#qty_avail').val()) || 0;
                 if (avail > max) $('#qty_avail').val(max);
                 $('#qty_avail').attr('max', max);
+            });
+
+            // Searchable category dropdown that also lets you type a brand-new category.
+            var $category = $('#book_category');
+            $category.select2({
+                width: '100%',
+                tags: true,
+                placeholder: '-- Select Category --',
+                allowClear: true
+            });
+
+            // "+" button: prompt for a new category, add it if missing, then select it.
+            $('#add_category_btn').on('click', function () {
+                var name = (prompt('Enter new category name:') || '').trim();
+                if (name === '') {
+                    return;
+                }
+
+                var existing = $category.find('option').filter(function () {
+                    return $(this).val().toLowerCase() === name.toLowerCase();
+                }).first();
+
+                if (existing.length) {
+                    $category.val(existing.val()).trigger('change');
+                } else {
+                    $category.append(new Option(name, name, true, true)).trigger('change');
+                }
             });
         });
         </script>
