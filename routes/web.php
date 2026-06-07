@@ -165,6 +165,7 @@ Route::middleware(['auth', 'verified', 'scope.branch', 'role:super-admin|admin']
     Route::get('subject_assign/', [SubjectController::class, 'assign'])->name('admin.academic.subjects.assign');
     Route::post('subject_assign/', [SubjectController::class, 'assignTeacherStore'])->name('admin.academic.subjects.assign_teacher');
     Route::post('/subjects/assign-class-teacher', [SubjectController::class, 'assignClassTeacherStore'])->name('admin.academic.subjects.assign_class_teacher');
+    Route::post('/subjects/assign-class-subject', [SubjectController::class, 'assignClassSubjectStore'])->name('admin.academic.subjects.assign_class_subject');
 
     Route::prefix('timetable')->name('admin.timetable.')->group(function () {
         Route::get('/', [TimetableController::class, 'index'])->name('index');

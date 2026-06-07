@@ -18,7 +18,7 @@
             <div class="row">
 
                 <x-page-header
-                    title="Assign Teachers to Subjects"
+                    title="Assign Subjects & Classes & Teachers"
                     :back-route="route('admin.academic.subjects.index')"
                 />
 
@@ -31,12 +31,17 @@
                                 <ul class="nav nav-tabs" style="margin-bottom: 0;">
                                     <li class="active">
                                         <a href="#assign-subjects" data-toggle="tab">
-                                            <i class="fa fa-book"></i> Assign Subjects
+                                            <i class="fa fa-book"></i> Teachers Subjects 
                                         </a>
                                     </li>
                                     <li>
                                         <a href="#assign-class-teacher" data-toggle="tab">
-                                            <i class="fa fa-graduation-cap"></i> Assign Class Teacher
+                                            <i class="fa fa-graduation-cap"></i> Teachers Class
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#assign-class-subjects" data-toggle="tab">
+                                            <i class="fa fa-list-alt"></i> Class Subjects
                                         </a>
                                     </li>
                                     <li>
@@ -53,7 +58,7 @@
 
                                 <div class="tab-content" style="padding: 20px; border: 1px solid #ddd; border-top: none;">
 
-                                    {{-- Tab 1: Assign Teachers to Subjects --}}
+                                    {{-- Tab 1: Assign Subjects to Teachers --}}
                                     <div class="tab-pane active" id="assign-subjects">
                                         <form id="assignTeacherForm" method="POST" action="{{ route('admin.academic.subjects.assign_teacher') }}">
                                             @csrf
@@ -61,30 +66,32 @@
                                                 <table class="table table-striped table-bordered">
                                                     <thead style="background:#f5f5f5;">
                                                         <tr>
-                                                            <th style="width:35%;">Subject</th>
-                                                            <th>Assigned Teachers</th>
+                                                            <th style="width:35%;">Teacher</th>
+                                                            <th>Assigned Subjects</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        @foreach($subjects as $subject)
+                                                        @forelse($teachers as $teacher)
                                                             <tr>
                                                                 <td>
-                                                                    <strong>{{ $subject->name }}</strong>
-                                                                    <small class="text-muted" style="display:block;">{{ $subject->code }}</small>
+                                                                    <strong>{{ $teacher->name }}</strong>
+                                                                    <small class="text-muted" style="display:block;">{{ $teacher->email }}</small>
                                                                 </td>
                                                                 <td>
-                                                                    <select name="subject_assignments[{{ $subject->id }}][]"
+                                                                    <select name="teacher_subjects[{{ $teacher->id }}][]"
                                                                         class="chosen-select" multiple style="width:100%;">
-                                                                        @foreach($teachers as $teacher)
-                                                                            <option value="{{ $teacher->id }}"
-                                                                                {{ in_array($teacher->id, $subjectAssignments[$subject->id] ?? []) ? 'selected' : '' }}>
-                                                                                {{ $teacher->name }}
+                                                                        @foreach($subjects as $subject)
+                                                                            <option value="{{ $subject->id }}"
+                                                                                {{ in_array($subject->id, $teacherSubjectIds[$teacher->id] ?? []) ? 'selected' : '' }}>
+                                                                                {{ $subject->name }} ({{ $subject->code }})
                                                                             </option>
                                                                         @endforeach
                                                                     </select>
                                                                 </td>
                                                             </tr>
-                                                        @endforeach
+                                                        @empty
+                                                            <tr><td colspan="2" class="text-center text-muted" style="padding:20px;">No teachers found.</td></tr>
+                                                        @endforelse
                                                     </tbody>
                                                 </table>
                                             </div>
@@ -96,35 +103,41 @@
                                         </form>
                                     </div>
 
-                                    {{-- Tab 2: Assign Class Teachers --}}
+                                    {{-- Tab 2: Assign Classes to Teachers (class-teacher role) --}}
                                     <div class="tab-pane" id="assign-class-teacher">
                                         <form id="assignClassTeacherForm" method="POST" action="{{ route('admin.academic.subjects.assign_class_teacher') }}">
                                             @csrf
+                                            <p class="text-muted" style="margin-bottom:12px;">
+                                                Choose which class each teacher is the <strong>class teacher</strong> of.
+                                                This is what lets them mark that class's attendance.
+                                            </p>
                                             <div class="table-responsive">
                                                 <table class="table table-striped table-bordered">
                                                     <thead style="background:#f5f5f5;">
                                                         <tr>
-                                                            <th style="width:35%;">Class</th>
-                                                            <th>Class Teacher</th>
+                                                            <th style="width:35%;">Teacher</th>
+                                                            <th>Class Teacher Of</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        @foreach($classes as $class)
+                                                        @forelse($teachers as $teacher)
                                                             <tr>
-                                                                <td><strong>{{ $class->name }}</strong></td>
+                                                                <td><strong>{{ $teacher->name }}</strong></td>
                                                                 <td>
-                                                                    <select name="class_teachers[{{ $class->id }}]" class="form-control">
-                                                                        <option value="">-- Select Class Teacher --</option>
-                                                                        @foreach($teachers as $teacher)
-                                                                            <option value="{{ $teacher->id }}"
-                                                                                {{ ($classTeachers[$class->id] ?? null) == $teacher->id ? 'selected' : '' }}>
-                                                                                {{ $teacher->name }}
+                                                                    <select name="teacher_class[{{ $teacher->id }}]" class="form-control">
+                                                                        <option value="">-- Not a Class Teacher --</option>
+                                                                        @foreach($classes as $class)
+                                                                            <option value="{{ $class->id }}"
+                                                                                {{ ($teacherClassOf[$teacher->id] ?? null) == $class->id ? 'selected' : '' }}>
+                                                                                {{ $class->name }}
                                                                             </option>
                                                                         @endforeach
                                                                     </select>
                                                                 </td>
                                                             </tr>
-                                                        @endforeach
+                                                        @empty
+                                                            <tr><td colspan="2" class="text-center text-muted" style="padding:20px;">No teachers found.</td></tr>
+                                                        @endforelse
                                                     </tbody>
                                                 </table>
                                             </div>
@@ -136,7 +149,53 @@
                                         </form>
                                     </div>
 
-                                    {{-- Tab 3: Teachers & Subjects (read-only summary) --}}
+                                    {{-- Tab 3: Class Subjects (curriculum) --}}
+                                    <div class="tab-pane" id="assign-class-subjects">
+                                        <form id="assignClassSubjectForm" method="POST" action="{{ route('admin.academic.subjects.assign_class_subject') }}">
+                                            @csrf
+                                            <p class="text-muted" style="margin-bottom:12px;">
+                                                Choose which <strong>subjects each class offers</strong> (its curriculum).
+                                                Teacher and timetable subject pickers will be limited to these.
+                                            </p>
+                                            <div class="table-responsive">
+                                                <table class="table table-striped table-bordered">
+                                                    <thead style="background:#f5f5f5;">
+                                                        <tr>
+                                                            <th style="width:35%;">Class</th>
+                                                            <th>Subjects Offered</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @forelse($classes as $class)
+                                                            <tr>
+                                                                <td><strong>{{ $class->name }}</strong></td>
+                                                                <td>
+                                                                    <select name="class_subjects[{{ $class->id }}][]"
+                                                                        class="chosen-select" multiple style="width:100%;">
+                                                                        @foreach($subjects as $subject)
+                                                                            <option value="{{ $subject->id }}"
+                                                                                {{ in_array($subject->id, $classSubjectIds[$class->id] ?? []) ? 'selected' : '' }}>
+                                                                                {{ $subject->name }} ({{ $subject->code }})
+                                                                            </option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                </td>
+                                                            </tr>
+                                                        @empty
+                                                            <tr><td colspan="2" class="text-center text-muted" style="padding:20px;">No classes found.</td></tr>
+                                                        @endforelse
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div class="text-right" style="margin-top: 15px;">
+                                                <button class="btn btn-primary" type="submit">
+                                                    <i class="fa fa-save"></i> Save Class Subjects
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+
+                                    {{-- Tab 4: Teachers & Subjects (read-only summary) --}}
                                     <div class="tab-pane" id="teachers-subjects">
                                         @php
                                             // Pivot: teacher_id => [subject names]
@@ -257,6 +316,12 @@
                     width: "100%",
                     disable_search_threshold: 5
                 });
+
+                // Open the tab referenced by the URL hash (e.g. links from the class page).
+                var hash = window.location.hash;
+                if (hash && $('.nav-tabs a[href="' + hash + '"]').length) {
+                    $('.nav-tabs a[href="' + hash + '"]').tab('show');
+                }
             });
         </script>
     @endpush

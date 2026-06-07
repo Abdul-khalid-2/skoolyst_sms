@@ -248,9 +248,6 @@
                                     <div class="col-lg-8">
                                         <select name="periods[${periodCount}][subject_id]" class="form-control subject-select" onchange="fetchTeachers(this, ${periodCount})">
                                             <option value="">Select Subject</option>
-                                            @foreach($subjects as $subject)
-                                                <option value="{{ $subject->id }}">{{ $subject->name }}</option>
-                                            @endforeach
                                         </select>
                                     </div>
                                 </div>
@@ -284,6 +281,9 @@
                     </div>`;
                     
                     $('#periodsContainer').append(periodHtml);
+
+                    // Populate the new period's subject dropdown from the selected class's curriculum.
+                    populateSubjectSelect($('#' + periodId).find('.subject-select'), $('#class_id').val());
                 });
                 
                 // Remove period
@@ -431,6 +431,42 @@
                     if ($(this).val()) {
                         fetchTeachers(this, periodCount);
                     }
+                });
+            });
+        </script>
+
+        <script>
+            // Curriculum map: { class_id: [ {id, name, code}, ... ] }
+            const classSubjects = @json($classSubjects);
+
+            // Fill a subject <select> with only the subjects offered by the given class.
+            function populateSubjectSelect($select, classId) {
+                const previous = $select.val();
+                let options = '<option value="">Select Subject</option>';
+
+                if (!classId) {
+                    $select.html('<option value="">Select Class First</option>');
+                    return;
+                }
+
+                const subjects = classSubjects[classId] || [];
+                if (subjects.length === 0) {
+                    $select.html('<option value="">No subjects set for this class</option>');
+                    return;
+                }
+
+                subjects.forEach(function (s) {
+                    const selected = (s.id == previous) ? ' selected' : '';
+                    options += `<option value="${s.id}"${selected}>${s.name} (${s.code})</option>`;
+                });
+                $select.html(options);
+            }
+
+            // When the class changes, refresh every period's subject dropdown.
+            $('#class_id').on('change', function () {
+                const classId = $(this).val();
+                $('.subject-select').each(function () {
+                    populateSubjectSelect($(this), classId);
                 });
             });
         </script>

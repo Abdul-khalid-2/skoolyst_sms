@@ -91,12 +91,19 @@ class TimetableController extends Controller
     public function create()
     {
         $branchId = auth()->user()->branch_id;
-        $classes  = Classes::when($branchId, fn ($q) => $q->where('branch_id', $branchId))->get();
+        $classes  = Classes::when($branchId, fn ($q) => $q->where('branch_id', $branchId))
+            ->with('subjects:id,name,code')
+            ->get();
         $sections = Section::when($branchId, fn ($q) => $q->where('branch_id', $branchId))->get();
         $subjects = Subject::when($branchId, fn ($q) => $q->where('branch_id', $branchId))->get();
         $teachers = User::role('teacher')->when($branchId, fn ($q) => $q->where('branch_id', $branchId))->get();
 
-        return view('app.timetable.create', compact('classes', 'sections', 'subjects', 'teachers'));
+        // class_id => [{id, name, code}] — each class's curriculum, for filtering the subject picker.
+        $classSubjects = $classes->mapWithKeys(fn ($c) => [
+            $c->id => $c->subjects->map(fn ($s) => ['id' => $s->id, 'name' => $s->name, 'code' => $s->code])->values(),
+        ]);
+
+        return view('app.timetable.create', compact('classes', 'sections', 'subjects', 'teachers', 'classSubjects'));
     }
 
 

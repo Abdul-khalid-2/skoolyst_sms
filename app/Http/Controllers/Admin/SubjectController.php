@@ -7,6 +7,7 @@ use App\Models\Branch;
 use App\Models\Classes;
 use App\Models\Section;
 use App\Models\Subject;
+use App\Models\TeacherProfile;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -169,17 +170,34 @@ class SubjectController extends Controller
 
         $teachers = User::role('teacher')
             ->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
+            ->with(['teacherProfile', 'teacherSubjects'])
             ->orderBy('name')
             ->get();
 
         $classes = Classes::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
+            ->with('subjects:id')
             ->orderBy('numeric_value')
             ->get();
 
+        // class_id => [subject ids] — for the "Class Subjects" (curriculum) form
+        $classSubjectIds = [];
+        foreach ($classes as $class) {
+            $classSubjectIds[$class->id] = $class->subjects->pluck('id')->toArray();
+        }
+
+        // teacher_id => [subject ids] — for the "Assign Subjects (to teachers)" form
+        $teacherSubjectIds = [];
+        // teacher_id => class_id — for the "Assign Classes (to teachers)" form
+        $teacherClassOf = [];
+        foreach ($teachers as $teacher) {
+            $teacherSubjectIds[$teacher->id] = $teacher->teacherSubjects->pluck('id')->toArray();
+            $teacherClassOf[$teacher->id]    = optional($teacher->teacherProfile)->class_teacher_of;
+        }
+
+        // Kept for the read-only summary tabs.
         $subjectAssignments = [];
         foreach ($subjects as $subject) {
-            $assignedTeachers = $subject->teachers()->get();
-            $subjectAssignments[$subject->id] = $assignedTeachers->pluck('id')->toArray();
+            $subjectAssignments[$subject->id] = $subject->teachers()->pluck('users.id')->toArray();
         }
 
         $classTeachers = [];
@@ -191,63 +209,125 @@ class SubjectController extends Controller
             'subjects',
             'teachers',
             'classes',
+            'teacherSubjectIds',
+            'teacherClassOf',
+            'classSubjectIds',
             'subjectAssignments',
             'classTeachers'
         ));
     }
 
-    public function assignTeacherStore(Request $request)
+    /**
+     * Assign subjects (curriculum) to each class — class_subject pivot.
+     */
+    public function assignClassSubjectStore(Request $request)
     {
         $request->validate([
-            'subject_assignments' => 'required|array',
-            'subject_assignments.*' => 'nullable|array',
-            'subject_assignments.*.*' => 'exists:users,id',
+            'class_subjects'     => 'required|array',
+            'class_subjects.*'   => 'nullable|array',
+            'class_subjects.*.*' => 'exists:subjects,id',
         ]);
 
         try {
             DB::beginTransaction();
 
-            foreach ($request->subject_assignments as $subjectId => $teacherIds) {
-                $subject = Subject::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
-                    ->findOrFail($subjectId);
-                $subject->teachers()->sync($teacherIds ?? []);
+            foreach ($request->class_subjects as $classId => $subjectIds) {
+                $class = Classes::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
+                    ->findOrFail($classId);
+
+                $class->subjects()->sync($subjectIds ?? []);
             }
 
             DB::commit();
 
             return redirect()->back()
-                ->with('success', 'Teacher assignments updated successfully!');
+                ->with('success', 'Class subjects updated successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()
-                ->with('error', 'Error updating teacher assignments: ' . $e->getMessage());
+                ->with('error', 'Error updating class subjects: ' . $e->getMessage());
         }
     }
 
-    public function assignClassTeacherStore(Request $request)
+    /**
+     * Assign subjects to each teacher (inverse of the old subject→teachers form).
+     */
+    public function assignTeacherStore(Request $request)
     {
         $request->validate([
-            'class_teachers' => 'required|array',
-            'class_teachers.*' => 'nullable|exists:users,id',
+            'teacher_subjects'     => 'required|array',
+            'teacher_subjects.*'   => 'nullable|array',
+            'teacher_subjects.*.*' => 'exists:subjects,id',
         ]);
 
         try {
             DB::beginTransaction();
 
-            foreach ($request->class_teachers as $classId => $teacherId) {
-                $class = Classes::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
-                    ->findOrFail($classId);
-                $class->update(['teacher_id' => $teacherId]);
+            foreach ($request->teacher_subjects as $teacherId => $subjectIds) {
+                $teacher = User::role('teacher')
+                    ->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
+                    ->findOrFail($teacherId);
+
+                $teacher->teacherSubjects()->sync($subjectIds ?? []);
             }
 
             DB::commit();
 
             return redirect()->back()
-                ->with('success', 'Class teachers updated successfully!');
+                ->with('success', 'Subject assignments updated successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()
-                ->with('error', 'Error updating class teachers: ' . $e->getMessage());
+                ->with('error', 'Error updating subject assignments: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Assign a class (class-teacher role) to each teacher (inverse of the old class→teacher form).
+     * Keeps teacher_profiles.class_teacher_of and classes.teacher_id in sync.
+     */
+    public function assignClassTeacherStore(Request $request)
+    {
+        $request->validate([
+            'teacher_class'   => 'required|array',
+            'teacher_class.*' => 'nullable|exists:classes,id',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            // Reset current class-teacher links within the branch, then re-apply from the form.
+            Classes::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
+                ->update(['teacher_id' => null]);
+            TeacherProfile::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
+                ->update(['class_teacher_of' => null, 'is_class_teacher' => false]);
+
+            foreach ($request->teacher_class as $teacherId => $classId) {
+                $teacher = User::role('teacher')
+                    ->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
+                    ->findOrFail($teacherId);
+
+                if (empty($classId)) {
+                    continue;
+                }
+
+                $class = Classes::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
+                    ->findOrFail($classId);
+
+                TeacherProfile::where('teacher_id', $teacher->id)
+                    ->update(['class_teacher_of' => $class->id, 'is_class_teacher' => true]);
+
+                $class->update(['teacher_id' => $teacher->id]);
+            }
+
+            DB::commit();
+
+            return redirect()->back()
+                ->with('success', 'Class teacher assignments updated successfully!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->with('error', 'Error updating class teacher assignments: ' . $e->getMessage());
         }
     }
 }

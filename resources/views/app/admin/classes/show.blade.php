@@ -70,6 +70,31 @@
                                 </td>
                             </tr>
                             <tr>
+                                <th>Class Teacher</th>
+                                <td>
+                                    @php
+                                        $classTeacherNames = $class->classTeacherProfiles
+                                            ->map(fn ($p) => $p->teacher?->name)
+                                            ->filter()
+                                            ->unique()
+                                            ->values();
+                                    @endphp
+                                    @if($classTeacherNames->isNotEmpty())
+                                        @foreach($classTeacherNames as $name)
+                                            <span class="label label-success" style="margin-right:4px;">
+                                                <i class="fa fa-user"></i> {{ $name }}
+                                            </span>
+                                        @endforeach
+                                    @elseif($class->classTeacher)
+                                        <span class="label label-success">
+                                            <i class="fa fa-user"></i> {{ $class->classTeacher->name }}
+                                        </span>
+                                    @else
+                                        <span class="text-muted">Not assigned</span>
+                                    @endif
+                                </td>
+                            </tr>
+                            <tr>
                                 <th>Status</th>
                                 <td>
                                     @if($class->trashed())
@@ -147,6 +172,42 @@
             </div>
         </div>
 
+        {{-- ── Curriculum (Subjects Offered) ───────────────────── --}}
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="white-box">
+                    <h3 class="box-title">
+                        <i class="fa fa-list-alt"></i> Subjects Offered (Curriculum)
+                        <span class="badge" style="background:#16a085; margin-left:6px;">
+                            {{ $class->subjects->count() }}
+                        </span>
+                        @unless($class->trashed())
+                            <a href="{{ route('admin.academic.subjects.assign') }}#assign-class-subjects"
+                               class="btn btn-xs btn-primary pull-right" style="margin-top:-2px;">
+                                <i class="fa fa-plus"></i> Manage Subjects
+                            </a>
+                        @endunless
+                    </h3>
+
+                    @if($class->subjects->isEmpty())
+                        <p class="text-muted text-center" style="padding: 20px 0;">
+                            <i class="fa fa-inbox fa-2x" style="display:block; margin-bottom:8px;"></i>
+                            No subjects assigned to this class yet.
+                        </p>
+                    @else
+                        <div style="padding: 6px 0;">
+                            @foreach($class->subjects as $subject)
+                                <span class="label label-info" style="margin:0 4px 6px 0; display:inline-block; font-size:13px; padding:6px 10px;">
+                                    <i class="fa fa-book"></i> {{ $subject->name }}
+                                    <small style="opacity:.8;">({{ $subject->code }})</small>
+                                </span>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
         {{-- ── Teacher–Subject Assignments ─────────────────────── --}}
         <div class="row">
             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
@@ -156,6 +217,18 @@
                         <span class="badge" style="background:#8e44ad; margin-left:6px;">
                             {{ $class->classTeachersSubjects->count() }}
                         </span>
+                        @unless($class->trashed())
+                            <span class="pull-right" style="margin-top:-2px;">
+                                <a href="{{ route('admin.academic.subjects.assign') }}#assign-subjects"
+                                   class="btn btn-xs btn-primary">
+                                    <i class="fa fa-book"></i> Assign Subjects
+                                </a>
+                                <a href="{{ route('admin.academic.subjects.assign') }}#assign-class-teacher"
+                                   class="btn btn-xs btn-success">
+                                    <i class="fa fa-graduation-cap"></i> Assign Class Teacher
+                                </a>
+                            </span>
+                        @endunless
                     </h3>
 
                     @if($class->classTeachersSubjects->isEmpty())

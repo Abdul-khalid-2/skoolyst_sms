@@ -33,9 +33,35 @@ class Classes extends Model
         return $this->hasMany(TeacherSubject::class, 'class_id');
     }
 
+    /**
+     * The class teacher stored directly on the class (classes.teacher_id).
+     */
+    public function classTeacher()
+    {
+        return $this->belongsTo(User::class, 'teacher_id');
+    }
+
+    /**
+     * Teacher profiles marked as class-teacher of this class
+     * (teacher_profiles.class_teacher_of). Use ->teacher for the user.
+     */
+    public function classTeacherProfiles()
+    {
+        return $this->hasMany(TeacherProfile::class, 'class_teacher_of');
+    }
+
     public function timetables()
     {
         return $this->hasMany(TimeTable::class, 'class_id');
+    }
+
+    /**
+     * Subjects this class offers (curriculum) — class_subject pivot.
+     */
+    public function subjects()
+    {
+        return $this->belongsToMany(Subject::class, 'class_subject', 'class_id', 'subject_id')
+            ->withTimestamps();
     }
 }
 

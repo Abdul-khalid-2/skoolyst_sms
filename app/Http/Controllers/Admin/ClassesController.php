@@ -97,7 +97,14 @@ class ClassesController extends Controller
         $id = Crypt::decrypt($encodedId);
         $class = Classes::withTrashed()
             ->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
-            ->with(['sections', 'classTeachersSubjects.teacher', 'classTeachersSubjects.subject'])
+            ->with([
+                'sections',
+                'classTeachersSubjects.teacher',
+                'classTeachersSubjects.subject',
+                'classTeacher',
+                'classTeacherProfiles.teacher',
+                'subjects',
+            ])
             ->findOrFail($id);
 
         return view('app.admin.classes.show', compact('class'));
