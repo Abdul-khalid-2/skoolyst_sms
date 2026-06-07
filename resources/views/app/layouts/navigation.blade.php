@@ -1025,8 +1025,8 @@
                                     
                                     <li><a data-toggle="collapse" data-target="#exams"  href="javascript:void(0)">Exams <span class="admin-project-icon edu-icon edu-down-arrow"></span></a>
                                         <ul id="exams" class="collapse dropdown-header-top">
-                                            <li><a  href="javascript:void(0)">Create Tests</a></li>
-                                            <li><a  href="javascript:void(0)">Enter Marks</a></li>
+                                            <li><a  href="{{ route('teacher.exams.tests.index') }}">Create Tests</a></li>
+                                            <li><a  href="{{ route('teacher.exams.marks.index') }}">Enter Marks</a></li>
                                         </ul>
                                     </li>
                                     

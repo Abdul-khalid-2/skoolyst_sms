@@ -19,6 +19,8 @@ use App\Http\Controllers\Student\BookIssueController as StudentBookIssueControll
 use App\Http\Controllers\Teacher\ProfileController as TeacherProfileController;
 use App\Http\Controllers\Teacher\StudentController as TeacherStudentController;
 use App\Http\Controllers\Teacher\AttendanceController as TeacherAttendanceController;
+use App\Http\Controllers\Teacher\ExamController as TeacherExamController;
+use App\Http\Controllers\Teacher\ExamResultController as TeacherExamResultController;
 use App\Http\Controllers\Attendance\AttendanceController as SessionAttendanceController;
 use App\Http\Controllers\Admin\BranchController as AdminBranchController;
 use App\Http\Controllers\Admin\BranchSettingsController;
@@ -300,6 +302,25 @@ Route::middleware(['auth', 'verified', 'scope.branch', 'role:teacher'])->group(f
         Route::get('/{session}', [TeacherAttendanceController::class, 'show'])->name('show')->whereNumber('session');
     });
     Route::get('/teacher/attendance', [TeacherAttendanceController::class, 'create'])->name('teacher.attendance');
+
+    Route::prefix('teacher/exams')->name('teacher.exams.')->group(function () {
+        Route::prefix('tests')->name('tests.')->group(function () {
+            Route::get('/', [TeacherExamController::class, 'index'])->name('index');
+            Route::get('/create', [TeacherExamController::class, 'create'])->name('create');
+            Route::post('/', [TeacherExamController::class, 'store'])->name('store');
+            Route::get('/subjects', [TeacherExamController::class, 'getSubjects'])->name('subjects');
+            Route::get('/{exam}', [TeacherExamController::class, 'show'])->name('show');
+        });
+
+        Route::prefix('marks')->name('marks.')->group(function () {
+            Route::get('/', [TeacherExamResultController::class, 'index'])->name('index');
+            Route::get('/sections', [TeacherExamResultController::class, 'getSections'])->name('sections');
+            Route::get('/subjects', [TeacherExamResultController::class, 'getSubjects'])->name('subjects');
+            Route::get('/{exam}/students', [TeacherExamResultController::class, 'getStudents'])->name('students');
+            Route::get('/{exam}/enter', [TeacherExamResultController::class, 'enter'])->name('enter');
+            Route::post('/{exam}', [TeacherExamResultController::class, 'store'])->name('store');
+        });
+    });
 });
 
 Route::middleware(['auth', 'verified', 'scope.branch', 'role:student'])->group(function () {

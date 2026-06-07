@@ -250,8 +250,8 @@
                             <span class="mini-click-non"> Exams</span>
                         </a>
                         <ul class="submenu-angle" aria-expanded="false">
-                            <li><a href="">Create Tests</a></li>
-                            <li><a href="">Enter Marks</a></li>
+                            <li><a href="{{ route('teacher.exams.tests.index') }}">Create Tests</a></li>
+                            <li><a href="{{ route('teacher.exams.marks.index') }}">Enter Marks</a></li>
                         </ul>
                     </li>
                     @endif
