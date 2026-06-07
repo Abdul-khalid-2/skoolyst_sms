@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Classes;
 use App\Models\Branch;
 use App\Models\Section;
+use App\Models\SectionSubjectTeacher;
 use App\Models\SystemSetting;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -99,15 +100,39 @@ class ClassesController extends Controller
             ->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
             ->with([
                 'sections',
-                'classTeachersSubjects.teacher',
-                'classTeachersSubjects.subject',
                 'classTeacher',
                 'classTeacherProfiles.teacher',
                 'subjects',
             ])
             ->findOrFail($id);
 
-        return view('app.admin.classes.show', compact('class'));
+        // Per-section subject → teacher, from the section_subject_teacher allocation.
+        $allocations = SectionSubjectTeacher::where('class_id', $class->id)
+            ->with('teacher:id,name,email')
+            ->get();
+
+        // [section_id][subject_id] => teacher
+        $allocationMap = [];
+        foreach ($allocations as $a) {
+            if ($a->teacher) {
+                $allocationMap[$a->section_id][$a->subject_id] = $a->teacher;
+            }
+        }
+
+        $sectionCurriculum = [];
+        foreach ($class->sections as $section) {
+            $rows = [];
+            foreach ($class->subjects as $subject) {
+                $teacher = $allocationMap[$section->id][$subject->id] ?? null;
+                $rows[] = [
+                    'subject'  => $subject,
+                    'teachers' => $teacher ? collect([$teacher]) : collect(),
+                ];
+            }
+            $sectionCurriculum[$section->id] = $rows;
+        }
+
+        return view('app.admin.classes.show', compact('class', 'sectionCurriculum'));
     }
 
     public function update(Request $request, $id)

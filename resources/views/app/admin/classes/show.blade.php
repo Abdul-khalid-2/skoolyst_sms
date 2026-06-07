@@ -208,83 +208,91 @@
             </div>
         </div>
 
-        {{-- ── Teacher–Subject Assignments ─────────────────────── --}}
+        {{-- ── Subject & Teacher Assignments (per section) ─────── --}}
         <div class="row">
             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                 <div class="white-box">
                     <h3 class="box-title">
                         <i class="fa fa-book"></i> Subject &amp; Teacher Assignments
-                        <span class="badge" style="background:#8e44ad; margin-left:6px;">
-                            {{ $class->classTeachersSubjects->count() }}
-                        </span>
                         @unless($class->trashed())
                             <span class="pull-right" style="margin-top:-2px;">
-                                <a href="{{ route('admin.academic.subjects.assign') }}#assign-subjects"
+                                <a href="{{ route('admin.academic.subjects.assign') }}#assign-class-subjects"
                                    class="btn btn-xs btn-primary">
-                                    <i class="fa fa-book"></i> Assign Subjects
+                                    <i class="fa fa-list-alt"></i> Manage Curriculum
                                 </a>
-                                <a href="{{ route('admin.academic.subjects.assign') }}#assign-class-teacher"
+                                <a href="{{ route('admin.academic.subjects.section_teacher') }}"
                                    class="btn btn-xs btn-success">
-                                    <i class="fa fa-graduation-cap"></i> Assign Class Teacher
+                                    <i class="fa fa-user-plus"></i> Assign Subject Teachers
                                 </a>
                             </span>
                         @endunless
                     </h3>
 
-                    @if($class->classTeachersSubjects->isEmpty())
+                    <p class="text-muted" style="margin-bottom:14px; font-size:13px;">
+                        Curriculum subjects for each section and the teacher assigned to teach them.
+                    </p>
+
+                    @if($class->subjects->isEmpty())
                         <p class="text-muted text-center" style="padding: 20px 0;">
                             <i class="fa fa-inbox fa-2x" style="display:block; margin-bottom:8px;"></i>
-                            No subject assignments found for this class.
+                            No subjects in this class's curriculum yet.
+                            <br><a href="{{ route('admin.academic.subjects.assign') }}#assign-class-subjects">Add subjects to the curriculum</a>
+                        </p>
+                    @elseif($class->sections->isEmpty())
+                        <p class="text-muted text-center" style="padding: 20px 0;">
+                            <i class="fa fa-inbox fa-2x" style="display:block; margin-bottom:8px;"></i>
+                            This class has no sections yet.
                         </p>
                     @else
-                        <div class="table-responsive">
-                            <table class="table table-hover table-bordered table-striped" style="margin-bottom:0;">
-                                <thead style="background:#f5f5f5;">
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Subject</th>
-                                        <th>Subject Code</th>
-                                        <th>Teacher</th>
-                                        <th>Teacher Email</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($class->classTeachersSubjects as $i => $assignment)
+                        @foreach($class->sections as $section)
+                            <h4 style="font-size:14px; font-weight:700; margin:18px 0 8px;">
+                                <i class="fa fa-sitemap text-muted"></i>
+                                {{ $class->name }} – {{ $section->name }}
+                            </h4>
+                            <div class="table-responsive">
+                                <table class="table table-hover table-bordered table-striped" style="margin-bottom:0;">
+                                    <thead style="background:#f5f5f5;">
                                         <tr>
-                                            <td>{{ $i + 1 }}</td>
-                                            <td>
-                                                @if($assignment->subject)
-                                                    <i class="fa fa-book text-muted" style="margin-right:4px;"></i>
-                                                    {{ $assignment->subject->name }}
-                                                @else
-                                                    <span class="text-muted">—</span>
-                                                @endif
-                                            </td>
-                                            <td>
-                                                @if($assignment->subject)
-                                                    <span class="label label-default">
-                                                        {{ $assignment->subject->code }}
-                                                    </span>
-                                                @else
-                                                    <span class="text-muted">—</span>
-                                                @endif
-                                            </td>
-                                            <td>
-                                                @if($assignment->teacher)
-                                                    <i class="fa fa-user text-muted" style="margin-right:4px;"></i>
-                                                    {{ $assignment->teacher->name }}
-                                                @else
-                                                    <span class="text-muted">Not assigned</span>
-                                                @endif
-                                            </td>
-                                            <td>
-                                                {{ $assignment->teacher->email ?? '—' }}
-                                            </td>
+                                            <th style="width:40px;">#</th>
+                                            <th>Subject</th>
+                                            <th>Subject Code</th>
+                                            <th>Teacher</th>
+                                            <th>Teacher Email</th>
                                         </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($sectionCurriculum[$section->id] as $i => $row)
+                                            <tr>
+                                                <td>{{ $i + 1 }}</td>
+                                                <td>
+                                                    <i class="fa fa-book text-muted" style="margin-right:4px;"></i>
+                                                    {{ $row['subject']->name }}
+                                                </td>
+                                                <td>
+                                                    <span class="label label-default">{{ $row['subject']->code }}</span>
+                                                </td>
+                                                <td>
+                                                    @forelse($row['teachers'] as $teacher)
+                                                        <span style="display:inline-block; margin-right:6px;">
+                                                            <i class="fa fa-user text-muted"></i> {{ $teacher->name }}
+                                                        </span>
+                                                    @empty
+                                                        <span class="text-muted">Not assigned</span>
+                                                    @endforelse
+                                                </td>
+                                                <td>
+                                                    @forelse($row['teachers'] as $teacher)
+                                                        <div>{{ $teacher->email }}</div>
+                                                    @empty
+                                                        <span class="text-muted">—</span>
+                                                    @endforelse
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @endforeach
                     @endif
                 </div>
             </div>

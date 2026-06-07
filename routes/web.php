@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\SchoolProfileController;
 use App\Http\Controllers\Admin\SectionController;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\SubjectController;
+use App\Http\Controllers\Admin\SubjectTeacherController;
 use App\Http\Controllers\Admin\TeacherController;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\App\ProfileController;
@@ -167,6 +168,12 @@ Route::middleware(['auth', 'verified', 'scope.branch', 'role:super-admin|admin']
     Route::post('/subjects/assign-class-teacher', [SubjectController::class, 'assignClassTeacherStore'])->name('admin.academic.subjects.assign_class_teacher');
     Route::post('/subjects/assign-class-subject', [SubjectController::class, 'assignClassSubjectStore'])->name('admin.academic.subjects.assign_class_subject');
 
+    // Assign a teacher to each subject of a class section.
+    Route::get('/subject-teacher-assign', [SubjectTeacherController::class, 'index'])->name('admin.academic.subjects.section_teacher');
+    Route::get('/subject-teacher-assign/sections/{classId}', [SubjectTeacherController::class, 'getSections'])->name('admin.academic.subjects.section_teacher.sections');
+    Route::get('/subject-teacher-assign/subjects', [SubjectTeacherController::class, 'getSubjects'])->name('admin.academic.subjects.section_teacher.subjects');
+    Route::post('/subject-teacher-assign', [SubjectTeacherController::class, 'store'])->name('admin.academic.subjects.section_teacher.store');
+
     Route::prefix('timetable')->name('admin.timetable.')->group(function () {
         Route::get('/', [TimetableController::class, 'index'])->name('index');
         Route::get('/create', [TimetableController::class, 'create'])->name('create');
@@ -219,6 +226,7 @@ Route::middleware(['auth', 'verified', 'scope.branch', 'role:super-admin|admin']
 
         // Schedule
         Route::get('/{exam}/schedule/create',                    [ExamScheduleController::class, 'create'])->name('schedule.create');
+        Route::get('/{exam}/schedule/subjects',                  [ExamScheduleController::class, 'getSubjects'])->name('schedule.subjects');
         Route::post('/{exam}/schedule',                          [ExamScheduleController::class, 'store'])->name('schedule.store');
         Route::get('/{exam}/schedule/{schedule}/edit',           [ExamScheduleController::class, 'edit'])->name('schedule.edit');
         Route::put('/{exam}/schedule/{schedule}',                [ExamScheduleController::class, 'update'])->name('schedule.update');

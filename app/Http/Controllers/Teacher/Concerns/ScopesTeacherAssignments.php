@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Teacher\Concerns;
 
+use App\Models\Classes;
 use App\Models\Section;
 use App\Models\TimeTable;
 use Illuminate\Support\Collection;
@@ -72,16 +73,23 @@ trait ScopesTeacherAssignments
     }
 
     /**
-     * Subject ids the teacher teaches in the given class (via timetable).
+     * Subject ids the teacher may enter marks for in the given class:
+     * the class's curriculum (class_subject pivot) INTERSECTED with the
+     * subjects assigned to this teacher (teacher_subjects). So a teacher only
+     * marks their own subjects, and only those the class actually offers.
      */
     private function allowedSubjectIdsForClass(int $classId): Collection
     {
-        return TimeTable::where('teacher_id', Auth::id())
-            ->where('class_id', $classId)
-            ->whereNotNull('subject_id')
-            ->pluck('subject_id')
-            ->unique()
-            ->values();
+        $class = Classes::find($classId);
+
+        if (! $class) {
+            return collect();
+        }
+
+        $curriculum      = $class->subjects->pluck('id');
+        $teacherSubjects = Auth::user()->teacherSubjects->pluck('id');
+
+        return $curriculum->intersect($teacherSubjects)->unique()->values();
     }
 
     private function allowsSubject(int $classId, int $subjectId): bool

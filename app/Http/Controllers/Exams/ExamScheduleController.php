@@ -22,8 +22,27 @@ class ExamScheduleController extends Controller
     {
         $branchId = $this->branchId();
         $classes  = Classes::when($branchId, fn ($q) => $q->where('branch_id', $branchId))->orderBy('numeric_value')->get();
-        $subjects = Subject::when($branchId, fn ($q) => $q->where('branch_id', $branchId))->orderBy('name')->get();
-        return view('app.exams.schedule.create', compact('exam', 'classes', 'subjects'));
+        return view('app.exams.schedule.create', compact('exam', 'classes'));
+    }
+
+    /**
+     * Curriculum subjects of a class (AJAX, for the schedule subject dropdown).
+     */
+    public function getSubjects(Request $request, Exam $exam)
+    {
+        $request->validate(['class_id' => 'required|integer']);
+
+        $branchId = $this->branchId();
+
+        $class = Classes::when($branchId, fn ($q) => $q->where('branch_id', $branchId))
+            ->with('subjects:id,name,code')
+            ->findOrFail($request->class_id);
+
+        $subjects = $class->subjects
+            ->map(fn ($s) => ['id' => $s->id, 'name' => $s->name, 'code' => $s->code])
+            ->values();
+
+        return response()->json(['subjects' => $subjects]);
     }
 
     public function store(Request $request, Exam $exam)
@@ -36,7 +55,15 @@ class ExamScheduleController extends Controller
             'end_time'      => 'nullable|date_format:H:i|after:start_time',
             'room_number'   => 'nullable|string|max:20',
             'max_marks'     => 'nullable|integer|min:1',
-            'passing_marks' => 'nullable|integer|min:1',
+            'passing_marks' => 'nullable|integer|min:1|lte:max_marks',
+        ], [
+            'class_id.required'      => 'Please select a class.',
+            'subject_id.required'    => 'Please select a subject.',
+            'exam_date.required'     => 'Please choose the exam date.',
+            'start_time.date_format' => 'Start time must be a valid time (HH:MM).',
+            'end_time.date_format'   => 'End time must be a valid time (HH:MM).',
+            'end_time.after'         => 'End time must be later than the start time.',
+            'passing_marks.lte'      => 'Passing marks cannot be greater than max marks.',
         ]);
 
         $data['branch_id'] = $this->branchId();

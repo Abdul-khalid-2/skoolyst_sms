@@ -13,11 +13,22 @@
                             <form action="{{ route('exams.schedule.store', $exam) }}" method="POST">
                                 @csrf
 
+                                @if($errors->any())
+                                    <div class="alert alert-danger" style="margin-bottom:15px;">
+                                        <strong><i class="fa fa-exclamation-circle"></i> Please fix the following:</strong>
+                                        <ul style="margin:8px 0 0 18px; padding:0;">
+                                            @foreach($errors->all() as $error)
+                                                <li>{{ $error }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                @endif
+
                                 <div class="row">
                                     <div class="col-lg-6">
                                         <div class="form-group">
                                             <label>Class <span class="text-danger">*</span></label>
-                                            <select name="class_id" class="form-control" required>
+                                            <select name="class_id" id="schedule_class_id" class="form-control @error('class_id') is-invalid @enderror" required>
                                                 <option value="">-- Select Class --</option>
                                                 @foreach($classes as $class)
                                                     <option value="{{ $class->id }}" {{ old('class_id') == $class->id ? 'selected' : '' }}>
@@ -25,64 +36,68 @@
                                                     </option>
                                                 @endforeach
                                             </select>
+                                            @error('class_id')<small class="text-danger">{{ $message }}</small>@enderror
                                         </div>
                                     </div>
                                     <div class="col-lg-6">
                                         <div class="form-group">
                                             <label>Subject <span class="text-danger">*</span></label>
-                                            <select name="subject_id" class="form-control" required>
-                                                <option value="">-- Select Subject --</option>
-                                                @foreach($subjects as $subject)
-                                                    <option value="{{ $subject->id }}" {{ old('subject_id') == $subject->id ? 'selected' : '' }}>
-                                                        {{ $subject->name }}
-                                                    </option>
-                                                @endforeach
+                                            <select name="subject_id" id="schedule_subject_id" class="form-control @error('subject_id') is-invalid @enderror" required>
+                                                <option value="">-- Select Class First --</option>
                                             </select>
+                                            <small class="text-muted">Only subjects in the selected class's curriculum are shown.</small>
+                                            @error('subject_id')<small class="text-danger" style="display:block;">{{ $message }}</small>@enderror
                                         </div>
                                     </div>
                                     <div class="col-lg-4">
                                         <div class="form-group">
                                             <label>Exam Date <span class="text-danger">*</span></label>
-                                            <input type="date" name="exam_date" class="form-control"
+                                            <input type="date" name="exam_date" class="form-control @error('exam_date') is-invalid @enderror"
                                                 value="{{ old('exam_date') }}" required>
+                                            @error('exam_date')<small class="text-danger">{{ $message }}</small>@enderror
                                         </div>
                                     </div>
                                     <div class="col-lg-4">
                                         <div class="form-group">
                                             <label>Start Time</label>
-                                            <input type="time" name="start_time" class="form-control"
+                                            <input type="time" name="start_time" class="form-control @error('start_time') is-invalid @enderror"
                                                 value="{{ old('start_time') }}">
+                                            @error('start_time')<small class="text-danger">{{ $message }}</small>@enderror
                                         </div>
                                     </div>
                                     <div class="col-lg-4">
                                         <div class="form-group">
                                             <label>End Time</label>
-                                            <input type="time" name="end_time" class="form-control"
+                                            <input type="time" name="end_time" class="form-control @error('end_time') is-invalid @enderror"
                                                 value="{{ old('end_time') }}">
+                                            @error('end_time')<small class="text-danger">{{ $message }}</small>@enderror
                                         </div>
                                     </div>
                                     <div class="col-lg-4">
                                         <div class="form-group">
                                             <label>Room / Hall</label>
-                                            <input type="text" name="room_number" class="form-control"
+                                            <input type="text" name="room_number" class="form-control @error('room_number') is-invalid @enderror"
                                                 placeholder="e.g. Room 101"
                                                 value="{{ old('room_number') }}">
+                                            @error('room_number')<small class="text-danger">{{ $message }}</small>@enderror
                                         </div>
                                     </div>
                                     <div class="col-lg-4">
                                         <div class="form-group">
                                             <label>Max Marks</label>
-                                            <input type="number" name="max_marks" class="form-control"
+                                            <input type="number" name="max_marks" class="form-control @error('max_marks') is-invalid @enderror"
                                                 placeholder="100" min="1"
                                                 value="{{ old('max_marks', 100) }}">
+                                            @error('max_marks')<small class="text-danger">{{ $message }}</small>@enderror
                                         </div>
                                     </div>
                                     <div class="col-lg-4">
                                         <div class="form-group">
                                             <label>Passing Marks</label>
-                                            <input type="number" name="passing_marks" class="form-control"
+                                            <input type="number" name="passing_marks" class="form-control @error('passing_marks') is-invalid @enderror"
                                                 placeholder="40" min="1"
                                                 value="{{ old('passing_marks', 40) }}">
+                                            @error('passing_marks')<small class="text-danger">{{ $message }}</small>@enderror
                                         </div>
                                     </div>
                                     <div class="col-lg-12" style="margin-top:10px;">
@@ -187,4 +202,47 @@
 
         </div>
     </div>
+
+    @push('js')
+        <script>
+        $(document).ready(function () {
+            var subjectsUrl  = '{{ route('exams.schedule.subjects', $exam) }}';
+            var oldSubjectId = '{{ old('subject_id') }}';
+
+            function loadSubjects(classId, selectId) {
+                var $subject = $('#schedule_subject_id');
+
+                if (!classId) {
+                    $subject.html('<option value="">-- Select Class First --</option>');
+                    return;
+                }
+
+                $subject.html('<option value="">Loading...</option>');
+
+                $.get(subjectsUrl, { class_id: classId }, function (res) {
+                    var opts = '<option value="">-- Select Subject --</option>';
+                    if (!res.subjects || res.subjects.length === 0) {
+                        opts = '<option value="">No subjects in this class\'s curriculum</option>';
+                    } else {
+                        $.each(res.subjects, function (i, s) {
+                            var sel = (selectId && selectId == s.id) ? ' selected' : '';
+                            opts += '<option value="' + s.id + '"' + sel + '>' + s.name + ' (' + s.code + ')</option>';
+                        });
+                    }
+                    $subject.html(opts);
+                });
+            }
+
+            $('#schedule_class_id').on('change', function () {
+                loadSubjects($(this).val(), null);
+            });
+
+            // Restore subjects if the form reloaded with a previously chosen class (validation error).
+            var initialClass = $('#schedule_class_id').val();
+            if (initialClass) {
+                loadSubjects(initialClass, oldSubjectId);
+            }
+        });
+        </script>
+    @endpush
 </x-tenant-app-layout>
