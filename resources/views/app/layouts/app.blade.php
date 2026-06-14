@@ -83,6 +83,91 @@
             display: block;
         }
 
+        /* ── Page header sub-nav: buttons on desktop, 3-dot menu on mobile ── */
+        .page-header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+            gap: 10px;
+        }
+
+        .page-header-title {
+            margin: 0;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .page-header-actions {
+            flex-shrink: 0;
+        }
+
+        @media (min-width: 768px) {
+            .page-header-actions {
+                position: static;
+            }
+
+            .page-header-actions .dropdown-toggle-custom {
+                display: none !important;
+            }
+
+            .page-header-actions .page-header-dropdown-menu {
+                display: flex !important;
+                flex-wrap: wrap;
+                justify-content: flex-end;
+                gap: 6px;
+                position: static;
+                top: auto;
+                left: auto;
+                right: auto;
+                background: transparent;
+                border: none;
+                box-shadow: none;
+                min-width: 0;
+                padding: 0;
+            }
+
+            .page-header-actions .page-header-dropdown-menu a {
+                display: inline-block;
+                padding: 5px 12px;
+                border: 1px solid #ccc;
+                border-radius: 3px;
+                background: #fff;
+                font-size: 13px;
+                line-height: 1.42857143;
+                white-space: nowrap;
+                border-bottom: 1px solid #ccc;
+            }
+
+            .page-header-actions .page-header-dropdown-menu a:hover {
+                background: #f5f5f5;
+                text-decoration: none;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .page-header-actions .page-header-dropdown-menu {
+                left: auto;
+                right: 0;
+            }
+
+            /* Legacy breadcome headers: show 3-dot menu, hide inline buttons */
+            .breadcome-list .action-buttons {
+                display: none;
+            }
+        }
+
+        @media (min-width: 768px) {
+            /* Legacy breadcome headers: show inline buttons, hide 3-dot menu */
+            .breadcome-list .action-buttons + .dropdown-container .dropdown-toggle-custom {
+                display: none !important;
+            }
+
+            .breadcome-list .action-buttons + .dropdown-container .dropdown-menu-custom {
+                display: none !important;
+            }
+        }
+
         /* ── Mobile layout fixes ─────────────────────────────── */
         @media (max-width: 767px) {
             /* Prevent horizontal scroll */

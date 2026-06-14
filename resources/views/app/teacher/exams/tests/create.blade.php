@@ -33,7 +33,7 @@
             </div>
         @else
         <div class="row">
-            <div class="col-lg-8 col-md-10 col-sm-12">
+            <div class="col-lg-8 col-md-7 col-sm-12">
                 <div class="white-box">
                     <form action="{{ route('teacher.exams.tests.store') }}" method="POST">
                         @csrf
@@ -120,6 +120,84 @@
                         </div>
                     </form>
                 </div>
+            </div>
+
+            <div class="col-lg-4 col-md-5 col-sm-12">
+
+                {{-- Guide: how to schedule --}}
+                <div class="white-box" style="margin-bottom: 20px;">
+                    <h5 style="margin-top:0; color:#3c8dbc;">
+                        <i class="fa fa-lightbulb-o"></i> How to schedule a class test
+                    </h5>
+                    <ol style="padding-left: 18px; line-height: 1.9; color: #555; font-size: 13px; margin-bottom: 0;">
+                        <li>Select the <strong>Exam Period</strong> this test belongs to.</li>
+                        <li>Choose the <strong>Class</strong> you teach — only your assigned classes are listed.</li>
+                        <li>Pick the <strong>Subject</strong> for that class; subjects load after you select a class.</li>
+                        <li>Set the <strong>Test Date</strong> — it must fall within the exam period dates.</li>
+                        <li>Enter <strong>Start &amp; End Time</strong> and a <strong>Room</strong> so students know when and where to appear.</li>
+                        <li>Set <strong>Max Marks</strong> and <strong>Passing Marks</strong> — these are used when you enter results later.</li>
+                        <li>Click <strong>Save Test Schedule</strong>, then use <em>Enter Marks</em> once the test is done.</li>
+                    </ol>
+                </div>
+
+                {{-- Guide: example --}}
+                <div class="white-box" style="margin-bottom: 20px;">
+                    <h5 style="margin-top:0; color:#3c8dbc;">
+                        <i class="fa fa-file-text-o"></i> Example entry
+                    </h5>
+                    <table class="table table-condensed table-bordered" style="font-size: 12px; margin-bottom: 0;">
+                        <tbody>
+                            <tr>
+                                <th style="width:42%; background:#f5f5f5;">Exam Period</th>
+                                <td>Mid-Term 2026</td>
+                            </tr>
+                            <tr>
+                                <th style="background:#f5f5f5;">Class</th>
+                                <td>Class 8</td>
+                            </tr>
+                            <tr>
+                                <th style="background:#f5f5f5;">Subject</th>
+                                <td>Mathematics</td>
+                            </tr>
+                            <tr>
+                                <th style="background:#f5f5f5;">Test Date</th>
+                                <td>17 Jun 2026</td>
+                            </tr>
+                            <tr>
+                                <th style="background:#f5f5f5;">Start Time</th>
+                                <td>09:00 AM</td>
+                            </tr>
+                            <tr>
+                                <th style="background:#f5f5f5;">End Time</th>
+                                <td>11:00 AM</td>
+                            </tr>
+                            <tr>
+                                <th style="background:#f5f5f5;">Room</th>
+                                <td>Room 101</td>
+                            </tr>
+                            <tr>
+                                <th style="background:#f5f5f5;">Max / Pass</th>
+                                <td>100 / 40</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                {{-- Guide: notes --}}
+                <div class="white-box">
+                    <h5 style="margin-top:0; color:#e08e0b;">
+                        <i class="fa fa-exclamation-triangle"></i> Things to keep in mind
+                    </h5>
+                    <ul style="padding-left: 18px; line-height: 1.9; color: #555; font-size: 13px; margin-bottom: 0;">
+                        <li>You can only schedule tests for <strong>classes and subjects you teach</strong>.</li>
+                        <li>The test date must be <strong>within the selected exam period</strong>.</li>
+                        <li>End time must be <strong>after</strong> the start time.</li>
+                        <li>Passing marks must not exceed max marks.</li>
+                        <li>Schedule one entry per class–subject combination for each exam period.</li>
+                        <li>After saving, record scores from the <strong>Enter Marks</strong> page.</li>
+                    </ul>
+                </div>
+
             </div>
         </div>
         @endif

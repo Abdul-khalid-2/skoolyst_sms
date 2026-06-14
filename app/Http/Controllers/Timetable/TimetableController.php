@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Timetable;
 
 use App\Http\Controllers\Controller;
-use App\Models\Branch;
 use App\Models\Classes;
 use App\Models\Section;
 use App\Models\Subject;
@@ -17,11 +16,17 @@ use Illuminate\Validation\ValidationException;
 
 class TimetableController extends Controller
 {
+    protected ?int $branchId;
+
+    public function __construct()
+    {
+        $user = auth()->user();
+        $this->branchId = $user && $user->hasRole('super-admin') ? null : $user?->branch_id;
+    }
 
     public function index()
     {
-
-        $branchId = auth()->user()->branch_id;
+        $branchId = $this->branchId;
         $timetables = [];
 
         $classes = Classes::with(['sections', 'subjects:id,name,code'])
@@ -100,7 +105,7 @@ class TimetableController extends Controller
 
     public function create()
     {
-        $branchId = auth()->user()->branch_id;
+        $branchId = $this->branchId;
         $classes  = Classes::when($branchId, fn ($q) => $q->where('branch_id', $branchId))
             ->with('subjects:id,name,code')
             ->get();
@@ -159,6 +164,10 @@ class TimetableController extends Controller
 
             // Track existing time slots to prevent overlaps
             $timeSlots = [];
+            $branchId = $this->resolveBranchId(
+                (int) $validated['class_id'],
+                (int) $validated['section_id'],
+            );
 
             foreach ($validated['periods'] as $index => $period) {
                 // Validate period name exists
@@ -177,7 +186,6 @@ class TimetableController extends Controller
 
                 // Prepare data
                 $isBreak = isset($period['is_break']) ? 1 : 0;
-                $branchId = auth()->user()->branch_id;
                 $timeTableData = [
                     'branch_id' => $branchId,
                     'class_id' => $validated['class_id'],
@@ -304,7 +312,7 @@ class TimetableController extends Controller
         }
     }
 
-    private function buildSchedulePayload(Request $request, bool $isBreak): array
+    private function buildSchedulePayload(Request $request, bool $isBreak, ?TimeTable $existing = null): array
     {
         $request->merge([
             'subject' => $request->input('subject') ?: null,
@@ -341,10 +349,12 @@ class TimetableController extends Controller
             ]);
         }
 
-        $branchId = auth()->user()->branch_id;
-
         return [
-            'branch_id' => $branchId,
+            'branch_id' => $this->resolveBranchId(
+                (int) $validated['class_id'],
+                (int) $validated['section_id'],
+                $existing?->branch_id,
+            ),
             'class_id' => $validated['class_id'],
             'section_id' => $validated['section_id'],
             'day_of_week' => $validated['day'],
@@ -366,11 +376,11 @@ class TimetableController extends Controller
             'entry_id' => 'required|exists:time_tables,id',
         ]);
 
-        $branchId = auth()->user()->branch_id;
-        $entry = TimeTable::where('branch_id', $branchId)->findOrFail($validated['entry_id']);
+        $entry = TimeTable::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
+            ->findOrFail($validated['entry_id']);
         $isBreak = $request->input('type') === 'event';
 
-        $payload = $this->buildSchedulePayload($request, $isBreak);
+        $payload = $this->buildSchedulePayload($request, $isBreak, $entry);
 
         if (! $isBreak) {
             app(AssignmentService::class)->validateTimetableSlot(
@@ -391,7 +401,7 @@ class TimetableController extends Controller
 
     public function create_schedule(Request $request)
     {
-        $branchId = auth()->user()->branch_id;
+        $branchId = $this->branchId;
         $teachers = User::with('teacherProfile')->role('teacher')
             ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
             ->get();
@@ -442,7 +452,7 @@ class TimetableController extends Controller
         $subjectId  = $request->input('subject_id');
         $classId    = $request->input('class_id');
 
-        $branchId = auth()->user()->branch_id;
+        $branchId = $this->branchId;
         $service  = app(AssignmentService::class);
         $sectionId = $request->integer('section_id') ?: null;
 
@@ -459,6 +469,34 @@ class TimetableController extends Controller
         return response()->json([
             'teachers'            => $teachers,
             'assigned_teacher_id' => $assignedTeacherId,
+        ]);
+    }
+
+    /**
+     * Branch for timetable writes. Super-admins inherit branch from the class/section.
+     */
+    private function resolveBranchId(int $classId, int $sectionId, ?int $existingBranchId = null): int
+    {
+        if ($this->branchId) {
+            return (int) $this->branchId;
+        }
+
+        if ($existingBranchId) {
+            return (int) $existingBranchId;
+        }
+
+        $section = Section::withoutBranchScope()->find($sectionId);
+        if ($section?->branch_id) {
+            return (int) $section->branch_id;
+        }
+
+        $class = Classes::withoutBranchScope()->find($classId);
+        if ($class?->branch_id) {
+            return (int) $class->branch_id;
+        }
+
+        throw ValidationException::withMessages([
+            'class_id' => ['Unable to determine branch for this schedule.'],
         ]);
     }
 }

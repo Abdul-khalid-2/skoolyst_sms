@@ -30,7 +30,7 @@ class SectionSubjectTeacher extends Model
         return $this->belongsTo(Section::class);
     }
 
-    public function schoolClass()
+    public function class()
     {
         return $this->hasOneThrough(
             Classes::class,
@@ -40,5 +40,11 @@ class SectionSubjectTeacher extends Model
             'section_id',
             'class_id'
         );
+    }
+
+    /** @deprecated Use class() instead */
+    public function schoolClass()
+    {
+        return $this->class();
     }
 }
