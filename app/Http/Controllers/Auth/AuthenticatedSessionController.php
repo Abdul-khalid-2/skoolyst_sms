@@ -18,7 +18,11 @@ class AuthenticatedSessionController extends Controller
     public function create(): View
     {
         $school = Setting::get();
-        return view('auth.login', compact('school'));
+
+        return view('auth.login', [
+            'school'           => $school,
+            'demoCredentials'  => config('demo-credentials'),
+        ]);
     }
 
     /**

@@ -94,16 +94,15 @@ class NoticeController extends Controller
         $notice->update($this->validated($request));
         $notice->refresh();
 
-        if ($notice->is_published && ! $wasPublished) {
-            $notifier->notifyPublishedNotice($notice);
-        }
+        $notifier->syncForNotice($notice, $wasPublished);
 
         return redirect()->route('notices.index')
             ->with('message', 'Notice updated successfully.')->with('alert-type', 'success');
     }
 
-    public function destroy(Notice $notice)
+    public function destroy(Notice $notice, NoticeNotificationService $notifier)
     {
+        $notifier->purgeForNotice($notice);
         $notice->delete();
 
         return redirect()->route('notices.index')

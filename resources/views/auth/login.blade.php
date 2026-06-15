@@ -163,7 +163,43 @@
                     </div>
                 @endif
             </form>
+
+            @if(($demoCredentials['enabled'] ?? false) && ! empty($demoCredentials['accounts']))
+                <div class="mt-8 pt-6 border-t border-gray-200">
+                    <h3 class="text-sm font-semibold text-gray-700 mb-1">Demo login credentials</h3>
+                    <p class="text-xs text-gray-500 mb-3">
+                        Password for all accounts: <code class="bg-gray-100 px-1 rounded">{{ $demoCredentials['password'] }}</code>
+                        <span class="block mt-1">Click a row to fill the form.</span>
+                    </p>
+                    <ul class="space-y-2">
+                        @foreach($demoCredentials['accounts'] as $account)
+                            <li>
+                                <button type="button"
+                                    class="demo-login-btn w-full text-left rounded-md border border-gray-200 px-3 py-2 hover:bg-indigo-50 hover:border-indigo-200 transition"
+                                    data-email="{{ $account['email'] }}"
+                                    data-password="{{ $demoCredentials['password'] }}">
+                                    <span class="text-xs font-medium text-indigo-600 uppercase tracking-wide">{{ $account['role'] }}</span>
+                                    <span class="block text-sm text-gray-800">{{ $account['email'] }}</span>
+                                </button>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
         </div>
     </div>
+    @if(($demoCredentials['enabled'] ?? false) && ! empty($demoCredentials['accounts']))
+        <script>
+            document.querySelectorAll('.demo-login-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var email = document.getElementById('email');
+                    var password = document.getElementById('password');
+                    if (email) email.value = btn.dataset.email || '';
+                    if (password) password.value = btn.dataset.password || '';
+                    if (email) email.focus();
+                });
+            });
+        </script>
+    @endif
 </body>
 </html>

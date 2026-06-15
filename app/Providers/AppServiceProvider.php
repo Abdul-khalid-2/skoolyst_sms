@@ -2,10 +2,10 @@
 
 namespace App\Providers;
 
-use App\Models\AppNotification;
 use App\Models\Setting;
 use App\Models\User;
 use App\Policies\ParentStudentPolicy;
+use App\Services\Notice\NoticeNotificationService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
@@ -38,14 +38,12 @@ class AppServiceProvider extends ServiceProvider
                 return;
             }
 
-            $userId = Auth::id();
+            $user = Auth::user();
+            $notifier = app(NoticeNotificationService::class);
 
             $view->with([
-                'navNotifications' => AppNotification::where('user_id', $userId)
-                    ->orderByDesc('created_at')
-                    ->limit(6)
-                    ->get(),
-                'navUnreadCount' => AppNotification::where('user_id', $userId)->unread()->count(),
+                'navNotifications' => $notifier->notificationsForUser($user, 6),
+                'navUnreadCount'   => $notifier->unreadCountForUser($user),
             ]);
         });
     }
