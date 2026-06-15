@@ -1,22 +1,21 @@
 <x-tenant-app-layout>
     @push('css')
-
-    <style>
-        .logo-preview {
-            max-width: 200px;
-            max-height: 200px;
-            margin-bottom: 15px;
-        }
-        .form-section {
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #eee;
-        }
-        .form-section h3 {
-            margin-bottom: 20px;
-            color: #333;
-        }
-    </style>
+        <style>
+            .logo-preview {
+                max-width: 200px;
+                max-height: 200px;
+                margin-bottom: 15px;
+            }
+            .form-section {
+                margin-bottom: 30px;
+                padding-bottom: 20px;
+                border-bottom: 1px solid #eee;
+            }
+            .form-section h3 {
+                margin-bottom: 20px;
+                color: #333;
+            }
+        </style>
     @endpush
 
     <x-slot name="header">
@@ -25,18 +24,20 @@
         </h2>
     </x-slot>
 
-    <div class="container-fluid">
+    <div class="container-fluid" style="margin-top: 20px;">
         <div class="row">
-          
-                    
-                <x-page-header title="Edit School Profile">
-                    <a href="{{ route('schools.show') }}" style="color: #333;"><i class="fa fa-building"></i> Profile</a>
-                    <a href="{{ route('schools.cms') }}" style="color: #333;"><i class="fa fa-paint-brush"></i> CMS</a>
-                    <a href="{{ route('schools.edit') }}" style="color: #333;"><i class="fa fa-edit"></i> Edit Profile</a>
-                    <a href="{{ route('schools.settings') }}" style="color: #333;"><i class="fa fa-cog"></i> Settings</a>
-                </x-page-header>
-                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                    <div class="sparkline12-list">
+
+            <x-page-header title="Edit School Profile">
+                <a href="{{ route('schools.show') }}" style="color: #333;"><i class="fa fa-building"></i> Profile</a>
+                <a href="{{ route('schools.cms') }}" style="color: #333;"><i class="fa fa-paint-brush"></i> CMS</a>
+                <a href="{{ route('schools.edit') }}" style="color: #333;"><i class="fa fa-edit"></i> Edit Profile</a>
+                <a href="{{ route('schools.settings') }}" style="color: #333;"><i class="fa fa-cog"></i> Settings</a>
+            </x-page-header>
+
+            <div class="col-lg-8 col-md-12 col-sm-12 col-xs-12">
+                <div class="sparkline12-list">
+                    <div class="sparkline12-graph">
+                        <div class="basic-login-form-ad">
                         <form action="{{ route('schools.update', $school->id) }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
@@ -241,10 +242,15 @@
                                 <button type="submit" class="btn btn-primary">Update Profile</button>
                             </div>
                         </form>
+                        </div>
                     </div>
                 </div>
-                            
-               
+            </div>
+
+            <div class="col-lg-4 col-md-12 col-sm-12 col-xs-12">
+                <x-school-profile-guide screen="edit-profile" />
+            </div>
+
         </div>
     </div>
 

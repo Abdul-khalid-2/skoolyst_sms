@@ -389,6 +389,16 @@ Route::middleware(['auth', 'verified', 'scope.branch', 'role:parent'])->prefix('
 Route::middleware(['auth', 'verified', 'scope.branch', 'role:accountant'])->prefix('accountant')->name('accountant.')->group(function () {
     Route::get('/dashboard', [AccountantDashboardController::class, 'index'])->name('dashboard');
     Route::get('/fees', [AccountantFeeController::class, 'index'])->name('fees');
+    Route::get('/fees/export/pdf', [AccountantFeeController::class, 'exportPdf'])->name('fees.export.pdf');
+    Route::get('/fees/{fee}', [AccountantFeeController::class, 'show'])->name('fees.show');
+    Route::get('/fees/{fee}/collect', [AccountantFeeController::class, 'collect'])->name('fees.collect');
+    Route::post('/fees/{fee}/collect', [AccountantFeeController::class, 'storeCollect'])->name('fees.collect.store');
+    Route::get('/payments/students', [AccountantPaymentController::class, 'students'])->name('payments.students');
+    Route::get('/payments/create', [AccountantPaymentController::class, 'create'])->name('payments.create');
+    Route::post('/payments', [AccountantPaymentController::class, 'store'])->name('payments.store');
+    Route::get('/payments/export/pdf', [AccountantPaymentController::class, 'exportPdf'])->name('payments.export.pdf');
     Route::get('/payments', [AccountantPaymentController::class, 'index'])->name('payments');
+    Route::get('/payments/{payment}/receipt', [AccountantPaymentController::class, 'receipt'])->name('payments.receipt');
+    Route::get('/payments/{payment}', [AccountantPaymentController::class, 'show'])->name('payments.show');
     Route::get('/reports', [AccountantReportController::class, 'index'])->name('reports');
 });

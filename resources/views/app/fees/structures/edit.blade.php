@@ -93,6 +93,10 @@
                 </div>
             </div>
 
+            <div class="col-lg-4 col-md-12 col-sm-12 col-xs-12">
+                <x-fees-guide screen="structures-edit" />
+            </div>
+
         </div>
     </div>
 </x-tenant-app-layout>

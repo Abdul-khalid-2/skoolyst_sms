@@ -6,7 +6,7 @@
 
             <x-page-header title="Issue a Book" :back-route="route('library.issues.index')" />
 
-            <div class="col-lg-9 col-md-11 col-sm-12 col-xs-12">
+            <div class="col-lg-8 col-md-11 col-sm-12 col-xs-12">
                 <div class="sparkline12-list">
                     <div class="sparkline12-graph">
                         <div class="basic-login-form-ad">
@@ -120,6 +120,10 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <div class="col-lg-4 col-md-12 col-sm-12 col-xs-12">
+                <x-library-guide screen="issues-create" />
             </div>
 
         </div>

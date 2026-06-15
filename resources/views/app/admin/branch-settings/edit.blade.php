@@ -9,7 +9,7 @@
         @endif
 
         <div class="row">
-            <div class="col-lg-8">
+            <div class="col-lg-8 col-md-12 col-sm-12 col-xs-12">
                 <div class="white-box">
                     <p class="text-muted">Manage your branch contact and location details.</p>
                     <form action="{{ route('branch.settings.update') }}" method="POST">
@@ -21,6 +21,10 @@
                         </div>
                     </form>
                 </div>
+            </div>
+
+            <div class="col-lg-4 col-md-12 col-sm-12 col-xs-12">
+                <x-branch-settings-guide />
             </div>
         </div>
     </div>

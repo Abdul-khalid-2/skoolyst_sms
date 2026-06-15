@@ -145,13 +145,13 @@
                 <a href="{{ route('schools.edit') }}" style="color: #333;"><i class="fa fa-edit"></i> Edit Profile</a>
                 <a href="{{ route('schools.settings') }}" style="color: #333;"><i class="fa fa-cog"></i> Settings</a>
             </x-page-header>
-            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
                 <div class="white-box">
                     <div class="row settings-layout">
                         <div class="col-lg-3 col-md-4 col-sm-12 col-xs-12 settings-sidebar">
                             <div class="settings-menu">
                                 <ul class="nav nav-tabs tabs-left settings-tabs">
-                                    <li class="active"><a href="#basic-info" data-toggle="tab"><i class="fa fa-info-circle"></i> Basic Information</a></li>
+                                    <li class="active"><a href="#basic-info" data-toggle="tab"><i class="fa fa-info-circle"></i> Academic Section</a></li>
                                     <li><a href="#contact-details" data-toggle="tab"><i class="fa fa-address-book"></i> Contact Details</a></li>
                                     <li><a href="#academic-structure" data-toggle="tab"><i class="fa fa-sitemap"></i> Academic Structure</a></li>
                                     <li><a href="#general" data-toggle="tab"><i class="fa fa-cog"></i> System Settings</a></li>
@@ -168,73 +168,28 @@
                             <div class="tab-content settings-tab-content">
                                         <!-- Basic Information Tab -->
                                         <div class="tab-pane active" id="basic-info">
-                                            <form action="{{ route('schools.update-basic-info') }}" method="POST" enctype="multipart/form-data">
+                                            <form action="{{ route('schools.update-basic-info') }}" method="POST">
                                                 @csrf
                                                 @method('PUT')
+
+                                                <div class="alert alert-info" style="font-size: 13px;">
+                                                    <i class="fa fa-info-circle"></i>
+                                                    <strong>School name, logo, type, affiliation, principal, and about text</strong> are managed on
+                                                    <a href="{{ route('schools.edit') }}" class="alert-link"><strong>Edit Profile</strong></a>.
+                                                    This tab is for academic section configuration only.
+                                                </div>
                                                 
                                                 <div class="settings-card">
-                                                    <h4>School Identity</h4>
+                                                    <h4>Academic Section</h4>
                                                     
                                                     <div class="settings-group">
-                                                        <label class="settings-label">School Logo</label>
-                                                        <div class="row">
-                                                            <div class="col-md-4">
-                                                                @if($school->logo)
-                                                                    <img src="{{ $school->logo_url }}" alt="School Logo" class="img-thumbnail" style="max-height: 100px;">
-                                                                @else
-                                                                    <div class="no-logo-placeholder" style="width: 100px; height: 100px; background: #eee; display: flex; align-items: center; justify-content: center;">
-                                                                        No Logo
-                                                                    </div>
-                                                                @endif
-                                                            </div>
-                                                            <div class="col-md-8">
-                                                                <input type="file" name="logo" class="form-control">
-                                                                <small class="text-muted">Recommended size: 300x300 pixels</small>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    <div class="settings-group">
-                                                        <label class="settings-label">School Name</label>
-                                                        <input type="text" name="name" class="form-control" value="{{ old('name', $school->name) }}" required>
-                                                    </div>
-                                                    
-                                                    <div class="settings-group">
-                                                        <label class="settings-label">Academic Section</label>
+                                                        <label class="settings-label">Academic Section <span class="text-danger">*</span></label>
                                                         <select name="academic_section" class="form-control" required>
                                                             <option value="primary" {{ old('academic_section', $school->academic_section) == 'primary' ? 'selected' : '' }}>Primary School</option>
                                                             <option value="secondary" {{ old('academic_section', $school->academic_section) == 'secondary' ? 'selected' : '' }}>Secondary School</option>
                                                             <option value="both" {{ old('academic_section', $school->academic_section) == 'both' ? 'selected' : '' }}>Both Primary & Secondary</option>
                                                         </select>
-                                                    </div>
-                                                    
-                                                    <div class="settings-group">
-                                                        <label class="settings-label">Established Year</label>
-                                                        <input type="number" name="established_year" class="form-control" value="{{ old('established_year', $school->established_year) }}" min="1900" max="{{ date('Y') }}">
-                                                    </div>
-                                                    
-                                                    <div class="settings-group">
-                                                        <label class="settings-label">School Type</label>
-                                                        <select name="school_type" class="form-control" required>
-                                                            <option value="public" {{ old('school_type', $school->school_type) == 'public' ? 'selected' : '' }}>Public</option>
-                                                            <option value="private" {{ old('school_type', $school->school_type) == 'private' ? 'selected' : '' }}>Private</option>
-                                                            <option value="international" {{ old('school_type', $school->school_type) == 'international' ? 'selected' : '' }}>International</option>
-                                                        </select>
-                                                    </div>
-                                                    
-                                                    <div class="settings-group">
-                                                        <label class="settings-label">Affiliation Number</label>
-                                                        <input type="text" name="affiliation_number" class="form-control" value="{{ old('affiliation_number', $school->affiliation_number) }}">
-                                                    </div>
-                                                    
-                                                    <div class="settings-group">
-                                                        <label class="settings-label">Principal/Headmaster</label>
-                                                        <input type="text" name="principal" class="form-control" value="{{ old('principal', $school->principal) }}">
-                                                    </div>
-                                                    
-                                                    <div class="settings-group">
-                                                        <label class="settings-label">About School</label>
-                                                        <textarea name="about" class="form-control" rows="4">{{ old('about', $school->about) }}</textarea>
+                                                        <small class="text-muted">Defines whether your branch runs primary classes, secondary classes, or both.</small>
                                                     </div>
                                                 </div>
                                                 
@@ -1044,6 +999,11 @@
                             </div>
                 </div>
             </div>
+
+            <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
+                <x-school-profile-guide screen="settings" />
+            </div>
+
         </div>
     </div>
    

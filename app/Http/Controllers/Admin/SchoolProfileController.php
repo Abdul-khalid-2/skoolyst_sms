@@ -328,36 +328,9 @@ class SchoolProfileController extends Controller
 
     public function updateBasicInfo(Request $request)
     {
-        $setting = $this->settings();
-
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
             'academic_section' => 'required|in:primary,secondary,both',
-            'established_year' => 'nullable|integer|min:1900|max:'.date('Y'),
-            'school_type' => 'required|in:public,private,international',
-            'affiliation_number' => 'nullable|string|max:255',
-            'principal' => 'nullable|string|max:255',
-            'about' => 'nullable|string',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
-
-        $payload = [
-            'school_name' => $validated['name'],
-            'established_year' => $validated['established_year'] ?? null,
-            'school_type' => $validated['school_type'],
-            'affiliation_no' => $validated['affiliation_number'] ?? null,
-            'principal_name' => $validated['principal'] ?? null,
-            'about' => $validated['about'] ?? null,
-        ];
-
-        if ($request->hasFile('logo')) {
-            if ($setting->school_logo && Storage::disk('website')->exists($setting->school_logo)) {
-                Storage::disk('website')->delete($setting->school_logo);
-            }
-            $payload['school_logo'] = $request->file('logo')->store('school/profile', 'website');
-        }
-
-        $setting->update($payload);
 
         $this->saveBranchSettings([
             'academic_section' => $validated['academic_section'],

@@ -6,6 +6,7 @@ use App\Models\Setting;
 use App\Models\User;
 use App\Policies\ParentStudentPolicy;
 use App\Services\Notice\NoticeNotificationService;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
@@ -20,6 +21,9 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Paginator::defaultView('vendor.pagination.bootstrap-3');
+        Paginator::defaultSimpleView('vendor.pagination.bootstrap-3');
+
         Gate::policy(User::class, ParentStudentPolicy::class);
 
         View::composer('app.layouts.app', function ($view) {

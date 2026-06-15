@@ -15,7 +15,7 @@
 
             <x-page-header title="Add New Book" :back-route="route('library.books.index')" />
 
-            <div class="col-lg-9 col-md-11 col-sm-12 col-xs-12">
+            <div class="col-lg-8 col-md-11 col-sm-12 col-xs-12">
                 <div class="sparkline12-list">
                     <div class="sparkline12-graph">
                         <div class="basic-login-form-ad">
@@ -136,6 +136,10 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <div class="col-lg-4 col-md-12 col-sm-12 col-xs-12">
+                <x-library-guide screen="books-create" />
             </div>
 
         </div>

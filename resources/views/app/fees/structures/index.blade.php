@@ -13,7 +13,7 @@
                     <a href="{{ route('fees.index') }}" style="color:#333;"><i class="fa fa-tachometer"></i> Fees Dashboard</a>
                 </x-page-header>
 
-                <div class="col-lg-12">
+                <div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
                     <div class="sparkline13-list">
                         <div class="sparkline13-graph">
                             <div class="datatable-dashv1-list custom-datatable-overright">
@@ -72,6 +72,10 @@
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
+                    <x-fees-guide screen="structures-index" />
                 </div>
 
             </div>

@@ -86,6 +86,10 @@
                 </div>
             </div>
 
+            <div class="col-lg-4 col-md-12 col-sm-12 col-xs-12">
+                <x-holidays-guide screen="edit" />
+            </div>
+
         </div>
     </div>
 
