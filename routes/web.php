@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AcademicSetupController;
 use App\Http\Controllers\Admin\ClassesController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ParentController;
+use App\Http\Controllers\Admin\SchoolDataExportController;
 use App\Http\Controllers\Admin\SchoolProfileController;
 use App\Http\Controllers\Admin\SectionController;
 use App\Http\Controllers\Admin\StudentController;
@@ -106,6 +107,8 @@ Route::middleware(['auth', 'verified', 'scope.branch', 'role:super-admin'])->pre
 Route::middleware(['auth', 'verified', 'scope.branch', 'role:super-admin|admin'])->group(function () {
     Route::get('/profile/edit', [AdminProfileController::class, 'edit'])->name('admin.profile.edit');
     Route::patch('/profile', [AdminProfileController::class, 'update'])->name('admin.profile.update');
+
+    Route::get('/export/school-data', [SchoolDataExportController::class, 'download'])->name('admin.export.school-data');
 
     Route::get('/school', [SchoolProfileController::class, 'index'])->name('schools.show');
     Route::get('/schools/edit', [SchoolProfileController::class, 'edit'])->name('schools.edit');

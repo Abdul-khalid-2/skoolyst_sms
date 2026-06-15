@@ -14,13 +14,22 @@
         <div class="container-fluid">
             <div class="row">
 
-                <x-page-header title="Inventory Items">
+                <x-page-header :title="request('filter') === 'low' ? 'Low Stock Items' : 'Inventory Items'">
                     <a href="{{ route('inventory.items.create') }}" style="color:#333;"><i class="fa fa-plus"></i> Add Item</a>
                     <a href="{{ route('inventory.transactions.create') }}" style="color:#333;"><i class="fa fa-exchange"></i> Stock Transaction</a>
                     <a href="{{ route('inventory.index') }}" style="color:#333;"><i class="fa fa-tachometer"></i> Dashboard</a>
                 </x-page-header>
 
-                <div class="col-lg-12">
+                @if(request('filter') === 'low')
+                    <div class="col-lg-12">
+                        <div class="alert alert-warning" style="margin-bottom:15px;">
+                            <i class="fa fa-exclamation-triangle"></i>
+                            Showing items at or below their minimum quantity. Use <strong>Record Purchase</strong> to restock.
+                        </div>
+                    </div>
+                @endif
+
+                <div class="col-lg-8 col-md-7 col-sm-12">
                     <div class="sparkline13-list">
                         <div class="sparkline13-graph">
                             <div class="datatable-dashv1-list custom-datatable-overright">
@@ -97,6 +106,10 @@
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <div class="col-lg-4 col-md-5 col-sm-12">
+                    <x-inventory-guide screen="items-index" :low-filter="request('filter') === 'low'" />
                 </div>
 
             </div>

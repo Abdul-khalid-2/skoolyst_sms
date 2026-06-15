@@ -56,7 +56,7 @@
                     </div>
                 </div>
 
-                {{-- Quick Actions --}}
+                {{-- Quick Actions + Guide --}}
                 <div class="col-lg-4 col-md-12 col-xs-12">
                     <div class="white-box">
                         <h3 class="box-title">Quick Actions</h3>
@@ -73,6 +73,7 @@
                             <i class="fa fa-exclamation-triangle"></i> View Low Stock
                         </a>
                     </div>
+                    <x-inventory-guide screen="dashboard" />
                 </div>
 
                 {{-- Low Stock Alerts --}}

@@ -59,6 +59,10 @@
                             </button>
                         </form>
                     </div>
+
+                    <div style="margin-top:20px;">
+                        <x-inventory-guide screen="items-show" />
+                    </div>
                 </div>
 
                 {{-- Transaction history --}}

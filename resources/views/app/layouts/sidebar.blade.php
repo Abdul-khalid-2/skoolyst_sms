@@ -19,7 +19,7 @@
                 <ul class="metismenu" id="menu1">
 
                     <!-- School Admin Panel -->
-                    <li><h6 style="color: rgb(95, 95, 95);padding-left:20px" class="mini-click-non">School Admin Panel</h6></li>
+                    <li><h6 style="color: rgb(95, 95, 95);padding-left:20px" class="mini-click-non">{{ Auth::user()->role }}  panel</h6></li>
                     @if($canSee('dashboard'))
                     <li>
                         <a title="Dashboard" href="{{ route('dashboard') }}" aria-expanded="false">

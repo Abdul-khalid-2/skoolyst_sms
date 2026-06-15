@@ -7,20 +7,295 @@
         <link rel="stylesheet" href="{{ asset('backend/css/data-table/bootstrap-table.css') }}">
         <link rel="stylesheet" href="{{ asset('backend/css/data-table/bootstrap-editable.css') }}">
     <style>
-        .hover-table tbody tr:hover td {
-            background-color: #f5f5f5;
+        .tt-page { margin-top: 20px; }
+
+        .tt-nav-panel {
+            background: #fff;
+            border: 1px solid #e3e8ef;
+            border-radius: 10px;
+            box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);
+            position: sticky;
+            top: 20px;
+            max-height: calc(100vh - 100px);
+            display: flex;
+            flex-direction: column;
         }
-        .hover-table td {
-            vertical-align: top;
+
+        .tt-nav-head {
+            padding: 16px 16px 12px;
+            border-bottom: 1px solid #eef2f7;
         }
-        .hover-table td li {
-            list-style-type: none;
-            padding: 2px 0;
+
+        .tt-nav-head h4 {
+            margin: 0 0 10px;
+            font-size: 15px;
+            font-weight: 700;
+            color: #1e293b;
         }
-        .btn-sm {
-            padding: 3px 8px;
+
+        .tt-nav-search {
+            position: relative;
+        }
+
+        .tt-nav-search i {
+            position: absolute;
+            left: 11px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+
+        .tt-nav-search input {
+            padding-left: 34px;
+            border-radius: 8px;
+            border: 1px solid #dbe3ee;
+            height: 38px;
+        }
+
+        .tt-nav-list {
+            overflow-y: auto;
+            padding: 10px;
+            flex: 1;
+        }
+
+        .tt-class-group {
+            margin-bottom: 12px;
+        }
+
+        .tt-class-heading {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #64748b;
+            padding: 6px 8px 4px;
+        }
+
+        .tt-nav-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            text-align: left;
+            border: 1px solid transparent;
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-bottom: 6px;
+            transition: all 0.15s ease;
+            cursor: pointer;
+        }
+
+        .tt-nav-item:hover {
+            background: #eff6ff;
+            border-color: #bfdbfe;
+        }
+
+        .tt-nav-item.active {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border-color: #2563eb;
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
+        }
+
+        .tt-nav-item.active .tt-nav-meta { color: rgba(255,255,255,0.85); }
+
+        .tt-nav-label {
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .tt-nav-meta {
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .tt-nav-badge {
+            font-size: 11px;
+            font-weight: 700;
+            background: rgba(255,255,255,0.2);
+            color: inherit;
+            border-radius: 999px;
+            padding: 2px 8px;
+            min-width: 28px;
+            text-align: center;
+        }
+
+        .tt-nav-item:not(.active) .tt-nav-badge {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .tt-nav-foot {
+            padding: 10px 16px 14px;
+            border-top: 1px solid #eef2f7;
             font-size: 12px;
-            margin: 2px;
+            color: #64748b;
+        }
+
+        .tt-panel {
+            display: none;
+            animation: ttFadeIn 0.2s ease;
+        }
+
+        .tt-panel.active {
+            display: block;
+        }
+
+        @keyframes ttFadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tt-panel-card {
+            background: #fff;
+            border: 1px solid #e3e8ef;
+            border-radius: 10px;
+            box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);
+            overflow: hidden;
+        }
+
+        .tt-panel-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 16px 20px;
+            background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
+            border-bottom: 1px solid #e3e8ef;
+        }
+
+        .tt-panel-head h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .tt-panel-head small {
+            color: #64748b;
+        }
+
+        .tt-table-wrap {
+            overflow-x: auto;
+            padding: 0;
+        }
+
+        .tt-grid {
+            width: 100%;
+            margin: 0;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .tt-grid thead th {
+            background: #f1f5f9;
+            color: #334155;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            padding: 12px 10px;
+            border-bottom: 1px solid #e2e8f0;
+            white-space: nowrap;
+        }
+
+        .tt-grid tbody td {
+            vertical-align: top;
+            padding: 8px;
+            border-bottom: 1px solid #eef2f7;
+            border-right: 1px solid #eef2f7;
+            min-width: 130px;
+        }
+
+        .tt-grid tbody td:first-child {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #475569;
+            min-width: 100px;
+            position: sticky;
+            left: 0;
+            z-index: 1;
+        }
+
+        .tt-slot {
+            background: #fff;
+            border: 1px solid #dbeafe;
+            border-left: 3px solid #3b82f6;
+            border-radius: 8px;
+            padding: 8px;
+            margin-bottom: 6px;
+        }
+
+        .tt-slot--break {
+            border-color: #fde68a;
+            border-left-color: #f59e0b;
+            background: #fffbeb;
+        }
+
+        .tt-slot--empty {
+            border: 1px dashed #cbd5e1;
+            border-left: 3px dashed #cbd5e1;
+            background: #f8fafc;
+            color: #94a3b8;
+            font-size: 12px;
+            padding: 12px 8px;
+            text-align: center;
+            margin-bottom: 6px;
+        }
+
+        .tt-slot-title {
+            font-weight: 700;
+            font-size: 12px;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .tt-slot-meta {
+            font-size: 11px;
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        .tt-slot-meta i {
+            width: 14px;
+            color: #94a3b8;
+        }
+
+        .tt-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 6px;
+        }
+
+        .tt-actions .btn {
+            padding: 2px 7px;
+            font-size: 11px;
+        }
+
+        .tt-empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+        }
+
+        .tt-empty-state i {
+            font-size: 42px;
+            color: #cbd5e1;
+            margin-bottom: 12px;
+        }
+
+        @media (max-width: 991px) {
+            .tt-nav-panel {
+                position: static;
+                max-height: none;
+                margin-bottom: 20px;
+            }
+
+            .tt-nav-list {
+                max-height: 260px;
+            }
         }
     </style>
 @endpush
@@ -36,148 +311,192 @@
                 />
 
 
-                @foreach($timetables as $timetable)
-                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                        <div class="sparkline13-list">
-                            <div class="sparkline13-hd">
-                                <div class="main-sparkline13-hd">
-                                    <h1>{{ $timetable['class_name'] }}</h1>
-                                </div>
-                            </div>
-                            <div class="sparkline13-graph">
-                                <div class="datatable-dashv1-list custom-datatable-overright">
-                                    <div id="toolbar-{{ $loop->index }}">
-                                        <select class="form-control dt-tb">
-                                            <option value="">Excel</option>
-                                            <option value="">PDF</option>
-                                            <option value="">CSV</option>
-                                        </select>
-                                    </div>
-                                    <table id="timetable-table-{{ $loop->index }}" 
-                                        class="table hover-table timetable-datatable"
-                                        data-toggle="table" 
-                                        data-pagination="true" 
-                                        data-search="true"
-                                        {{-- data-show-columns="true"  --}}
-                                        {{-- data-show-pagination-switch="true"  --}}
-                                        {{-- data-show-refresh="true" --}}
-                                        {{-- data-key-events="true"  --}}
-                                        {{-- data-show-toggle="true"  --}}
-                                        data-resizable="true"
-                                        {{-- data-cookie="true" --}}
-                                        data-cookie-id-table="timetable-{{ $loop->index }}"
-                                        {{-- data-show-export="true"  --}}
-                                        {{-- data-click-to-select="true" --}}
-                                         {{-- data-export-types="['csv', 'txt', 'excel']" --}}
-                                        data-toolbar="#toolbar-{{ $loop->index }}">
-                                        <thead>
-                                            <tr>
-                                                {{-- <th data-field="state" data-checkbox="true"></th> --}}
-                                                <th data-field="period" data-sortable="true">Periods</th>
-                                                <th data-field="monday" data-sortable="false">Monday</th>
-                                                <th data-field="tuesday" data-sortable="false">Tuesday</th>
-                                                <th data-field="wednesday" data-sortable="false">Wednesday</th>
-                                                <th data-field="thursday" data-sortable="false">Thursday</th>
-                                                <th data-field="friday" data-sortable="false">Friday</th>
-                                                <th data-field="saturday" data-sortable="false">Saturday</th>
-                                                <th data-field="sunday" data-sortable="false">Sunday</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($timetable['periods'] as $periodName => $days)
-                                            <tr>
-                                                {{-- <td></td> --}}
-                                                <td style="font-style: italic">{{ $periodName }}</td>
-                                                @foreach(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as $day)
-                                                <td>
-                                                    @if(isset($days[$day]))
-                                                        @if(isset($days[$day]['event']))
-                                                            <div class="timetable-event">
-                                                                <div><strong>Event:</strong> {{ $days[$day]['event'] }}</div>
-                                                                <div><strong>Time:</strong> {{ $days[$day]['start'] }} - {{ $days[$day]['end'] }}</div>
-                                                                <div><strong>Room:</strong> {{ $days[$day]['room'] }}</div>
-                                                            </div>
-                                                        @else
-                                                            <div class="timetable-class">
-                                                                <div><strong>Teacher:</strong> {{ $days[$day]['teacher'] }}</div>
-                                                                <div><strong>Subject:</strong> {{ $days[$day]['subject'] }}</div>
-                                                                <div><strong>Time:</strong> {{ $days[$day]['start'] }} - {{ $days[$day]['end'] }}</div>
-                                                                <div><strong>Room:</strong> {{ $days[$day]['room'] }}</div>
-                                                            </div>
-                                                        @endif
-                                                        <div class="timetable-actions">
-                                                            {{-- <button class="btn btn-primary btn-sm update-btn" 
-                                                                    data-class="{{ $timetable['class_name'] }}"
-                                                                    data-period="{{ $periodName }}"
-                                                                    data-day="{{ $day }}"
-                                                                    data-teacher="{{ $days[$day]['teacher'] ?? '' }}"
-                                                                    data-subject="{{ $days[$day]['subject'] ?? '' }}"
-                                                                    data-start="{{ $days[$day]['start'] ?? '' }}"
-                                                                    data-end="{{ $days[$day]['end'] ?? '' }}"
-                                                                    data-room="{{ $days[$day]['room'] ?? '' }}"
-                                                                    data-event="{{ $days[$day]['event'] ?? '' }}">
-                                                                <i class="fa fa-pencil"></i> Update
-                                                            </button> --}}
+                @php
+                    $groupedTimetables = collect($timetables)->groupBy('class_id');
+                    $totalSections = count($timetables);
+                @endphp
 
-                                                            <button class="btn btn-primary btn-sm update-btn" 
-                                                                data-entry-id="{{ $days[$day]['id'] }}"
-                                                                data-class="{{ $timetable['class_name'] }}"
-                                                                data-class_id="{{ $timetable['class_id'] }}"
-                                                                data-period="{{ $periodName }}"
-                                                                data-day="{{ $day }}"
-                                                                data-section_id="{{ $timetable['section_id'] }}"
-                                                                data-teacher="{{ $days[$day]['teacher'] ?? '' }}"
-                                                                data-teacher_id="{{ $days[$day]['teacher_id'] ?? '' }}"
-                                                                data-subject="{{ $days[$day]['subject'] ?? '' }}"
-                                                                data-subject_id="{{ $days[$day]['subject_id'] ?? '' }}"
-                                                                data-start="{{ $days[$day]['start_raw'] ?? '' }}"
-                                                                data-end="{{ $days[$day]['end_raw'] ?? '' }}"
-                                                                data-room="{{ $days[$day]['room'] ?? '' }}"
-                                                                data-event="{{ $days[$day]['event'] ?? '' }}">
-                                                            <i class="fa fa-pencil"></i> Update
-                                                        </button>
-                                                            <button class="btn btn-info btn-sm view-btn"
-                                                                    data-class="{{ $timetable['class_name'] }}"
-                                                                    data-period="{{ $periodName }}"
-                                                                    data-day="{{ $day }}"
-                                                                    data-teacher="{{ $days[$day]['teacher'] ?? '' }}"
-                                                                    data-subject="{{ $days[$day]['subject'] ?? '' }}"
-                                                                    data-start="{{ $days[$day]['start'] ?? '' }}"
-                                                                    data-end="{{ $days[$day]['end'] ?? '' }}"
-                                                                    data-room="{{ $days[$day]['room'] ?? '' }}"
-                                                                    data-event="{{ $days[$day]['event'] ?? '' }}">
-                                                                <i class="fa fa-eye"></i> View
-                                                            </button>
-                                                        </div>
-                                                    @else
-                                                        <div class="timetable-empty">
-                                                            <div><strong>Teacher:</strong> --</div>
-                                                            <div><strong>Subject:</strong> --</div>
-                                                            <div><strong>Time:</strong> --</div>
-                                                            <div><strong>Room:</strong> --</div>
-                                                        </div>
-                                                        <div class="timetable-actions">
-                                                            <button class="btn btn-success btn-sm add-btn"
-                                                                    data-class_id="{{ $timetable['class_id'] }}"
-                                                                    data-class="{{ $timetable['class_name'] }}"
-                                                                    data-period="{{ $periodName }}"
-                                                                    data-section_id="{{ $timetable['section_id'] }}"
-                                                                    data-day="{{ $day }}">
-                                                                <i class="fa fa-plus"></i> Add
-                                                            </button>
-                                                        </div>
-                                                    @endif
-                                                </td>
-                                                @endforeach
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
+                <div class="col-lg-12 tt-page">
+                    @if($totalSections === 0)
+                        <div class="tt-panel-card">
+                            <div class="tt-empty-state">
+                                <i class="fa fa-calendar-o"></i>
+                                <h4>No timetables yet</h4>
+                                <p>Add a schedule using the button above to get started.</p>
                             </div>
                         </div>
-                    </div>
-                @endforeach
+                    @else
+                        <div class="row">
+                            {{-- Class / Section Navigator --}}
+                            <div class="col-lg-3 col-md-4 col-sm-12">
+                                <div class="tt-nav-panel">
+                                    <div class="tt-nav-head">
+                                        <h4><i class="fa fa-th-list"></i> Class &amp; Section</h4>
+                                        <div class="tt-nav-search">
+                                            <i class="fa fa-search"></i>
+                                            <input type="text" id="ttSearch" class="form-control" placeholder="Search class or section...">
+                                        </div>
+                                    </div>
+                                    <div class="tt-nav-list" id="ttNavList">
+                                        @php $panelIndex = 0; @endphp
+                                        @foreach($groupedTimetables as $classId => $sections)
+                                            @php
+                                                $classLabel = preg_replace('/\s*\(Section.*$/', '', $sections->first()['class_name']);
+                                            @endphp
+                                            <div class="tt-class-group" data-class-name="{{ strtolower($classLabel) }}">
+                                                <div class="tt-class-heading">{{ $classLabel }}</div>
+                                                @foreach($sections as $timetable)
+                                                    @php
+                                                        $slotCount = collect($timetable['periods'])->sum(fn ($days) => count($days));
+                                                        preg_match('/\(Section\s(.+)\)$/', $timetable['class_name'], $sectionMatch);
+                                                        $sectionLabel = $sectionMatch[1] ?? '—';
+                                                        $searchText = strtolower($classLabel . ' ' . $sectionLabel);
+                                                    @endphp
+                                                    <button type="button"
+                                                        class="tt-nav-item {{ $panelIndex === 0 ? 'active' : '' }}"
+                                                        data-panel="tt-panel-{{ $panelIndex }}"
+                                                        data-search="{{ $searchText }}">
+                                                        <span>
+                                                            <span class="tt-nav-label">Section {{ $sectionLabel }}</span>
+                                                            <div class="tt-nav-meta">{{ $slotCount }} slot{{ $slotCount !== 1 ? 's' : '' }} scheduled</div>
+                                                        </span>
+                                                        <span class="tt-nav-badge">{{ $slotCount }}</span>
+                                                    </button>
+                                                    @php $panelIndex++; @endphp
+                                                @endforeach
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                    <div class="tt-nav-foot">
+                                        <i class="fa fa-info-circle"></i>
+                                        {{ $groupedTimetables->count() }} class{{ $groupedTimetables->count() !== 1 ? 'es' : '' }},
+                                        {{ $totalSections }} section{{ $totalSections !== 1 ? 's' : '' }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Timetable Panels --}}
+                            <div class="col-lg-9 col-md-8 col-sm-12">
+                                @foreach($timetables as $timetable)
+                                    @php
+                                        preg_match('/^(.+?)\s*\(Section\s(.+)\)$/', $timetable['class_name'], $nameParts);
+                                        $displayClass = $nameParts[1] ?? $timetable['class_name'];
+                                        $displaySection = $nameParts[2] ?? '';
+                                        $slotCount = collect($timetable['periods'])->sum(fn ($days) => count($days));
+                                    @endphp
+                                    <div id="tt-panel-{{ $loop->index }}" class="tt-panel {{ $loop->first ? 'active' : '' }}">
+                                        <div class="tt-panel-card">
+                                            <div class="tt-panel-head">
+                                                <div>
+                                                    <h3>{{ $displayClass }}</h3>
+                                                    <small>Section {{ $displaySection }} &middot; {{ $slotCount }} scheduled slot{{ $slotCount !== 1 ? 's' : '' }}</small>
+                                                </div>
+                                                <span class="label label-primary" style="font-size:12px;padding:6px 12px;border-radius:20px;">
+                                                    <i class="fa fa-calendar"></i> Weekly Schedule
+                                                </span>
+                                            </div>
+                                            <div class="tt-table-wrap">
+                                                <table class="tt-grid">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Period</th>
+                                                            @foreach(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as $dayName)
+                                                                <th>{{ $dayName }}</th>
+                                                            @endforeach
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @forelse($timetable['periods'] as $periodName => $days)
+                                                            <tr>
+                                                                <td>{{ $periodName }}</td>
+                                                                @foreach(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as $day)
+                                                                    <td>
+                                                                        @if(isset($days[$day]))
+                                                                            @if(isset($days[$day]['event']))
+                                                                                <div class="tt-slot tt-slot--break">
+                                                                                    <div class="tt-slot-title"><i class="fa fa-coffee"></i> {{ $days[$day]['event'] }}</div>
+                                                                                    <div class="tt-slot-meta">
+                                                                                        <div><i class="fa fa-clock-o"></i> {{ $days[$day]['start'] }} – {{ $days[$day]['end'] }}</div>
+                                                                                        <div><i class="fa fa-map-marker"></i> {{ $days[$day]['room'] ?: '—' }}</div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            @else
+                                                                                <div class="tt-slot">
+                                                                                    <div class="tt-slot-title">{{ $days[$day]['subject'] }}</div>
+                                                                                    <div class="tt-slot-meta">
+                                                                                        <div><i class="fa fa-user"></i> {{ $days[$day]['teacher'] }}</div>
+                                                                                        <div><i class="fa fa-clock-o"></i> {{ $days[$day]['start'] }} – {{ $days[$day]['end'] }}</div>
+                                                                                        <div><i class="fa fa-map-marker"></i> {{ $days[$day]['room'] ?: '—' }}</div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            @endif
+                                                                            <div class="tt-actions">
+                                                                                <button class="btn btn-primary btn-sm update-btn"
+                                                                                    data-entry-id="{{ $days[$day]['id'] }}"
+                                                                                    data-class="{{ $timetable['class_name'] }}"
+                                                                                    data-class_id="{{ $timetable['class_id'] }}"
+                                                                                    data-period="{{ $periodName }}"
+                                                                                    data-day="{{ $day }}"
+                                                                                    data-section_id="{{ $timetable['section_id'] }}"
+                                                                                    data-teacher="{{ $days[$day]['teacher'] ?? '' }}"
+                                                                                    data-teacher_id="{{ $days[$day]['teacher_id'] ?? '' }}"
+                                                                                    data-subject="{{ $days[$day]['subject'] ?? '' }}"
+                                                                                    data-subject_id="{{ $days[$day]['subject_id'] ?? '' }}"
+                                                                                    data-start="{{ $days[$day]['start_raw'] ?? '' }}"
+                                                                                    data-end="{{ $days[$day]['end_raw'] ?? '' }}"
+                                                                                    data-room="{{ $days[$day]['room'] ?? '' }}"
+                                                                                    data-event="{{ $days[$day]['event'] ?? '' }}">
+                                                                                    <i class="fa fa-pencil"></i> Edit
+                                                                                </button>
+                                                                                <button class="btn btn-default btn-sm view-btn"
+                                                                                    data-class="{{ $timetable['class_name'] }}"
+                                                                                    data-period="{{ $periodName }}"
+                                                                                    data-day="{{ $day }}"
+                                                                                    data-teacher="{{ $days[$day]['teacher'] ?? '' }}"
+                                                                                    data-subject="{{ $days[$day]['subject'] ?? '' }}"
+                                                                                    data-start="{{ $days[$day]['start'] ?? '' }}"
+                                                                                    data-end="{{ $days[$day]['end'] ?? '' }}"
+                                                                                    data-room="{{ $days[$day]['room'] ?? '' }}"
+                                                                                    data-event="{{ $days[$day]['event'] ?? '' }}">
+                                                                                    <i class="fa fa-eye"></i> View
+                                                                                </button>
+                                                                            </div>
+                                                                        @else
+                                                                            <div class="tt-slot--empty">No schedule</div>
+                                                                            <div class="tt-actions">
+                                                                                <button class="btn btn-success btn-sm add-btn"
+                                                                                    data-class_id="{{ $timetable['class_id'] }}"
+                                                                                    data-class="{{ $timetable['class_name'] }}"
+                                                                                    data-period="{{ $periodName }}"
+                                                                                    data-section_id="{{ $timetable['section_id'] }}"
+                                                                                    data-day="{{ $day }}">
+                                                                                    <i class="fa fa-plus"></i> Add
+                                                                                </button>
+                                                                            </div>
+                                                                        @endif
+                                                                    </td>
+                                                                @endforeach
+                                                            </tr>
+                                                        @empty
+                                                            <tr>
+                                                                <td colspan="8">
+                                                                    <div class="tt-empty-state" style="padding:30px;">
+                                                                        <i class="fa fa-calendar-plus-o"></i>
+                                                                        <p>No periods defined yet. Click <strong>Add</strong> on any day to create a schedule.</p>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        @endforelse
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+                </div>
             </div>
         </div>
     </div>
@@ -512,6 +831,53 @@
             $(document).ready(function() {
                 bindScheduleTimeValidation('#addForm');
                 bindScheduleTimeValidation('#updateForm');
+
+                // Class / section navigator
+                function showTimetablePanel(panelId) {
+                    $('.tt-panel').removeClass('active');
+                    $('#' + panelId).addClass('active');
+                    $('.tt-nav-item').removeClass('active');
+                    $('.tt-nav-item[data-panel="' + panelId + '"]').addClass('active');
+                    sessionStorage.setItem('tt_active_panel', panelId);
+                }
+
+                var savedPanel = sessionStorage.getItem('tt_active_panel');
+                if (savedPanel && $('#' + savedPanel).length) {
+                    showTimetablePanel(savedPanel);
+                }
+
+                $('.tt-nav-item').on('click', function() {
+                    showTimetablePanel($(this).data('panel'));
+                });
+
+                $('#ttSearch').on('input', function() {
+                    var query = $(this).val().toLowerCase().trim();
+                    var visibleCount = 0;
+
+                    $('.tt-class-group').each(function() {
+                        var group = $(this);
+                        var groupVisible = false;
+
+                        group.find('.tt-nav-item').each(function() {
+                            var item = $(this);
+                            var searchText = item.data('search') || '';
+                            var className = group.data('class-name') || '';
+                            var match = !query || searchText.indexOf(query) !== -1 || className.indexOf(query) !== -1;
+
+                            item.toggle(match);
+                            if (match) {
+                                groupVisible = true;
+                                visibleCount++;
+                            }
+                        });
+
+                        group.toggle(groupVisible);
+                    });
+
+                    if (query && visibleCount === 1) {
+                        showTimetablePanel($('.tt-nav-item:visible').first().data('panel'));
+                    }
+                });
 
                 // Handle type change in add and update forms
                 $('select[name="type"]').change(function() {

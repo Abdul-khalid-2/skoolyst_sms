@@ -1,6 +1,7 @@
 <x-tenant-app-layout>
 
     @push('css')
+        <link rel="stylesheet" href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css">
 
         <style>
             .settings-card {
@@ -24,34 +25,119 @@
             .settings-label {
                 font-weight: 600;
                 margin-bottom: 5px;
+                display: block;
             }
-            
-            .nav-tabs.tabs-left > li.active > a {
+
+            .settings-layout {
+                display: flex;
+                flex-wrap: wrap;
+            }
+
+            .settings-sidebar {
+                padding-right: 0;
+            }
+
+            .settings-menu .nav-tabs.settings-tabs {
+                display: block;
+                float: none;
+                white-space: normal;
+                overflow: visible;
+                border-bottom: none;
+                margin-bottom: 0;
+            }
+
+            .settings-menu .nav-tabs.settings-tabs > li {
+                float: none;
+                display: block;
+                width: 100%;
+                margin-bottom: 0;
+            }
+
+            .settings-menu .nav-tabs.settings-tabs > li > a {
+                display: block;
+                padding: 12px 16px;
+                border: 1px solid #ddd;
+                border-right: none;
+                border-radius: 0;
+                margin-bottom: -1px;
+                color: #444;
+                background: #fafafa;
+            }
+
+            .settings-menu .nav-tabs.settings-tabs > li > a i {
+                width: 18px;
+                margin-right: 8px;
+                text-align: center;
+            }
+
+            .settings-menu .nav-tabs.settings-tabs > li.active > a,
+            .settings-menu .nav-tabs.settings-tabs > li.active > a:hover,
+            .settings-menu .nav-tabs.settings-tabs > li.active > a:focus {
                 border-left: 3px solid #4a90e2;
                 background-color: #f5f9fc;
+                border-right-color: #fff;
+                color: #222;
             }
-            
-            .nav-tabs.tabs-left > li > a {
-                padding: 15px 20px;
-                border-radius: 0;
-            }
-            
-            .tab-content {
+
+            .settings-tab-content {
                 padding: 20px;
                 background: #fff;
                 border: 1px solid #ddd;
-                border-left: none;
+                min-height: 420px;
+            }
+
+            .settings-panel {
+                padding-left: 0;
+            }
+
+            .toggle-switch {
+                margin-top: 6px;
+            }
+
+            .toggle-switch .toggle {
+                margin-right: 8px;
+            }
+
+            @media (max-width: 991px) {
+                .settings-sidebar,
+                .settings-panel {
+                    padding-left: 15px;
+                    padding-right: 15px;
+                }
+
+                .settings-menu .nav-tabs.settings-tabs > li > a {
+                    border-right: 1px solid #ddd;
+                }
+
+                .settings-menu .nav-tabs.settings-tabs > li.active > a {
+                    border-right-color: #ddd;
+                }
+
+                .settings-tab-content {
+                    margin-top: 15px;
+                    border-left: 1px solid #ddd;
+                }
+            }
+
+            @media (max-width: 767px) {
+                .settings-menu .nav-tabs.settings-tabs {
+                    display: block !important;
+                    white-space: normal !important;
+                    overflow: visible !important;
+                    flex-wrap: wrap !important;
+                }
+
+                .settings-menu .nav-tabs.settings-tabs > li {
+                    display: block !important;
+                    width: 100% !important;
+                }
             }
         </style>
     @endpush
 
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('School Settings') }}
-        </h2>
-    </x-slot>
+    <x-slot name="header"></x-slot>
 
-    <div class="container-fluid">
+    <div class="container-fluid" style="margin-top: 20px;">
         <div class="row">
             <x-page-header title="School Settings">
                 <a href="{{ route('schools.show') }}" style="color: #333;"><i class="fa fa-building"></i> Profile</a>
@@ -60,33 +146,26 @@
                 <a href="{{ route('schools.settings') }}" style="color: #333;"><i class="fa fa-cog"></i> Settings</a>
             </x-page-header>
             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                <div class="sparkline12-list">
-                    <div class="sparkline12-hd">
-                        <div class="main-sparkline12-hd">
-                            <h1>School Profile</h1>
+                <div class="white-box">
+                    <div class="row settings-layout">
+                        <div class="col-lg-3 col-md-4 col-sm-12 col-xs-12 settings-sidebar">
+                            <div class="settings-menu">
+                                <ul class="nav nav-tabs tabs-left settings-tabs">
+                                    <li class="active"><a href="#basic-info" data-toggle="tab"><i class="fa fa-info-circle"></i> Basic Information</a></li>
+                                    <li><a href="#contact-details" data-toggle="tab"><i class="fa fa-address-book"></i> Contact Details</a></li>
+                                    <li><a href="#academic-structure" data-toggle="tab"><i class="fa fa-sitemap"></i> Academic Structure</a></li>
+                                    <li><a href="#general" data-toggle="tab"><i class="fa fa-cog"></i> System Settings</a></li>
+                                    <li><a href="#academic-settings" data-toggle="tab"><i class="fa fa-graduation-cap"></i> Academic Settings</a></li>
+                                    <li><a href="#attendance" data-toggle="tab"><i class="fa fa-calendar-check-o"></i> Attendance Settings</a></li>
+                                    <li><a href="#fee" data-toggle="tab"><i class="fa fa-money"></i> Fee Settings</a></li>
+                                    <li><a href="#notifications" data-toggle="tab"><i class="fa fa-bell"></i> Notifications</a></li>
+                                    <li><a href="#security" data-toggle="tab"><i class="fa fa-shield"></i> Security</a></li>
+                                </ul>
+                            </div>
                         </div>
-                    </div>
-                    <div class="sparkline12-graph">
-                        <div class="basic-login-form-ad">
-                            <div class="row">
-                                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                    <div class="settings-menu">
-                                        <ul class="nav nav-tabs tabs-left">
-                                            <li class="active"><a href="#basic-info" data-toggle="tab"><i class="fa fa-info-circle"></i> Basic Information</a></li>
-                                            <li><a href="#contact-details" data-toggle="tab"><i class="fa fa-address-book"></i> Contact Details</a></li>
-                                            <li><a href="#academic-structure" data-toggle="tab"><i class="fa fa-sitemap"></i> Academic Structure</a></li>
-                                            <li><a href="#general" data-toggle="tab"><i class="fa fa-cog"></i> System Settings</a></li>
-                                            <li><a href="#academic-settings" data-toggle="tab"><i class="fa fa-graduation-cap"></i> Academic Settings</a></li>
-                                            <li><a href="#attendance" data-toggle="tab"><i class="fa fa-calendar-check"></i> Attendance Settings</a></li>
-                                            <li><a href="#fee" data-toggle="tab"><i class="fa fa-money-bill-wave"></i> Fee Settings</a></li>
-                                            <li><a href="#notifications" data-toggle="tab"><i class="fa fa-bell"></i> Notifications</a></li>
-                                            <li><a href="#security" data-toggle="tab"><i class="fa fa-shield-alt"></i> Security</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-    
-                                <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
-                                    <div class="tab-content">
+
+                        <div class="col-lg-9 col-md-8 col-sm-12 col-xs-12 settings-panel">
+                            <div class="tab-content settings-tab-content">
                                         <!-- Basic Information Tab -->
                                         <div class="tab-pane active" id="basic-info">
                                             <form action="{{ route('schools.update-basic-info') }}" method="POST" enctype="multipart/form-data">
@@ -590,7 +669,9 @@
                                                             <input type="checkbox" name="send_absence_notifications" id="send_absence_notifications" {{ ($settings['send_absence_notifications'] ?? true) ? 'checked' : '' }}>
                                                             <label for="send_absence_notifications">Enable notifications</label>
                                                         </div>
-                                                    </div>                                                    <div class="settings-group">
+                                                    </div>
+
+                                                    <div class="settings-group">
                                                         <label class="settings-label">Notification Method</label>
                                                         <select name="absence_notification_method" class="form-control">
                                                             <option value="email" {{ ($settings['absence_notification_method'] ?? 'email') == 'email' ? 'selected' : '' }}>
@@ -961,8 +1042,6 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -970,46 +1049,33 @@
    
 
     @push('js')
-    
     <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 
     <script>
         $(document).ready(function () {
-            // Initialize left tabs
-            $('.settings-menu .nav-tabs a').click(function (e) {
+            $('.settings-menu .nav-tabs a').on('click', function (e) {
                 e.preventDefault();
                 $(this).tab('show');
             });
 
-            // Initialize toggle switches
-            $('.toggle-switch input[type="checkbox"]').bootstrapToggle({
-                on: 'Enabled',
-                off: 'Disabled'
+            if ($.fn.bootstrapToggle) {
+                $('.toggle-switch input[type="checkbox"]').bootstrapToggle({
+                    on: 'Enabled',
+                    off: 'Disabled',
+                    size: 'small'
+                });
+            }
+
+            $('#online_payments').on('change', function () {
+                $('#payment-gateways').toggle($(this).prop('checked'));
             });
-            
-            // Show/hide payment gateways based on online payments toggle
-            $('#online_payments').change(function() {
-                if($(this).prop('checked')) {
-                    $('#payment-gateways').show();
-                } else {
-                    $('#payment-gateways').hide();
-                }
-            });
-            
-            // Activate the tab from URL hash if present
-            if(window.location.hash) {
+
+            if (window.location.hash) {
                 $('.settings-menu .nav-tabs a[href="' + window.location.hash + '"]').tab('show');
             }
-            
-            // Update URL hash when tab changes
-            $('.settings-menu .nav-tabs a').on('shown.bs.tab', function(e) {
+
+            $('.settings-menu .nav-tabs a').on('shown.bs.tab', function (e) {
                 window.location.hash = e.target.hash;
-            });
-            
-            // Initialize select2 for better select boxes
-            $('select.form-control').select2({
-                minimumResultsForSearch: Infinity,
-                width: '100%'
             });
         });
     </script>

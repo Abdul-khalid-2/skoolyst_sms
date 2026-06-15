@@ -62,7 +62,10 @@ class TeacherController extends Controller
             'specialization'    => 'required|string|max:255',
             'experience_years'  => 'required|integer|min:0',
             'joining_date'      => 'required|date',
-            'salary_grade'      => 'required|string|max:50',
+            'base_salary'       => 'nullable|numeric|min:0',
+            'current_salary'    => 'nullable|numeric|min:0',
+            'last_increment_date' => 'nullable|date',
+            'salary_grade'      => 'nullable|string|max:50',
             'bank_details'      => 'nullable|string',
             'emergency_contact' => 'required|string|max:255',
             'bio'               => 'nullable|string',
@@ -133,7 +136,10 @@ class TeacherController extends Controller
                 'specialization'    => $validated['specialization'],
                 'experience_years'  => $validated['experience_years'],
                 'joining_date'      => $validated['joining_date'],
-                'salary_grade'      => $validated['salary_grade'],
+                'base_salary'       => $validated['base_salary'] ?? null,
+                'current_salary'    => $validated['current_salary'] ?? null,
+                'last_increment_date' => $validated['last_increment_date'] ?? null,
+                'salary_grade'      => $validated['salary_grade'] ?? null,
                 'bank_details'      => $validated['bank_details'],
                 'emergency_contact' => $validated['emergency_contact'],
                 'documents'         => json_encode($documentPaths),
@@ -170,8 +176,8 @@ class TeacherController extends Controller
     public function edit($encodedId = null)
     {
         $id = Crypt::decrypt($encodedId);
-        $teacher = User::role('teacher')->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))->with('teacherProfile')
-            ->orderBy('name')
+        $teacher = User::role('teacher')->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
+            ->with(['teacherProfile', 'roles'])
             ->findorfail($id);
         $classes = Classes::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))->get();
         return view('app.admin.edit_teacher', compact('teacher', 'classes'));
@@ -206,8 +212,7 @@ class TeacherController extends Controller
             'address'   => 'required|string',
             'gender'    => 'required|in:male,female,other',
             'dob'       => 'required|date',
-            'roles'      => 'required|array',
-            'roles.*'    => 'in:admin,teacher',
+            'role'      => 'required|in:admin,teacher',
 
             // Teacher profile fields
             'employee_id'       => 'required|string|max:50|unique:teacher_profiles,employee_id,' . $id . ',teacher_id',
@@ -215,10 +220,10 @@ class TeacherController extends Controller
             'specialization'    => 'required|string|max:255',
             'experience_years'  => 'required|integer|min:0',
             'joining_date'      => 'required|date',
-            'base_salary'       => 'required|numeric|min:0',
-            'current_salary'    => 'required|numeric|min:0',
-            'last_increment_date' => 'nullable|date_format:Y/m/d', // Changed to match your input format
-            'salary_grade'      => 'required|string|max:50',
+            'base_salary'       => 'nullable|numeric|min:0',
+            'current_salary'    => 'nullable|numeric|min:0',
+            'last_increment_date' => 'nullable|date',
+            'salary_grade'      => 'nullable|string|max:50',
             'bank_details'      => 'nullable|string',
             'emergency_contact' => 'required|string|max:255',
             'bio'               => 'nullable|string',
@@ -257,11 +262,10 @@ class TeacherController extends Controller
                 'address'     => $validated['address'],
                 'gender'      => $validated['gender'],
                 'dob'         => $validated['dob'],
-                'roles'        => in_array('admin', $validated['roles']) ? 'admin' : 'teacher',
+                'role'        => $validated['role'],
             ]);
 
-            // Sync roles
-            $user->syncRoles($validated['roles']);
+            $user->syncRoles([$validated['role']]);
 
             // Handle signature update
             $signaturePath = $teacherProfile->signature;

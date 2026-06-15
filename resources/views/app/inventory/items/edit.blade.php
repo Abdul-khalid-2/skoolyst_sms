@@ -6,7 +6,7 @@
 
             <x-page-header title="Edit Inventory Item" :back-route="route('inventory.items.show', $item)" />
 
-            <div class="col-lg-9 col-md-11 col-sm-12 col-xs-12">
+            <div class="col-lg-8 col-md-7 col-sm-12 col-xs-12">
                 <div class="sparkline12-list">
                     <div class="sparkline12-graph">
                         <div class="basic-login-form-ad">
@@ -89,6 +89,10 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <div class="col-lg-4 col-md-5 col-sm-12 col-xs-12">
+                <x-inventory-guide screen="items-edit" />
             </div>
 
         </div>

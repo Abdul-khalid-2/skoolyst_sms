@@ -73,12 +73,96 @@
                     margin: 0;
                     font-size: 16px;
                 }
+                .export-data-card {
+                    background: linear-gradient(135deg, #0f172a 0%, #1e40af 55%, #2563eb 100%);
+                    border-radius: 12px;
+                    color: #fff;
+                    padding: 22px 24px;
+                    margin-bottom: 22px;
+                    box-shadow: 0 10px 30px rgba(37, 99, 235, 0.28);
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 20px;
+                    flex-wrap: wrap;
+                }
+                .export-data-card h4 {
+                    margin: 0 0 6px;
+                    font-size: 18px;
+                    font-weight: 700;
+                }
+                .export-data-card p {
+                    margin: 0;
+                    font-size: 13px;
+                    opacity: 0.9;
+                    max-width: 620px;
+                    line-height: 1.6;
+                }
+                .export-data-card .export-tags {
+                    margin-top: 10px;
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 6px;
+                }
+                .export-data-card .export-tag {
+                    background: rgba(255,255,255,0.15);
+                    border-radius: 20px;
+                    padding: 3px 10px;
+                    font-size: 11px;
+                    font-weight: 600;
+                }
+                .btn-export-excel {
+                    background: #fff;
+                    color: #1e40af;
+                    border: none;
+                    border-radius: 8px;
+                    padding: 12px 22px;
+                    font-weight: 700;
+                    font-size: 14px;
+                    white-space: nowrap;
+                    box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+                    transition: transform 0.15s ease, box-shadow 0.15s ease;
+                    text-decoration: none;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+                .btn-export-excel:hover {
+                    transform: translateY(-1px);
+                    box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+                    color: #1e3a8a;
+                    text-decoration: none;
+                }
+                .btn-export-excel i { color: #16a34a; font-size: 18px; }
             </style>
     @endpush
     <x-slot name="header"></x-slot>
     
     <div class="analytics-sparkle-area" style="margin-top: 20px">
         <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="export-data-card">
+                        <div>
+                            <h4><i class="fa fa-file-text-o"></i> Export Complete School Data</h4>
+                            <p>Download one CSV file with all school records — students, teachers, parents, fees, timetable, exams, book issues, and more. Each section is clearly labeled and opens directly in Excel.</p>
+                            <div class="export-tags">
+                                <span class="export-tag">Students</span>
+                                <span class="export-tag">Teachers</span>
+                                <span class="export-tag">Parents</span>
+                                <span class="export-tag">Fees</span>
+                                <span class="export-tag">Timetable</span>
+                                <span class="export-tag">Exams</span>
+                                <span class="export-tag">Book Issues</span>
+                                <span class="export-tag">+ more</span>
+                            </div>
+                        </div>
+                        <a href="{{ route('admin.export.school-data') }}" class="btn-export-excel" id="exportSchoolDataBtn">
+                            <i class="fa fa-download"></i> Download CSV
+                        </a>
+                    </div>
+                </div>
+            </div>
             <div class="row">
                 <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
                     <div class="analytics-sparkle-line reso-mg-b-30">
@@ -269,4 +353,18 @@
             </div>
         </div>
     </div>
+
+    @push('js')
+        <script>
+            document.getElementById('exportSchoolDataBtn')?.addEventListener('click', function () {
+                var btn = this;
+                btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Preparing CSV export...';
+                btn.style.pointerEvents = 'none';
+                setTimeout(function () {
+                    btn.innerHTML = '<i class="fa fa-download"></i> Download CSV';
+                    btn.style.pointerEvents = '';
+                }, 8000);
+            });
+        </script>
+    @endpush
 </x-tenant-app-layout>

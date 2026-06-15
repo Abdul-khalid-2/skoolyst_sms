@@ -7,6 +7,7 @@ use App\Http\Controllers\Teacher\Concerns\ScopesTeacherAssignments;
 use App\Models\Attendance;
 use App\Models\ExamResult;
 use App\Models\StudentProfile;
+use App\Services\Teacher\UpcomingClassService;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
@@ -45,6 +46,8 @@ class DashboardController extends Controller
         $resultsEntered = ExamResult::whereIn('student_id', $studentIds)->count();
         $attendanceRecords = Attendance::whereIn('user_id', $studentIds)->count();
 
+        $upcomingClass = app(UpcomingClassService::class)->getNextForTeacher($teacher);
+
         return view('app.teacher.dashboard', [
             'teacher'          => $teacher,
             'studentCount'     => $studentCount,
@@ -52,6 +55,7 @@ class DashboardController extends Controller
             'subjectCount'     => $subjectCount,
             'resultsEntered'   => $resultsEntered,
             'attendanceRecords'=> $attendanceRecords,
+            'upcomingClass'    => $upcomingClass,
         ]);
     }
 }

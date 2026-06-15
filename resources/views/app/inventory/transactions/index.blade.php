@@ -23,33 +23,33 @@
                     <a href="{{ route('inventory.index') }}" style="color:#333;"><i class="fa fa-tachometer"></i> Dashboard</a>
                 </x-page-header>
 
-                {{-- Filters --}}
-                <div class="col-lg-12">
+                {{-- Main content + Guide --}}
+                <div class="col-lg-8 col-md-7 col-sm-12">
                     <form method="GET" action="{{ route('inventory.transactions.index') }}">
                         <div class="filter-card">
                             <div class="row">
-                                <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+                                <div class="col-lg-4 col-md-6 col-sm-6 col-xs-12">
                                     <div class="form-group">
                                         <label>Item</label>
                                         <input type="text" name="item" class="form-control input-sm"
                                             placeholder="Search item..." value="{{ request('item') }}">
                                     </div>
                                 </div>
-                                <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12">
+                                <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
                                     <div class="form-group">
                                         <label>From Date</label>
                                         <input type="date" name="from_date" class="form-control input-sm datepicker"
                                             placeholder="YYYY-MM-DD" value="{{ request('from_date') }}">
                                     </div>
                                 </div>
-                                <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12">
+                                <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
                                     <div class="form-group">
                                         <label>To Date</label>
                                         <input type="date" name="to_date" class="form-control input-sm datepicker"
                                             placeholder="YYYY-MM-DD" value="{{ request('to_date') }}">
                                     </div>
                                 </div>
-                                <div class="col-lg-2 col-md-4 col-sm-6 col-xs-12">
+                                <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
                                     <div class="form-group">
                                         <label>Type</label>
                                         <select name="type" class="form-control input-sm">
@@ -60,7 +60,7 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+                                <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
                                     <div class="form-group">
                                         <label>&nbsp;</label>
                                         <div style="display:flex; gap:6px;">
@@ -76,10 +76,7 @@
                             </div>
                         </div>
                     </form>
-                </div>
 
-                {{-- Table --}}
-                <div class="col-lg-12">
                     <div class="sparkline13-list">
                         <div class="sparkline13-graph">
                             <div class="datatable-dashv1-list custom-datatable-overright">
@@ -134,6 +131,10 @@
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <div class="col-lg-4 col-md-5 col-sm-12">
+                    <x-inventory-guide screen="transactions-index" />
                 </div>
 
             </div>

@@ -6,7 +6,12 @@
 
             <x-page-header title="Record Stock Transaction" :back-route="route('inventory.transactions.index')" />
 
-            <div class="col-lg-8 col-md-10 col-sm-12 col-xs-12">
+            @php
+                $txnType = request('type', old('transaction_type'));
+                $selectedItem = $items->firstWhere('id', (int) request('item_id', old('item_id')));
+            @endphp
+
+            <div class="col-lg-8 col-md-7 col-sm-12 col-xs-12">
                 <div class="sparkline12-list">
                     <div class="sparkline12-graph">
                         <div class="basic-login-form-ad">
@@ -90,6 +95,14 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <div class="col-lg-4 col-md-5 col-sm-12 col-xs-12">
+                <x-inventory-guide
+                    screen="transactions-create"
+                    :type="$txnType ?: null"
+                    :item="$selectedItem"
+                />
             </div>
 
         </div>
