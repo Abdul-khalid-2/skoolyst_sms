@@ -241,7 +241,8 @@ class AssignmentService
     public function getEligibleTeachersForSubject(int $subjectId, ?int $branchId = null): Collection
     {
         $query = User::role('teacher')
-            ->whereHas('teacherSubjects', fn ($q) => $q->where('subjects.id', $subjectId));
+            ->whereHas('teacherSubjects', fn ($q) => $q->where('subjects.id', $subjectId))
+            ->with('teacherProfile:id,teacher_id,employee_id');
 
         if ($branchId) {
             $query->where('branch_id', $branchId);

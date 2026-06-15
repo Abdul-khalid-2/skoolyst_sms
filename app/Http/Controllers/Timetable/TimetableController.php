@@ -449,16 +449,14 @@ class TimetableController extends Controller
 
     public function getTeachersBySubject(Request $request)
     {
-        $subjectId  = $request->input('subject_id');
-        $classId    = $request->input('class_id');
+        $subjectId = $request->input('subject_id');
+        $sectionId = $request->integer('section_id') ?: null;
 
         $branchId = $this->branchId;
         $service  = app(AssignmentService::class);
-        $sectionId = $request->integer('section_id') ?: null;
 
-        $teachers = $sectionId
-            ? $service->getAllocatedTeachersForSectionSubject((int) $sectionId, (int) $subjectId, $branchId)
-            : $service->getEligibleTeachersForSubject((int) $subjectId, $branchId);
+        // Timetable picks from teacher capabilities (teacher_subjects), not section allocation only.
+        $teachers = $service->getEligibleTeachersForSubject((int) $subjectId, $branchId);
 
         $assignedTeacherId = $sectionId
             ? SectionSubjectTeacher::where('section_id', $sectionId)

@@ -109,6 +109,145 @@
                 right: 20px;
                 top: 20px;
             }
+
+            /* Section Teachers tab */
+            .st-wrap { margin-top: 14px; }
+            .st-toolbar {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                justify-content: space-between;
+                gap: 10px;
+                margin-bottom: 14px;
+            }
+            .st-search {
+                position: relative;
+                flex: 1;
+                min-width: 220px;
+                max-width: 360px;
+            }
+            .st-search input {
+                width: 100%;
+                padding: 9px 12px 9px 34px;
+                border: 1px solid #dde3ea;
+                border-radius: 8px;
+                font-size: 13px;
+            }
+            .st-search i {
+                position: absolute;
+                left: 11px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: #94a3b8;
+            }
+            .st-layout {
+                display: flex;
+                gap: 16px;
+                align-items: flex-start;
+            }
+            .st-sidebar {
+                width: 280px;
+                flex-shrink: 0;
+                background: #f8fafc;
+                border: 1px solid #e2e8f0;
+                border-radius: 10px;
+                max-height: 520px;
+                overflow-y: auto;
+            }
+            .st-class-group { border-bottom: 1px solid #e8edf3; }
+            .st-class-group:last-child { border-bottom: none; }
+            .st-class-head {
+                padding: 10px 14px 6px;
+                font-size: 12px;
+                font-weight: 700;
+                color: #64748b;
+                text-transform: uppercase;
+                letter-spacing: .04em;
+            }
+            .st-section-list { padding: 0 10px 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+            .st-section-btn {
+                border: 1px solid #cbd5e1;
+                background: #fff;
+                color: #334155;
+                border-radius: 999px;
+                padding: 5px 12px;
+                font-size: 12px;
+                cursor: pointer;
+                transition: all .15s ease;
+            }
+            .st-section-btn:hover { border-color: #6366f1; color: #4338ca; }
+            .st-section-btn.active {
+                background: #6366f1;
+                border-color: #6366f1;
+                color: #fff;
+            }
+            .st-section-btn .st-badge {
+                display: inline-block;
+                margin-left: 4px;
+                background: rgba(0,0,0,.08);
+                border-radius: 10px;
+                padding: 0 6px;
+                font-size: 10px;
+            }
+            .st-section-btn.active .st-badge { background: rgba(255,255,255,.25); }
+            .st-main {
+                flex: 1;
+                min-width: 0;
+                background: #fff;
+                border: 1px solid #e2e8f0;
+                border-radius: 10px;
+                overflow: hidden;
+            }
+            .st-main-head {
+                padding: 16px 18px;
+                border-bottom: 1px solid #eef2f7;
+                background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+            }
+            .st-main-head h4 { margin: 0 0 4px; font-size: 18px; color: #1e293b; }
+            .st-main-head p { margin: 0; font-size: 12px; color: #64748b; }
+            .st-subject-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+                gap: 10px;
+                padding: 14px;
+            }
+            .st-subject-card {
+                border: 1px solid #e8edf3;
+                border-radius: 8px;
+                padding: 12px 14px;
+                background: #fff;
+            }
+            .st-subject-card .st-subject-name {
+                font-weight: 600;
+                color: #1e293b;
+                font-size: 14px;
+                margin-bottom: 6px;
+            }
+            .st-subject-card .st-subject-code {
+                display: inline-block;
+                font-size: 10px;
+                background: #eef2ff;
+                color: #4338ca;
+                padding: 2px 6px;
+                border-radius: 4px;
+                margin-left: 4px;
+                vertical-align: middle;
+            }
+            .st-subject-card .st-teacher {
+                font-size: 13px;
+                color: #475569;
+            }
+            .st-subject-card .st-teacher i { color: #6366f1; margin-right: 4px; }
+            .st-empty {
+                padding: 40px 20px;
+                text-align: center;
+                color: #94a3b8;
+            }
+            .st-empty i { font-size: 28px; display: block; margin-bottom: 8px; }
+            @media (max-width: 991px) {
+                .st-layout { flex-direction: column; }
+                .st-sidebar { width: 100%; max-height: none; }
+            }
         </style>
 
     @endpush
@@ -137,6 +276,7 @@
                                     <li><a href="#classes-sections" data-toggle="tab"><i class="fa fa-graduation-cap"></i> Classes &amp; Sections</a></li>
                                     <li><a href="#subjects-offered" data-toggle="tab"><i class="fa fa-book"></i> Subjects</a></li>
                                     <li><a href="#teachers-overview" data-toggle="tab"><i class="fa fa-users"></i> Teachers</a></li>
+                                    <li><a href="#section-teachers" data-toggle="tab"><i class="fa fa-user-plus"></i> Section Teachers</a></li>
                                 </ul>
                                 
                                 <div class="tab-content">
@@ -283,6 +423,9 @@
                                             <a href="{{ route('admin.academic.sections.index') }}" class="btn btn-sm btn-default" style="margin-left:6px;">
                                                 <i class="fa fa-sitemap"></i> Manage Sections
                                             </a>
+                                            <a href="{{ route('admin.academic.subjects.section_teacher') }}" class="btn btn-sm btn-success" style="margin-left:6px;">
+                                                <i class="fa fa-user-plus"></i> Section Teacher Allocation
+                                            </a>
                                         </div>
                                     </div>
 
@@ -375,6 +518,90 @@
                                         </div>
                                     </div>
 
+                                    <div class="tab-pane" id="section-teachers">
+                                        <div class="st-wrap">
+                                            <div class="st-toolbar">
+                                                <p class="text-muted" style="margin:0; font-size:13px; flex:1; min-width:200px;">
+                                                    Assign which teacher teaches each subject in a specific section. Timetable only allows allocated teachers.
+                                                </p>
+                                                <div class="st-search">
+                                                    <i class="fa fa-search"></i>
+                                                    <input type="text" id="stSearch" placeholder="Search class, section, subject or teacher…">
+                                                </div>
+                                                <a href="{{ route('admin.academic.subjects.section_teacher') }}" class="btn btn-sm btn-success">
+                                                    <i class="fa fa-user-plus"></i> Manage Allocations
+                                                </a>
+                                            </div>
+
+                                            @if($sectionAllocationGroups->isEmpty())
+                                                <div class="st-empty">
+                                                    <i class="fa fa-inbox"></i>
+                                                    No classes or sections found.
+                                                </div>
+                                            @else
+                                                <div class="st-layout">
+                                                    <aside class="st-sidebar" id="stSidebar">
+                                                        @foreach($sectionAllocationGroups as $group)
+                                                            <div class="st-class-group" data-class-name="{{ strtolower($group['name']) }}">
+                                                                <div class="st-class-head">{{ $group['name'] }}</div>
+                                                                <div class="st-section-list">
+                                                                    @foreach($group['sections'] as $section)
+                                                                        <button type="button"
+                                                                            class="st-section-btn"
+                                                                            data-panel="st-panel-{{ $section['key'] }}"
+                                                                            data-search="{{ strtolower($group['name'] . ' ' . $section['name'] . ' ' . $section['allocations']->pluck('subject')->join(' ') . ' ' . $section['allocations']->pluck('teacher')->join(' ')) }}">
+                                                                            Section {{ $section['name'] }}
+                                                                            <span class="st-badge">{{ $section['count'] }}</span>
+                                                                        </button>
+                                                                    @endforeach
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    </aside>
+
+                                                    <div class="st-main">
+                                                        @foreach($sectionAllocationGroups as $group)
+                                                            @foreach($group['sections'] as $section)
+                                                                <div class="st-panel" id="st-panel-{{ $section['key'] }}" style="display:none;">
+                                                                    <div class="st-main-head">
+                                                                        <h4>{{ $group['name'] }} — Section {{ $section['name'] }}</h4>
+                                                                        <p>{{ $section['count'] }} {{ Str::plural('subject', $section['count']) }} allocated</p>
+                                                                    </div>
+                                                                    @if($section['allocations']->isEmpty())
+                                                                        <div class="st-empty">
+                                                                            <i class="fa fa-user-times"></i>
+                                                                            No teachers allocated for this section yet.
+                                                                        </div>
+                                                                    @else
+                                                                        <div class="st-subject-grid">
+                                                                            @foreach($section['allocations'] as $row)
+                                                                                <div class="st-subject-card">
+                                                                                    <div class="st-subject-name">
+                                                                                        {{ $row['subject'] }}
+                                                                                        @if($row['code'])
+                                                                                            <span class="st-subject-code">{{ $row['code'] }}</span>
+                                                                                        @endif
+                                                                                    </div>
+                                                                                    <div class="st-teacher">
+                                                                                        <i class="fa fa-user"></i>{{ $row['teacher'] }}
+                                                                                    </div>
+                                                                                </div>
+                                                                            @endforeach
+                                                                        </div>
+                                                                    @endif
+                                                                </div>
+                                                            @endforeach
+                                                        @endforeach
+                                                        <div class="st-empty" id="stPanelPlaceholder">
+                                                            <i class="fa fa-hand-pointer-o"></i>
+                                                            Select a class section on the left to view allocations.
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
+
                                 </div>{{-- /tab-content --}}
                             </div>
                         </div>
@@ -391,6 +618,77 @@
         
         <script>
             $(document).ready(function() {
+                // Section Teachers tab — class/section navigator
+                function showStPanel(panelId) {
+                    $('.st-panel').hide();
+                    $('#stPanelPlaceholder').hide();
+                    if (panelId && $('#' + panelId).length) {
+                        $('#' + panelId).show();
+                    } else {
+                        $('#stPanelPlaceholder').show();
+                    }
+                }
+
+                function activateStSection($btn) {
+                    $('.st-section-btn').removeClass('active');
+                    $btn.addClass('active');
+                    showStPanel($btn.data('panel'));
+                }
+
+                var $firstSection = $('.st-section-btn:visible').first();
+                if ($firstSection.length) {
+                    activateStSection($firstSection);
+                }
+
+                $(document).on('click', '.st-section-btn:visible', function() {
+                    activateStSection($(this));
+                });
+
+                $('a[href="#section-teachers"]').on('shown.bs.tab', function() {
+                    if (!$('.st-section-btn.active:visible').length) {
+                        var $visible = $('.st-section-btn:visible').first();
+                        if ($visible.length) {
+                            activateStSection($visible);
+                        }
+                    }
+                });
+
+                $('#stSearch').on('input', function() {
+                    var q = $(this).val().toLowerCase().trim();
+                    var $firstMatch = null;
+
+                    $('.st-class-group').each(function() {
+                        var classVisible = false;
+                        $(this).find('.st-section-btn').each(function() {
+                            var hay = $(this).data('search') || '';
+                            var className = $(this).closest('.st-class-group').data('class-name') || '';
+                            var match = !q || hay.indexOf(q) !== -1 || className.indexOf(q) !== -1;
+                            $(this).toggle(match);
+                            if (match && !$firstMatch) {
+                                $firstMatch = $(this);
+                            }
+                            if (match) {
+                                classVisible = true;
+                            }
+                        });
+                        $(this).toggle(classVisible || !q);
+                    });
+
+                    if ($firstMatch && $firstMatch.length) {
+                        activateStSection($firstMatch);
+                    } else if (!q) {
+                        $('#stPanelPlaceholder').html('<i class="fa fa-hand-pointer-o"></i> Select a class section on the left to view allocations.');
+                        var $first = $('.st-section-btn:visible').first();
+                        if ($first.length) {
+                            activateStSection($first);
+                        }
+                    } else {
+                        $('.st-section-btn').removeClass('active');
+                        showStPanel(null);
+                        $('#stPanelPlaceholder').html('<i class="fa fa-search"></i> No matching class, section, subject or teacher.').show();
+                    }
+                });
+
                 $('#parentForm').submit(function(e) {
                     let isValid = true;
                     

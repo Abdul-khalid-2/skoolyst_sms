@@ -14,11 +14,14 @@
             <div class="row">
                
 
-                <x-page-header
-                    title="All Sections"
-                    :add-route="route('admin.academic.sections.create')"
-                    add-label="Add Section"
-                />
+                <x-page-header title="All Sections">
+                    <a href="{{ route('admin.academic.sections.create') }}" style="color: #333;">
+                        <i class="fa fa-plus"></i> Add Section
+                    </a>
+                    <a href="{{ route('admin.academic.subjects.section_teacher') }}" style="color: #333;">
+                        <i class="fa fa-user-plus"></i> Section Teacher Allocation
+                    </a>
+                </x-page-header>
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                     <div class="sparkline13-list">
                         

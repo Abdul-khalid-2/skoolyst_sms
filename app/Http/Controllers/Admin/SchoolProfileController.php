@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Branch;
 use App\Models\Classes;
 use App\Models\Program;
+use App\Models\SectionSubjectTeacher;
 use App\Models\Setting;
 use App\Models\Subject;
 use App\Models\SystemSetting;
@@ -200,7 +201,52 @@ class SchoolProfileController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('app.admin.schoo_profile.school_profile', compact('school', 'stats', 'classes', 'subjects', 'teachers'));
+        $sectionAllocations = SectionSubjectTeacher::query()
+            ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
+            ->with(['section.class', 'subject', 'teacher'])
+            ->get()
+            ->sortBy(fn (SectionSubjectTeacher $row) => sprintf(
+                '%04d-%s-%s',
+                $row->section?->class?->numeric_value ?? 0,
+                $row->section?->name ?? '',
+                $row->subject?->name ?? '',
+            ))
+            ->values();
+
+        $allocationsBySection = $sectionAllocations->groupBy('section_id');
+
+        $sectionAllocationGroups = $classes->map(function (Classes $class) use ($allocationsBySection) {
+            return [
+                'id'       => $class->id,
+                'name'     => $class->name,
+                'sections' => $class->sections->sortBy('name')->map(function ($section) use ($allocationsBySection, $class) {
+                    $rows = ($allocationsBySection->get($section->id) ?? collect())->values();
+
+                    return [
+                        'id'          => $section->id,
+                        'name'        => $section->name,
+                        'key'         => $class->id . '-' . $section->id,
+                        'label'       => $class->name . ' — Section ' . $section->name,
+                        'count'       => $rows->count(),
+                        'allocations' => $rows->map(fn (SectionSubjectTeacher $row) => [
+                            'subject' => $row->subject?->name ?? '—',
+                            'code'    => $row->subject?->code,
+                            'teacher' => $row->teacher?->name ?? '—',
+                        ])->values(),
+                    ];
+                })->values(),
+            ];
+        })->values();
+
+        return view('app.admin.schoo_profile.school_profile', compact(
+            'school',
+            'stats',
+            'classes',
+            'subjects',
+            'teachers',
+            'sectionAllocations',
+            'sectionAllocationGroups',
+        ));
     }
 
     public function edit()

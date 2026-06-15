@@ -407,7 +407,7 @@
                                 options += `<option value="${teacher.id}" ${selected}>${teacher.name}</option>`;
                             });
                         } else {
-                            options += '<option value="" disabled>No allocated teachers — assign in Section Teacher Allocation first</option>';
+                            options += '<option value="" disabled>No teachers qualified for this subject yet — assign under Teacher Capabilities</option>';
                         }
                         
                         teacherSelect.html(options);

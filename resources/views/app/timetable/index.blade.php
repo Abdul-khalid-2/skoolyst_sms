@@ -757,12 +757,33 @@
                 return String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0');
             }
 
+            const sectionTeacherAssignUrl = @json(route('admin.academic.subjects.section_teacher'));
+
+            function showToast(icon, title, timer) {
+                if (typeof Swal === 'undefined') {
+                    alert(title);
+                    return;
+                }
+
+                Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: timer || 4500,
+                    timerProgressBar: true,
+                    didOpen: function (toast) {
+                        toast.addEventListener('mouseenter', Swal.stopTimer);
+                        toast.addEventListener('mouseleave', Swal.resumeTimer);
+                    }
+                }).fire({ icon: icon, title: title });
+            }
+
             function validateScheduleTimes(form) {
                 var start = form.find('.schedule-start').val();
                 var end = form.find('.schedule-end').val();
 
                 if (!start || !end) {
-                    alert('Please enter both start and end time.');
+                    showToast('warning', 'Please enter both start and end time.');
                     return false;
                 }
 
@@ -772,7 +793,7 @@
                 var endMinutes = (parseInt(endParts[0], 10) * 60) + parseInt(endParts[1], 10);
 
                 if (endMinutes <= startMinutes) {
-                    alert('End time must be at least 1 minute after start time.');
+                    showToast('warning', 'End time must be at least 1 minute after start time.');
                     form.find('.schedule-end').focus();
                     return false;
                 }
@@ -819,13 +840,34 @@
             }
 
             function showScheduleError(xhr) {
+                var messages = ['Error saving schedule. Please try again.'];
+
                 if (xhr.responseJSON && xhr.responseJSON.errors) {
-                    var messages = Object.values(xhr.responseJSON.errors).flat();
-                    alert(messages.join('\n'));
+                    messages = Object.values(xhr.responseJSON.errors).flat();
+                }
+
+                var text = messages.join(' ');
+                var isAllocationError = text.indexOf('Section Teacher Allocation') !== -1;
+
+                if (typeof Swal === 'undefined') {
+                    alert(text);
                     return;
                 }
 
-                alert('Error saving schedule. Please try again.');
+                if (isAllocationError) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Teacher not allocated',
+                        html: '<p style="margin:0 0 14px; color:#555; font-size:14px; line-height:1.5;">' + text + '</p>' +
+                              '<a href="' + sectionTeacherAssignUrl + '" class="btn btn-success btn-sm">' +
+                              '<i class="fa fa-user-plus"></i> Open Section Teacher Allocation</a>',
+                        confirmButtonText: 'Close',
+                        confirmButtonColor: '#6366f1',
+                    });
+                    return;
+                }
+
+                showToast('error', text);
             }
 
             $(document).ready(function() {
@@ -1044,7 +1086,7 @@
                                  options += `<option value="${teacher.id}" ${selected}>${teacher.name} (${employeeId})</option>`;
                              });
                          } else {
-                             options += '<option value="" disabled>No allocated teachers — assign in Section Teacher Allocation first</option>';
+                             options += '<option value="" disabled>No teachers qualified for this subject yet — assign under Teacher Capabilities</option>';
                          }
                          
                          teacherSelect.html(options);
@@ -1088,7 +1130,7 @@
                                     options += `<option value="${teacher.id}" ${selected}>${teacher.name} (${employeeId})</option>`;
                                 });
                             } else {
-                                options += '<option value="" disabled>No allocated teachers — assign in Section Teacher Allocation first</option>';
+                                options += '<option value="" disabled>No teachers qualified for this subject yet — assign under Teacher Capabilities</option>';
                             }
                             
                             teacherSelect.html(options);
