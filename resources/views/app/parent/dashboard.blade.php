@@ -121,7 +121,7 @@
                             @endforeach
                         </ul>
                         <div style="margin-top:12px;">
-                            <a href="{{ route('parent.notices') }}" class="btn btn-default btn-sm">View All Notices</a>
+                            <a href="{{ route('my-notices.index') }}" class="btn btn-default btn-sm">View All Notices</a>
                         </div>
                     @endif
                 </div>

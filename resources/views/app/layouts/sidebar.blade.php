@@ -176,7 +176,7 @@
                     <li><h6 style="color: rgb(95, 95, 95);padding-left:20px" class="mini-click-non">Common Features</h6></li>
                     @if($canSee('notifications'))
                     <li>
-                        <a title="Notifications" href="javascript:void(0)" aria-expanded="false">
+                        <a title="Notifications" href="{{ route('notifications.index') }}" aria-expanded="false">
                             <span class="icon-wrap sub-icon-mg"><i class="fa fa-bell" aria-hidden="true"></i></span>
                             <span class="mini-click-non">Notifications</span>
                         </a>
@@ -353,20 +353,12 @@
                         </a>
                     </li>
                     @endif
-                    @if($canSee('parent_notices'))
-                    <li>
-                        <a title="Notices" href="{{ route('parent.notices') }}" aria-expanded="false">
-                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-bullhorn" aria-hidden="true"></i></span>
-                            <span class="mini-click-non"> Notices</span>
-                        </a>
-                    </li>
-                    @endif
 
                     <!-- Common Features -->
                     <li><h6 style="color: rgb(95, 95, 95);padding-left:20px" class="mini-click-non">Common Features</h6></li>
                     @if($canSee('notifications'))
                     <li>
-                        <a title="Notifications" href="" aria-expanded="false">
+                        <a title="Notifications" href="{{ route('notifications.index') }}" aria-expanded="false">
                             <span class="icon-wrap sub-icon-mg"><i class="fa fa-bell" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> Notifications</span>
                         </a>
@@ -437,7 +429,7 @@
                     <li><h6 style="color: rgb(95, 95, 95);padding-left:20px" class="mini-click-non">Common Features</h6></li>
                     @if($canSee('notifications'))
                     <li>
-                        <a title="Notifications" href="" aria-expanded="false">
+                        <a title="Notifications" href="{{ route('notifications.index') }}" aria-expanded="false">
                             <span class="icon-wrap sub-icon-mg"><i class="fa fa-bell" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> Notifications</span>
                         </a>
@@ -525,14 +517,6 @@
                         <a title="My Timetable" href="{{ route('student.timetable') }}" aria-expanded="false">
                             <span class="icon-wrap sub-icon-mg"><i class="fa fa-calendar" aria-hidden="true"></i></span>
                             <span class="mini-click-non"> My Timetable</span>
-                        </a>
-                    </li>
-                    @endif
-                    @if($canSee('student_notices'))
-                    <li>
-                        <a title="Notices" href="{{ route('student.notices') }}" aria-expanded="false">
-                            <span class="icon-wrap sub-icon-mg"><i class="fa fa-bullhorn" aria-hidden="true"></i></span>
-                            <span class="mini-click-non"> Notices</span>
                         </a>
                     </li>
                     @endif

@@ -42,6 +42,7 @@ use App\Http\Controllers\Teacher\ReportController as TeacherReportController;
 use App\Http\Controllers\Student\TimetableController as StudentTimetableController;
 use App\Http\Controllers\Student\NoticeController as StudentNoticeController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\MyNoticeController;
 use App\Http\Controllers\Attendance\AttendanceController as SessionAttendanceController;
 use App\Http\Controllers\Admin\BranchController as AdminBranchController;
 use App\Http\Controllers\Admin\BranchSettingsController;
@@ -79,6 +80,8 @@ require __DIR__.'/auth.php';
 Route::middleware(['auth', 'verified', 'scope.branch'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/my-notices', [MyNoticeController::class, 'index'])->name('my-notices.index');
+    Route::get('/my-notices/{notice}', [MyNoticeController::class, 'show'])->name('my-notices.show');
 
     Route::get('/profile', [ProfileController::class, 'redirect'])->name('profile.edit');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

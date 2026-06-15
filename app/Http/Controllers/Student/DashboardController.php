@@ -8,7 +8,7 @@ use App\Models\BookIssue;
 use App\Models\ExamResult;
 use App\Models\ExamSchedule;
 use App\Models\Fee;
-use App\Models\Notice;
+use App\Services\Notice\NoticeAudienceService;
 use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 
@@ -17,7 +17,7 @@ class DashboardController extends Controller
     /**
      * The student's personalised dashboard with a snapshot of every module.
      */
-    public function index(): View
+    public function index(NoticeAudienceService $noticeAudience): View
     {
         $student = auth()->user()->load(['studentProfile.class', 'studentProfile.section']);
         $studentId = $student->id;
@@ -29,7 +29,7 @@ class DashboardController extends Controller
             'latestResult' => $this->latestResultSnapshot($studentId, $classId),
             'fees'         => $this->feeSnapshot($studentId),
             'books'        => $this->bookSnapshot($studentId),
-            'notices'      => $this->recentNotices(),
+            'notices'      => $noticeAudience->forUser($student, 5),
         ]);
     }
 
@@ -140,31 +140,6 @@ class DashboardController extends Controller
             ->count();
 
         return compact('active', 'overdue');
-    }
-
-    /**
-     * Recent notices visible to students.
-     */
-    private function recentNotices()
-    {
-        $today = Carbon::today()->format('Y-m-d');
-
-        return Notice::where('is_published', true)
-            ->where(function ($q) use ($today) {
-                $q->whereNull('start_date')->orWhereDate('start_date', '<=', $today);
-            })
-            ->where(function ($q) use ($today) {
-                $q->whereNull('end_date')->orWhereDate('end_date', '>=', $today);
-            })
-            ->orderByDesc('start_date')
-            ->orderByDesc('id')
-            ->take(5)
-            ->get()
-            ->filter(function (Notice $notice) {
-                $roles = $notice->target_roles;
-                return empty($roles) || in_array('student', $roles, true);
-            })
-            ->values();
     }
 
     private function calcGrade(float $marks, float $max = 100): string

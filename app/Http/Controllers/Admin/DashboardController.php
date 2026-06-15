@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Accountant\DashboardController as AccountantDashboardController;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Parent\DashboardController as ParentDashboardController;
+use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
+use App\Http\Controllers\Teacher\DashboardController as TeacherDashboardController;
 use App\Models\Classes;
 use App\Models\Fee;
 use App\Models\FeePayment;
@@ -24,19 +28,19 @@ class DashboardController extends Controller
     public function index(Request $request): View
     {
         if (auth()->user()->hasRole('student')) {
-            return app(\App\Http\Controllers\Student\DashboardController::class)->index();
+            return app()->call([app(StudentDashboardController::class), 'index']);
         }
 
         if (auth()->user()->hasRole('teacher')) {
-            return app(\App\Http\Controllers\Teacher\DashboardController::class)->index();
+            return app()->call([app(TeacherDashboardController::class), 'index']);
         }
 
         if (auth()->user()->hasRole('parent')) {
-            return app(\App\Http\Controllers\Parent\DashboardController::class)->index();
+            return app()->call([app(ParentDashboardController::class), 'index']);
         }
 
         if (auth()->user()->hasRole('accountant')) {
-            return app(\App\Http\Controllers\Accountant\DashboardController::class)->index();
+            return app()->call([app(AccountantDashboardController::class), 'index']);
         }
 
         $branchId       = auth()->user()->branch_id;

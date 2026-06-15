@@ -10,7 +10,7 @@
 
     @php
         $selRoles   = old('target_roles', $notice->target_roles ?? []);
-        $selClasses = old('target_classes', $notice->target_classes ?? []);
+        $selClasses = array_map('intval', old('target_classes', $notice->target_classes ?? []));
     @endphp
 
     <div class="container-fluid">
@@ -65,7 +65,7 @@
                                                 @foreach($classes as $class)
                                                     <label class="check-pill">
                                                         <input type="checkbox" name="target_classes[]" value="{{ $class->id }}"
-                                                            {{ in_array($class->id, $selClasses) ? 'checked' : '' }}>
+                                                            {{ in_array((int) $class->id, $selClasses, true) ? 'checked' : '' }}>
                                                         {{ $class->name }}
                                                     </label>
                                                 @endforeach

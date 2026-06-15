@@ -6,13 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\BookIssue;
 use App\Models\Fee;
-use App\Models\Notice;
+use App\Services\Notice\NoticeAudienceService;
 use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
-    public function index(): View
+    public function index(NoticeAudienceService $noticeAudience): View
     {
         $parent = auth()->user();
         $children = $parent->children()
@@ -30,7 +30,7 @@ class DashboardController extends Controller
                 'fees'           => $this->feeSnapshot($childIds),
                 'books'          => $this->bookSnapshot($childIds),
             ],
-            'notices' => $this->recentNotices(),
+            'notices' => $noticeAudience->forUser($parent, 5),
         ]);
     }
 
@@ -97,30 +97,5 @@ class DashboardController extends Controller
             ->count();
 
         return compact('active', 'overdue');
-    }
-
-    private function recentNotices()
-    {
-        $today = Carbon::today()->format('Y-m-d');
-        $branchId = auth()->user()->branch_id;
-
-        return Notice::where('is_published', true)
-            ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
-            ->where(function ($q) use ($today) {
-                $q->whereNull('start_date')->orWhereDate('start_date', '<=', $today);
-            })
-            ->where(function ($q) use ($today) {
-                $q->whereNull('end_date')->orWhereDate('end_date', '>=', $today);
-            })
-            ->orderByDesc('start_date')
-            ->orderByDesc('id')
-            ->take(5)
-            ->get()
-            ->filter(function (Notice $notice) {
-                $roles = $notice->target_roles;
-
-                return empty($roles) || in_array('parent', $roles, true);
-            })
-            ->values();
     }
 }

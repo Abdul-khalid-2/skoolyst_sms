@@ -218,73 +218,44 @@
                                         <li class="nav-item"><a  href="javascript:void(0)" data-toggle="dropdown" role="button"
                                                 aria-expanded="false" class="nav-link dropdown-toggle"><i
                                                     class="educate-icon educate-bell"
-                                                    aria-hidden="true"></i><span
-                                                    class="indicator-nt"></span></a>
+                                                    aria-hidden="true"></i>@if(($navUnreadCount ?? 0) > 0)<span
+                                                    class="indicator-nt"></span>@endif</a>
                                             <div role="menu"
                                                 class="notification-author dropdown-menu animated zoomIn">
                                                 <div class="notification-single-top">
                                                     <h1>Notifications</h1>
                                                 </div>
                                                 <ul class="notification-menu">
-                                                    <li>
-                                                        <a  href="javascript:void(0)">
-                                                            <div class="notification-icon">
-                                                                <i class="educate-icon educate-checked edu-checked-pro admin-check-pro"
-                                                                    aria-hidden="true"></i>
+                                                    @forelse($navNotifications ?? [] as $notification)
+                                                        <li class="{{ $notification->read_at ? '' : 'unread-notification' }}">
+                                                            <a href="{{ $notification->link ?: route('notifications.index') }}">
+                                                                <div class="notification-icon">
+                                                                    @if($notification->read_at)
+                                                                        <i class="fa fa-bullhorn" aria-hidden="true"></i>
+                                                                    @else
+                                                                        <i class="educate-icon educate-checked edu-checked-pro admin-check-pro"
+                                                                            aria-hidden="true"></i>
+                                                                    @endif
+                                                                </div>
+                                                                <div class="notification-content">
+                                                                    <span class="notification-date">{{ $notification->created_at->format('d M') }}</span>
+                                                                    <h2>{{ $notification->title }}</h2>
+                                                                    <p>{{ $notification->message }}</p>
+                                                                </div>
+                                                            </a>
+                                                        </li>
+                                                    @empty
+                                                        <li>
+                                                            <div style="padding:18px 20px; text-align:center; color:#888;">
+                                                                No notifications yet.
                                                             </div>
-                                                            <div class="notification-content">
-                                                                <span class="notification-date">16 Sept</span>
-                                                                <h2>Advanda Cro</h2>
-                                                                <p>Please done this project as soon possible.
-                                                                </p>
-                                                            </div>
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a  href="javascript:void(0)">
-                                                            <div class="notification-icon">
-                                                                <i class="fa fa-cloud edu-cloud-computing-down"
-                                                                    aria-hidden="true"></i>
-                                                            </div>
-                                                            <div class="notification-content">
-                                                                <span class="notification-date">16 Sept</span>
-                                                                <h2>Sulaiman din</h2>
-                                                                <p>Please done this project as soon possible.
-                                                                </p>
-                                                            </div>
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a  href="javascript:void(0)">
-                                                            <div class="notification-icon">
-                                                                <i class="fa fa-eraser edu-shield"
-                                                                    aria-hidden="true"></i>
-                                                            </div>
-                                                            <div class="notification-content">
-                                                                <span class="notification-date">16 Sept</span>
-                                                                <h2>Victor Jara</h2>
-                                                                <p>Please done this project as soon possible.
-                                                                </p>
-                                                            </div>
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a  href="javascript:void(0)">
-                                                            <div class="notification-icon">
-                                                                <i class="fa fa-line-chart edu-analytics-arrow"
-                                                                    aria-hidden="true"></i>
-                                                            </div>
-                                                            <div class="notification-content">
-                                                                <span class="notification-date">16 Sept</span>
-                                                                <h2>Victor Jara</h2>
-                                                                <p>Please done this project as soon possible.
-                                                                </p>
-                                                            </div>
-                                                        </a>
-                                                    </li>
+                                                        </li>
+                                                    @endforelse
                                                 </ul>
                                                 <div class="notification-view">
-                                                    <a  href="javascript:void(0)">View All Notification</a>
+                                                    <a href="{{ route('notifications.index') }}">View All Notifications</a>
+                                                    &nbsp;|&nbsp;
+                                                    <a href="{{ route('my-notices.index') }}">All Notices</a>
                                                 </div>
                                             </div>
                                         </li>

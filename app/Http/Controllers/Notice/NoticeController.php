@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Branch;
 use App\Models\Classes;
 use App\Models\Notice;
+use App\Services\Notice\NoticeNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -32,9 +33,12 @@ class NoticeController extends Controller
             'end_date'         => 'nullable|date|after_or_equal:start_date',
         ]);
 
-        // Empty selections mean "everyone / all classes" — store as null
-        $data['target_roles']   = ! empty($data['target_roles'])   ? $data['target_roles']   : null;
-        $data['target_classes'] = ! empty($data['target_classes']) ? $data['target_classes'] : null;
+        // Always persist audience fields (unchecked boxes are omitted from the request).
+        $roles = array_values(array_filter((array) $request->input('target_roles', [])));
+        $classes = array_values(array_map('intval', array_filter((array) $request->input('target_classes', []))));
+
+        $data['target_roles']   = $roles !== [] ? $roles : null;
+        $data['target_classes'] = $classes !== [] ? $classes : null;
         $data['is_published']   = $request->boolean('is_published');
 
         return $data;
@@ -56,12 +60,16 @@ class NoticeController extends Controller
         return view('app.notices.create', compact('classes', 'roles'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request, NoticeNotificationService $notifier)
     {
         $data = $this->validated($request);
         $data['branch_id'] = $this->branchId();
 
-        Notice::create($data);
+        $notice = Notice::create($data);
+
+        if ($notice->is_published) {
+            $notifier->notifyPublishedNotice($notice);
+        }
 
         return redirect()->route('notices.index')
             ->with('message', 'Notice published successfully.')->with('alert-type', 'success');
@@ -79,9 +87,16 @@ class NoticeController extends Controller
         return view('app.notices.edit', compact('notice', 'classes', 'roles'));
     }
 
-    public function update(Request $request, Notice $notice)
+    public function update(Request $request, Notice $notice, NoticeNotificationService $notifier)
     {
+        $wasPublished = (bool) $notice->is_published;
+
         $notice->update($this->validated($request));
+        $notice->refresh();
+
+        if ($notice->is_published && ! $wasPublished) {
+            $notifier->notifyPublishedNotice($notice);
+        }
 
         return redirect()->route('notices.index')
             ->with('message', 'Notice updated successfully.')->with('alert-type', 'success');
