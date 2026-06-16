@@ -140,6 +140,11 @@ class Setting extends Model
         return $this->school_address;
     }
 
+    public function getAffiliationAttribute(): ?string
+    {
+        return $this->affiliation_no;
+    }
+
     public function getAffiliationNumberAttribute(): ?string
     {
         return $this->affiliation_no;

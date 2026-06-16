@@ -204,6 +204,7 @@ Route::middleware(['auth', 'verified', 'scope.branch', 'role:super-admin|admin']
 
     Route::prefix('timetable')->name('admin.timetable.')->group(function () {
         Route::get('/', [TimetableController::class, 'index'])->name('index');
+        Route::get('/periods', [TimetableController::class, 'getPeriods'])->name('periods');
         Route::get('/create', [TimetableController::class, 'create'])->name('create');
         Route::post('/', [TimetableController::class, 'store'])->name('store');
         Route::get('/{id}/edit', [TimetableController::class, 'edit'])->name('edit');

@@ -142,7 +142,7 @@ class TimetableController extends Controller
         $validated = $request->validate([
             'class_id' => 'required',
             'section_id' => 'required',
-            'periods' => 'required',
+            'periods' => 'nullable|array',
             'periods.*.day' => 'required',
             'periods.*.period_name' => 'required',
             'periods.*.start_time' => 'required',
@@ -157,19 +157,24 @@ class TimetableController extends Controller
         try {
             DB::beginTransaction();
 
-            // Delete existing timetable first
-            TimeTable::where('class_id', $validated['class_id'])
-                ->where('section_id', $validated['section_id'])
-                ->delete();
-
-            // Track existing time slots to prevent overlaps
+            // Track existing time slots to prevent overlaps within this submission
             $timeSlots = [];
             $branchId = $this->resolveBranchId(
                 (int) $validated['class_id'],
                 (int) $validated['section_id'],
             );
 
-            foreach ($validated['periods'] as $index => $period) {
+            $periods = $validated['periods'] ?? [];
+            if ($periods === []) {
+                DB::commit();
+
+                return redirect()->route('admin.timetable.create')
+                    ->with('schedule_info', 'No new periods were added. Use the list above to edit or delete existing periods.');
+            }
+
+            $created = 0;
+
+            foreach ($periods as $index => $period) {
                 // Validate period name exists
                 if (!isset($period['period_name'])) {
                     throw new \Exception("Period name is missing for period {$index}");
@@ -183,6 +188,15 @@ class TimetableController extends Controller
                 }
 
                 $timeSlots[$timeSlotKey] = true;
+
+                $slotPayload = [
+                    'class_id' => $validated['class_id'],
+                    'section_id' => $validated['section_id'],
+                    'day_of_week' => $period['day'],
+                    'start_time' => $period['start_time'],
+                ];
+
+                $this->assertScheduleSlotAvailable($slotPayload);
 
                 // Prepare data
                 $isBreak = isset($period['is_break']) ? 1 : 0;
@@ -211,14 +225,27 @@ class TimetableController extends Controller
                 }
 
                 TimeTable::create($timeTableData);
+                $created++;
             }
 
             DB::commit();
-            return redirect()->route('admin.timetable.index')->with('success', 'Timetable created successfully!');
+
+            return redirect()->route('admin.timetable.create')
+                ->withInput([
+                    'class_id' => $validated['class_id'],
+                    'section_id' => $validated['section_id'],
+                ])
+                ->with('schedule_success', "{$created} new period(s) added successfully. Existing periods were kept.");
+        } catch (ValidationException $e) {
+            DB::rollBack();
+
+            return back()->withInput()
+                ->with('schedule_error', collect($e->errors())->flatten()->first());
         } catch (\Exception $e) {
             DB::rollBack();
+
             return back()->withInput()
-                ->with('error', 'Error creating timetable: ' . $e->getMessage());
+                ->with('schedule_error', $e->getMessage());
         }
     }
 
@@ -233,7 +260,64 @@ class TimetableController extends Controller
         return $this->update_schedule($request);
     }
 
-    public function destroy($id) {}
+    public function destroy($id)
+    {
+        $entry = TimeTable::when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
+            ->findOrFail($id);
+
+        $entry->delete();
+
+        if (request()->expectsJson() || request()->ajax()) {
+            return response()->json(['message' => 'Period deleted successfully']);
+        }
+
+        return redirect()->back()->with('success', 'Period deleted successfully.');
+    }
+
+    public function getPeriods(Request $request)
+    {
+        $validated = $request->validate([
+            'class_id' => 'required|integer|exists:classes,id',
+            'section_id' => 'required|integer|exists:sections,id',
+        ]);
+
+        $dayOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+        $entries = TimeTable::with(['subject:id,name,code', 'teacher:id,name'])
+            ->where('class_id', $validated['class_id'])
+            ->where('section_id', $validated['section_id'])
+            ->when($this->branchId, fn ($q) => $q->where('branch_id', $this->branchId))
+            ->get()
+            ->sortBy(function (TimeTable $entry) use ($dayOrder) {
+                $dayIndex = array_search($entry->day_of_week, $dayOrder, true);
+                $minutes = ((int) substr($entry->start_time, 0, 2) * 60) + (int) substr($entry->start_time, 3, 2);
+
+                return ($dayIndex === false ? 99 : $dayIndex) * 10000 + $minutes;
+            })
+            ->values();
+
+        $periods = $entries->map(function (TimeTable $entry) {
+            return [
+                'id' => $entry->id,
+                'day' => $entry->day_of_week,
+                'period_name' => $entry->period_name,
+                'start_time' => \Carbon\Carbon::parse($entry->start_time)->format('H:i'),
+                'end_time' => \Carbon\Carbon::parse($entry->end_time)->format('H:i'),
+                'is_break' => (bool) $entry->is_break,
+                'break_name' => $entry->break_name,
+                'subject_id' => $entry->subject_id,
+                'subject_name' => $entry->subject?->name,
+                'teacher_id' => $entry->teacher_id,
+                'teacher_name' => $entry->teacher?->name,
+                'room_number' => $entry->room_number,
+            ];
+        });
+
+        return response()->json([
+            'count' => $periods->count(),
+            'periods' => $periods,
+        ]);
+    }
 
     private function findConflictingScheduleSlot(array $payload, ?int $ignoreEntryId = null): ?TimeTable
     {
